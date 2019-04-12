@@ -232,7 +232,7 @@ namespace SubnauticaAutosave
 
 			this.nextSaveTriggerTick = Entry.GetConfig.SecondsBetweenAutosaves;
 
-			for (int i = 0; i < Entry.GetConfig.MaxSaveFiles - 1; i++)
+			for (int i = 0; i < Entry.GetConfig.MaxSaveFiles; i++)
 			{
 				this.allowedAutosaveNames.Add(this.SlotNameFormatted(i));
 			}

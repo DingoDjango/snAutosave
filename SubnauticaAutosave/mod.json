@@ -2,7 +2,7 @@
   "Id": "SubnauticaAutosave",
   "DisplayName": "Subnautica Autosave",
   "Author": "Dingo",
-  "Version": "1.0.1",
+  "Version": "1.0.2",
   "Enable": true,
   "Game": "Subnautica",
   "AssemblyName": "SubnauticaAutosave.dll",
