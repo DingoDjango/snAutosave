@@ -41,7 +41,9 @@ Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica
 
 2019-04-12 - v1.1.0  
 * Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves.  
+
 2019-04-12 - v1.0.2  
 * Small bug fix  
+
 2019-04-12 - v1.0.1  
 * Initial release
