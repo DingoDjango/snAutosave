@@ -1,7 +1,7 @@
 ## **Subnautica Autosave by Dingo**
 
 #### **Description:**  
-An automated save system which saves in time intervals. The autosave slots are completely separate from the normal save slot.  
+An automated save system which saves in time intervals. The autosave slots are separate from the normal save by default, but can be configured otherwise.  
 You can define several custom parameters in the settings file (see the Configuration section).
 
 #### **Installation:**  
@@ -16,6 +16,7 @@ You can define several custom parameters in the settings file (see the Configura
    *  "SecondsBetweenAutosaves": 900 -- The time (in seconds) between autosave attempts. Must be at least 120.  
    *  "MaxSaveFiles": 3  -- The maximum amount of autosave slots. Must be at least 1.  
    *  "MinimumPlayerHealthPercent": 25 -- If player health is below this percent, no save will occur. Change to 0 to disable this option.  
+   *  "HardcoreMode": false -- If true, autosaves will override the normal save slot instead of using separate slots.  
 
 #### **(Optional) Translation:**  
 If you want to contribute a translation for this mod, please follow these steps:  
