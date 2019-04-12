@@ -12,11 +12,10 @@ You can define several custom parameters in the settings file (see the Configura
 #### **(Optional) Configuration:**  
 1) Navigate to the mod's directory (*Subnautica\QMods\SubnauticaAutosave*).  
 2) Edit settings.json with Notepad or your favourite text editor.  
-3) Define custom values according to your preference. The settings available are -
-
-*  "SecondsBetweenAutosaves": 900 -- The time (in seconds) between autosave attempts. Must be at least 120.  
-*  "MaxSaveFiles": 3  -- The maximum amount of autosave slots. Must be at least 1.  
-*  "MinimumPlayerHealthPercent": 25 -- If player health is below this percent, no save will occur. Change to 0 to disable this option.  
+3) Define custom values according to your preference. The settings available are -  
+   *  "SecondsBetweenAutosaves": 900 -- The time (in seconds) between autosave attempts. Must be at least 120.  
+   *  "MaxSaveFiles": 3  -- The maximum amount of autosave slots. Must be at least 1.  
+   *  "MinimumPlayerHealthPercent": 25 -- If player health is below this percent, no save will occur. Change to 0 to disable this option.  
 
 #### **(Optional) Translation:**  
 If you want to contribute a translation for this mod, please follow these steps:  
