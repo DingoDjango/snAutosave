@@ -39,5 +39,9 @@ If you want to contribute a translation for this mod, please follow these steps:
 Powered by [Harmony](https://github.com/pardeike/Harmony)  
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
 
+2019-04-12 - v1.1.0  
+* Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves.  
+2019-04-12 - v1.0.2  
+* Small bug fix  
 2019-04-12 - v1.0.1  
-*  Initial release
+* Initial release
