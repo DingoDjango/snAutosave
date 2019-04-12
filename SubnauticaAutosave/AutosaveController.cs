@@ -128,6 +128,7 @@ namespace SubnauticaAutosave
 		private IEnumerator AutosaveCoroutine()
 		{
 			this.isSaving = true;
+			bool hardcoreMode = Entry.GetConfig.HardcoreMode;
 
 #if DEBUG
 			// Close ingame menu if open, used for testing
@@ -136,7 +137,7 @@ namespace SubnauticaAutosave
 
 			ErrorMessage.AddWarning("AutosaveStarting".Translate());
 			SaveLoadManager saveManager = SaveLoadManager.main;
-			string cachedSlot = (string)typeof(SaveLoadManager).GetField("currentSlot", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(saveManager);
+			string cachedSlot = !hardcoreMode ? (string)typeof(SaveLoadManager).GetField("currentSlot", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(saveManager) : string.Empty;
 
 #if DEBUG
 			Entry.LogMessage("Cached save slot");
@@ -144,8 +145,12 @@ namespace SubnauticaAutosave
 
 			yield return null;
 
-			string autosaveSlot = this.NextAutosaveSlotName();
-			saveManager.SetCurrentSlot(autosaveSlot);
+			string autosaveSlot = !hardcoreMode ? this.NextAutosaveSlotName() : string.Empty;
+
+			if (!hardcoreMode)
+			{
+				saveManager.SetCurrentSlot(autosaveSlot);
+			}
 
 #if DEBUG
 			Entry.LogMessage($"Set custom slot as {autosaveSlot}");
@@ -161,8 +166,12 @@ namespace SubnauticaAutosave
 			Entry.LogMessage("Executed _SaveGameAsync");
 #endif
 
-			saveManager.SetCurrentSlot(cachedSlot);
-			this.lastUsedAutosaveName = autosaveSlot;
+			if (!hardcoreMode)
+			{
+				saveManager.SetCurrentSlot(cachedSlot);
+				this.lastUsedAutosaveName = autosaveSlot;
+			}
+
 			int autosaveInterval = Entry.GetConfig.SecondsBetweenAutosaves;
 			this.nextSaveTriggerTick += autosaveInterval;
 
@@ -237,13 +246,14 @@ namespace SubnauticaAutosave
 				this.allowedAutosaveNames.Add(this.SlotNameFormatted(i));
 			}
 
-			this.lastUsedAutosaveName = this.LastUsedAutosaveFromStorage();
+			this.lastUsedAutosaveName = !Entry.GetConfig.HardcoreMode ? this.LastUsedAutosaveFromStorage() : string.Empty;
 
 #if DEBUG
 			Entry.LogMessage($"SecondsBetweenAutosaves == {Entry.GetConfig.SecondsBetweenAutosaves}");
 			Entry.LogMessage($"MaxSaveFiles == {Entry.GetConfig.MaxSaveFiles}");
 			Entry.LogMessage($"SafePlayerHealthFraction == {Entry.GetConfig.MinimumPlayerHealthPercent}");
 			Entry.LogMessage($"lastUsedAutosaveName == {this.lastUsedAutosaveName}");
+			Entry.LogMessage($"HardcoreMode == {Entry.GetConfig.HardcoreMode}");
 #endif
 		}
 

@@ -10,5 +10,7 @@ namespace SubnauticaAutosave
 		public int MaxSaveFiles = 3;
 
 		public float MinimumPlayerHealthPercent = 25;
+
+		public bool HardcoreMode = false;
 	}
 }

@@ -30,6 +30,13 @@ namespace SubnauticaAutosave
 
 				return false;
 			}
+
+			if (cfg.HardcoreMode.GetType() != typeof(bool))
+			{
+				Entry.LogMessage("Please use only true or false for HardcoreMode.");
+
+				return false;
+			}
 #endif
 
 			return true;
