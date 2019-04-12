@@ -43,14 +43,19 @@ namespace SubnauticaAutosave
 
 			if (Directory.Exists(savedGamesDir))
 			{
-				IOrderedEnumerable<DirectoryInfo> saveSlotsByLastModified = new DirectoryInfo(savedGamesDir).GetDirectories().OrderByDescending(d => d.GetFiles("gameinfo.json")[0].LastWriteTime);
+				DirectoryInfo[] saveDirectories = new DirectoryInfo(savedGamesDir).GetDirectories("*slot*", SearchOption.TopDirectoryOnly);
 
-				foreach (DirectoryInfo save in saveSlotsByLastModified)
+				if (saveDirectories.Count() > 0)
 				{
-					if (this.allowedAutosaveNames.Contains(save.Name))
+					IOrderedEnumerable<DirectoryInfo> saveSlotsByLastModified = saveDirectories.OrderByDescending(d => d.GetFiles("gameinfo.json")[0].LastWriteTime);
+
+					foreach (DirectoryInfo save in saveSlotsByLastModified)
 					{
-						// The most recent save slot used, which matches the maximum save slots setting
-						return save.Name;
+						if (this.allowedAutosaveNames.Contains(save.Name))
+						{
+							// The most recent save slot used, which matches the maximum save slots setting
+							return save.Name;
+						}
 					}
 				}
 			}
@@ -227,7 +232,7 @@ namespace SubnauticaAutosave
 
 			this.nextSaveTriggerTick = Entry.GetConfig.SecondsBetweenAutosaves;
 
-			for (int i = 0; i < Entry.GetConfig.MaxSaveFiles; i++)
+			for (int i = 0; i < Entry.GetConfig.MaxSaveFiles - 1; i++)
 			{
 				this.allowedAutosaveNames.Add(this.SlotNameFormatted(i));
 			}
