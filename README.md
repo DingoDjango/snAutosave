@@ -38,6 +38,7 @@ If you want to contribute a translation for this mod, please follow these steps:
 #### **Credits:**  
 Powered by [Harmony](https://github.com/pardeike/Harmony)  
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
+User feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
 
 2019-04-16 - v1.2.0  
 * Improved save slot rotation method  
