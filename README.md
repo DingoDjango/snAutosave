@@ -40,8 +40,9 @@ Powered by [Harmony](https://github.com/pardeike/Harmony)
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
 
 2019-04-16 - v1.2.0  
-* Changed save routine when HardcoreMode is off  
-* Improved compatibility with other mods  
+* Improved save slot rotation method  
+* Added screenshots copying routine  
+* Fixed compatibility with the Map mod and possibly other mods  
 
 2019-04-12 - v1.1.0  
 * Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves  
