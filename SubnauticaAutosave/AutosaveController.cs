@@ -9,9 +9,12 @@ using UWE;
 
 namespace SubnauticaAutosave
 {
-	/* Some of the following code is based on "Safe Autosave" by berkay2578
+	/* Some of the following code is based on "Safe Autosave" by berkay2578:
 	 * https://www.nexusmods.com/subnautica/mods/94
-	 * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave */
+	 * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave
+	 *
+	 * Directory replication code from:
+	 * https://stackoverflow.com/questions/58744/copy-the-entire-contents-of-a-directory-in-c-sharp */
 
 	public class AutosaveController : MonoBehaviour
 	{
@@ -124,6 +127,27 @@ namespace SubnauticaAutosave
 			return !SaveLoadManager.main.isSaving;
 		}
 
+		private void CopyScreenshotFiles(string originalSlot, string targetSlot)
+		{
+			string originalScreenshotsDir = Path.Combine(Path.Combine(SNUtils.savedGamesDir, originalSlot), ScreenshotManager.screenshotsFolderName);
+
+			if (Directory.Exists(originalScreenshotsDir))
+			{
+				string newScreenshotsDir = originalScreenshotsDir.Replace(originalSlot, targetSlot);
+
+				// .CreateDirectory harmlessly terminates if the target already exists
+				Directory.CreateDirectory(newScreenshotsDir);
+
+				string[] filesToCopy = Directory.GetFiles(originalScreenshotsDir, "*", SearchOption.TopDirectoryOnly);
+
+				// Copy all the files & replace any files with the same name
+				foreach (string screenshot in filesToCopy)
+				{
+					File.Copy(screenshot, screenshot.Replace(originalSlot, targetSlot), true);
+				}
+			}
+		}
+
 		// Modified IngameMenu.SaveGameAsync
 		private IEnumerator AutosaveCoroutine()
 		{
@@ -136,11 +160,10 @@ namespace SubnauticaAutosave
 #endif
 
 			ErrorMessage.AddWarning("AutosaveStarting".Translate());
-			SaveLoadManager saveManager = SaveLoadManager.main;
-			string cachedSlot = !hardcoreMode ? (string)typeof(SaveLoadManager).GetField("currentSlot", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(saveManager) : string.Empty;
+			string cachedSaveSlot = !hardcoreMode ? Utils.GetSavegameDir() : string.Empty;
 
 #if DEBUG
-			Entry.LogMessage("Cached save slot");
+			Entry.LogMessage($"Cached save slot == {cachedSaveSlot}");
 #endif
 
 			yield return null;
@@ -149,7 +172,7 @@ namespace SubnauticaAutosave
 
 			if (!hardcoreMode)
 			{
-				saveManager.SetCurrentSlot(autosaveSlot);
+				Utils.SetSavegameDir(autosaveSlot);
 			}
 
 #if DEBUG
@@ -168,7 +191,13 @@ namespace SubnauticaAutosave
 
 			if (!hardcoreMode)
 			{
-				saveManager.SetCurrentSlot(cachedSlot);
+				this.CopyScreenshotFiles(cachedSaveSlot, autosaveSlot);
+
+#if DEBUG
+				Entry.LogMessage($"Copied screenshots from {cachedSaveSlot} to {autosaveSlot}");
+#endif
+
+				Utils.SetSavegameDir(cachedSaveSlot);
 				this.lastUsedAutosaveName = autosaveSlot;
 			}
 

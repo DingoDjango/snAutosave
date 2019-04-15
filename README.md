@@ -7,7 +7,7 @@ You can define several custom parameters in the settings file (see the Configura
 #### **Installation:**  
 1) Install [QMods](https://www.nexusmods.com/subnautica/mods/201)﻿ if you haven't already  
 2) Download the zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)  
-3) Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
+3) Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)  
 
 #### **(Optional) Configuration:**  
 1) Navigate to the mod's directory (*Subnautica\QMods\SubnauticaAutosave*).  
@@ -23,10 +23,9 @@ If you want to contribute a translation for this mod, please follow these steps:
 1) Look at the file *"English.json"* in *QMods\SubnauticaAutosave\Languages*  
 2) Copy that file and change the file name to your language. It needs to match the file name in *Subnautica\SNUnmanagedData\LanguageFiles*  
 3) Translate the file. Do not touch the keys ("AutosaveStarting"), only the translated values ("Autosave sequence...")  
-4) Share the file with me, preferrably over GitHub, a Nexus private message or (if you must) a comment
+4) Share the file with me, preferrably over GitHub, a Nexus private message or (if you must) a comment  
 
 #### **FAQ:**  
-
 * **Q. Is this mod safe to add or remove from an existing save file?**
 * A. Perfectly safe.
 * **Q. Does this mod have any known conflicts?**
@@ -40,8 +39,12 @@ If you want to contribute a translation for this mod, please follow these steps:
 Powered by [Harmony](https://github.com/pardeike/Harmony)  
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
 
+2019-04-16 - v1.2.0  
+* Changed save routine when HardcoreMode is off  
+* Improved compatibility with other mods  
+
 2019-04-12 - v1.1.0  
-* Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves.  
+* Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves  
 
 2019-04-12 - v1.0.2  
 * Small bug fix  

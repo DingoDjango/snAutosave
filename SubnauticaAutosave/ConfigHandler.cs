@@ -61,6 +61,11 @@ namespace SubnauticaAutosave
 
 					Entry.GetConfig = new Config();
 				}
+
+#if DEBUG
+				Entry.GetConfig.SecondsBetweenAutosaves = 60;
+				Entry.GetConfig.MaxSaveFiles = 4;
+#endif
 			}
 
 			catch (Exception ex)
