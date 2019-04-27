@@ -1,0 +1,6 @@
+{
+  "AutosaveWarning": "Vorbereitung zum autosave in {0} sekunden.",
+  "AutosaveStarting": "Autosave Sequenz beginnt...",
+  "AutosaveEnding": "Autosave abgeschlossen. Nächster autosave in {0} sekunden.",
+  "AutosaveInProgress": "Autosave läuft bereits. Erneuter autosave gerade nicht möglich."
+}
