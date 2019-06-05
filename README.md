@@ -5,9 +5,9 @@ An automated save system which saves in time intervals. The autosave slots are s
 You can define several custom parameters in the settings file (see the Configuration section).
 
 #### **Installation:**  
-1) Install [QMods](https://www.nexusmods.com/subnautica/mods/201)﻿ if you haven't already  
+1) Install [QMods](https://www.nexusmods.com/subnautica/mods/201)﻿ if you haven't already  
 2) Download the zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)  
-3) Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)  
+3) Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)  
 
 #### **(Optional) Configuration:**  
 1) Navigate to the mod's directory (*Subnautica\QMods\SubnauticaAutosave*).  
@@ -36,9 +36,16 @@ If you want to contribute a translation for this mod, please follow these steps:
 [Source code can be found here.](https://github.com/DingoDjango/snAutosave)﻿  
 
 #### **Credits:**  
-Powered by [Harmony](https://github.com/pardeike/Harmony)  
-Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
-User feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
+Powered by [Harmony](https://github.com/pardeike/Harmony)  
+Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
+German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
+Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070)  
+
+2019-06-06  
+* Uploaded Russian translation by ZiiMiller  
+
+2019-04-27  
+* Uploaded German translation by DJDosKiller  
 
 2019-04-16 - v1.2.0  
 * Improved save slot rotation method  
