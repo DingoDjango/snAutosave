@@ -1,0 +1,6 @@
+{
+  "AutosaveWarning": "Förbereder för att autospara om {0} sekunder.",
+  "AutosaveStarting": "Autosparning påbörjas...",
+  "AutosaveEnding": "Autosparnig klar. Nästa autosparning sker om {0} sekunder.",
+  "AutosaveInProgress": "Autosparning är pågående. Kan inte autospara igen för tillfället."
+}
