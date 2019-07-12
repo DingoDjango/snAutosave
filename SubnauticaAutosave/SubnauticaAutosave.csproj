@@ -82,6 +82,9 @@
 	<None Include="Languages\Russian.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	<None Include="Languages\Swedish.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="mod.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
