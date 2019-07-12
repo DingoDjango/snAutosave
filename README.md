@@ -41,6 +41,9 @@ Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/
 German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
 Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070)  
 
+2019-07-12  
+* Uploaded Swedish translation by obgr  
+
 2019-06-06  
 * Uploaded Russian translation by ZiiMiller  
 
