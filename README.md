@@ -38,8 +38,17 @@ If you want to contribute a translation for this mod, please follow these steps:
 #### **Credits:**  
 Powered by [Harmony](https://github.com/pardeike/Harmony)  
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
+Unity 2019 update by [MrPurple6411](https://github.com/MrPurple6411)  
 German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
-Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070)  
+Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070) & [NelttjeN](https://www.nexusmods.com/users/53071371)  
+French translation - [Yanuut](https://github.com/Yanuut)  
+Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
+
+2020-03-01 - v1.3.5  
+* New version for QMods 3.0 & latest Subnautica patch by MrPurple6411  
+* French translation by Yanuut  
+* Polish translation by vsx06  
+* Updated Russian translation by NelttjeN  
 
 2019-07-12  
 * Uploaded Swedish translation by obgr  
