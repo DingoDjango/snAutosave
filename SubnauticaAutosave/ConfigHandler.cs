@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oculus.Newtonsoft.Json;
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -48,7 +49,7 @@ namespace SubnauticaAutosave
 			{
 				string settingsFilePath = Path.Combine(Entry.GetAssemblyDirectory, SettingsFileName);
 				string settingsAsJson = File.ReadAllText(settingsFilePath);
-				Config configFromJson = JsonUtility.FromJson<Config>(settingsAsJson);
+				Config configFromJson = JsonConvert.DeserializeObject<Config>(settingsAsJson);
 
 				if (ValidateValues(configFromJson))
 				{
