@@ -41,6 +41,7 @@ Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/
 Unity 2019 update by [MrPurple6411](https://github.com/MrPurple6411)  
 German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
 Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070) & [NelttjeN](https://www.nexusmods.com/users/53071371)  
+Swedish translation - [obgr](https://github.com/obgr)  
 French translation - [Yanuut](https://github.com/Yanuut)  
 Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
 
