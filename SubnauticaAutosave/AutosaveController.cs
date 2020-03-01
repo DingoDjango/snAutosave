@@ -20,6 +20,8 @@ namespace SubnauticaAutosave
 	{
 		private const int RetryTicks = 5;
 
+		string savePath = "";
+
 		private const int PriorWarningTicks = 30;
 
 		private const string AutosaveNameFormat = "autosave_slot{0:0000}";
@@ -40,9 +42,23 @@ namespace SubnauticaAutosave
 			return string.Format(AutosaveNameFormat, slotNumber);
 		}
 
+		private string GetSavePath()
+		{
+			PlatformServices platformServices = PlatformUtils.main.GetServices();
+			if (platformServices is PlatformServicesEpic)
+			{
+				savePath = Path.Combine(Application.persistentDataPath, "Subnautica/SavedGames");
+			}
+			else if (platformServices is PlatformServicesSteam)
+			{
+				savePath = Path.Combine(SNUtils.applicationRootDir, "SNAppData/SavedGames");
+			}
+			return savePath;
+		}
+
 		private string LastUsedAutosaveFromStorage()
 		{
-			string savedGamesDir = SNUtils.savedGamesDir;
+			string savedGamesDir = GetSavePath();
 
 			if (Directory.Exists(savedGamesDir))
 			{
@@ -129,7 +145,7 @@ namespace SubnauticaAutosave
 
 		private void CopyScreenshotFiles(string originalSlot, string targetSlot)
 		{
-			string originalScreenshotsDir = Path.Combine(Path.Combine(SNUtils.savedGamesDir, originalSlot), ScreenshotManager.screenshotsFolderName);
+			string originalScreenshotsDir = Path.Combine(Path.Combine(GetSavePath(), originalSlot), ScreenshotManager.screenshotsFolderName);
 
 			if (Directory.Exists(originalScreenshotsDir))
 			{
@@ -160,7 +176,7 @@ namespace SubnauticaAutosave
 #endif
 
 			ErrorMessage.AddWarning("AutosaveStarting".Translate());
-			string cachedSaveSlot = !hardcoreMode ? Utils.GetSavegameDir() : string.Empty;
+			string cachedSaveSlot = !hardcoreMode ? Path.Combine(GetSavePath(), SaveLoadManager.main.GetCurrentSlot()) : string.Empty;
 
 #if DEBUG
 			Entry.LogMessage($"Cached save slot == {cachedSaveSlot}");
@@ -172,7 +188,7 @@ namespace SubnauticaAutosave
 
 			if (!hardcoreMode)
 			{
-				Utils.SetSavegameDir(autosaveSlot);
+				SaveLoadManager.main.SetCurrentSlot(autosaveSlot);
 			}
 
 #if DEBUG
@@ -197,7 +213,7 @@ namespace SubnauticaAutosave
 				Entry.LogMessage($"Copied screenshots from {cachedSaveSlot} to {autosaveSlot}");
 #endif
 
-				Utils.SetSavegameDir(cachedSaveSlot);
+				SaveLoadManager.main.SetCurrentSlot(cachedSaveSlot);
 				this.lastUsedAutosaveName = autosaveSlot;
 			}
 
