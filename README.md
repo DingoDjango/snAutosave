@@ -44,6 +44,10 @@ Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070) & [N
 Swedish translation - [obgr](https://github.com/obgr)  
 French translation - [Yanuut](https://github.com/Yanuut)  
 Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
+Turkish translation - [Nodzukav](https://www.nexusmods.com/users/54008122)  
+
+2020-03-22  
+* Turkish translation by Nodzukav  
 
 2020-03-01 - v1.3.5  
 * New version for QMods 3.0 & latest Subnautica patch by MrPurple6411  
