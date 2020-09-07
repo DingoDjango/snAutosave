@@ -51,7 +51,7 @@ namespace SubnauticaAutosave
 			}
 			else if (platformServices is PlatformServicesSteam)
 			{
-				savePath = Path.Combine(SNUtils.applicationRootDir, "SNAppData/SavedGames");
+				savePath = Path.Combine(Application.dataPath, "SNAppData/SavedGames");
 			}
 			return savePath;
 		}
