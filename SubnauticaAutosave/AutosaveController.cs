@@ -51,7 +51,9 @@ namespace SubnauticaAutosave
 			}
 			else if (platformServices is PlatformServicesSteam)
 			{
-				savePath = Path.Combine(SNUtils.applicationRootDir, "SNAppData/SavedGames");
+				savePath = Path.Combine(
+					new DirectoryInfo(Application.dataPath).Parent.FullName,
+					"SNAppData/SavedGames");
 			}
 			return savePath;
 		}
@@ -176,7 +178,24 @@ namespace SubnauticaAutosave
 #endif
 
 			ErrorMessage.AddWarning("AutosaveStarting".Translate());
-			string cachedSaveSlot = !hardcoreMode ? Path.Combine(GetSavePath(), SaveLoadManager.main.GetCurrentSlot()) : string.Empty;
+			string cachedSaveSlot = string.Empty;
+
+			if(!hardcoreMode)
+			{
+				if(!Directory.Exists(GetSavePath()))
+				{
+					Entry.LogMessage(string.Format(
+						"Fatal! Unable to find save directory, the expected '{0}' does not exist.",
+						cachedSaveSlot));
+					ErrorMessage.AddError("FATAL SubnauticaAutosave could not find your SavedGames, see log for details!");
+
+					this.isSaving = false;
+					throw new FileNotFoundException(savePath);
+				}
+
+				cachedSaveSlot = Path.Combine(GetSavePath(), SaveLoadManager.main.GetCurrentSlot());
+			}
+
 
 #if DEBUG
 			Entry.LogMessage($"Cached save slot == {cachedSaveSlot}");
