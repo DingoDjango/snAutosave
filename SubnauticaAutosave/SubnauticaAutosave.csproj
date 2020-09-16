@@ -11,12 +11,15 @@
     <AssemblyName>SubnauticaAutosave</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SUBNAUTICA_PATH Condition=" '$(SUBNAUTICA_PATH)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Subnautica</SUBNAUTICA_PATH>
+    <DEBUG_OUTPUT_PATH Condition=" '$(DEBUG_OUTPUT_PATH)' == '' ">$(SUBNAUTICA_PATH)\QMods\$(AssemblyName)</DEBUG_OUTPUT_PATH>
+    <RELEASE_OUTPUT_PATH Condition=" '$(RELEASE_OUTPUT_PATH)' == '' ">..\QMods\$(AssemblyName)</RELEASE_OUTPUT_PATH>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\QMods\$(AssemblyName)\</OutputPath>
+    <OutputPath>$(DEBUG_OUTPUT_PATH)</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\QMods\$(AssemblyName)\</OutputPath>
+    <OutputPath>$(RELEASE_OUTPUT_PATH)</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -37,28 +40,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony-1.2.0.1">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\0Harmony-1.2.0.1.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\0Harmony-1.2.0.1.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="LitJson">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\LitJson.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\LitJson.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="QModInstaller">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\QModInstaller.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,11 +71,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -112,7 +115,14 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
 	</Target> -->
+
+  <!-- After a 'Release' build, also copy the result into our debug path (we want to test the build right?) -->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+       <ReleaseFiles Include="$(OutputPath)\**\*.*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)"
+          DestinationFiles="@(ReleaseFiles->'$(DEBUG_OUTPUT_PATH)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+	</Target>
 </Project>

@@ -25,6 +25,19 @@ If you want to contribute a translation for this mod, please follow these steps:
 3) Translate the file. Do not touch the keys ("AutosaveStarting"), only the translated values ("Autosave sequence...")  
 4) Share the file with me, preferrably over GitHub, a Nexus private message or (if you must) a comment  
 
+#### **(Optional) Building:**
+If you want to build from source you may use the following Environmental variables:
+* **SUBNAUTICA_PATH** - 
+The path to your Subnautica install directory where msbuild can find its dependencies, this will default to "```C:\Program Files (x86)\Steam\steamapps\common\Subnautica```".
+* **DEBUG_OUTPUT_PATH** - 
+The path to Subnautica QMods\SubnauticaAutosave directory, this will default to "```$(SUBNAUTICA_PATH)\QMods\SubnauticaAutosave```" so you can fire up Subnautica and debug the mod in-game.
+* **RELEASE_OUTPUT_PATH** - 
+The path to your intended release distribution directory, this will default to "```..\QMods\SubnauticaAutosave```" ending up in this repository. These files will be copied to the DEBUG_OUTPUT_PATH during a release build so you can verify the build before you publish anything.
+
+Example build command:
+
+```dotnet msbuild -p:Platform=AnyCPU -p:Configuration=Release -p:SUBNAUTICA_PATH="D:\Games\Steam\steamapps\common\Subnautica"```
+
 #### **FAQ:**  
 * **Q. Is this mod safe to add or remove from an existing save file?**
 * A. Perfectly safe.
