@@ -52,12 +52,16 @@ Example build command:
 Powered by [Harmony](https://github.com/pardeike/Harmony)  
 Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
 Unity 2019 update by [MrPurple6411](https://github.com/MrPurple6411)  
+September 2020 update by [Bisa](https://github.com/Bisa)  
 German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
 Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070) & [NelttjeN](https://www.nexusmods.com/users/53071371)  
 Swedish translation - [obgr](https://github.com/obgr)  
 French translation - [Yanuut](https://github.com/Yanuut)  
 Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
 Turkish translation - [Nodzukav](https://www.nexusmods.com/users/54008122)  
+
+2020-09-16 - v1.4.0  
+* Updated and compiled for latest Subnautica build by Bisa  
 
 2020-03-22  
 * Turkish translation by Nodzukav  
