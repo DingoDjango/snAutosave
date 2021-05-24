@@ -59,6 +59,7 @@ Swedish translation - [obgr](https://github.com/obgr)
 French translation - [Yanuut](https://github.com/Yanuut)  
 Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
 Turkish translation - [Nodzukav](https://www.nexusmods.com/users/54008122)  
+Spanish translation - [Anthuulos](https://www.nexusmods.com/users/116777063)  
 
 2020-09-16 - v1.4.0  
 * Updated and compiled for latest Subnautica build by Bisa  
