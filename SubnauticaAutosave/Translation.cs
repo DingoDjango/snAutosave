@@ -8,12 +8,12 @@ namespace SubnauticaAutosave
 {
 	internal static class Translation
 	{
-		private const string LanguagesFolder = "Languages";
+		// private const string LanguagesFolder = "Languages";
 
 		private static readonly Dictionary<string, string> languageStrings = new Dictionary<string, string>();
 
 		// Json streaming code taken from Language.LoadLanguageFile(string)
-		private static void LoadLanguageData()
+		/* private static void LoadLanguageData()
 		{
 			string currentLanguage = Language.main.GetCurrentLanguage();
 
@@ -57,7 +57,7 @@ namespace SubnauticaAutosave
 			{
 				languageStrings[key] = (string)jsonData[key];
 			}
-		}
+		}*/
 
 		private static bool TryTranslate(string candidate, out string translated)
 		{
@@ -68,7 +68,7 @@ namespace SubnauticaAutosave
 
 			else
 			{
-				ReloadLanguage();
+				//ReloadLanguage();
 
 				if (languageStrings.TryGetValue(candidate, out translated))
 				{
@@ -112,11 +112,11 @@ namespace SubnauticaAutosave
 			return basic;
 		}
 
-		internal static void ReloadLanguage()
-		{
-			languageStrings.Clear();
+		//internal static void ReloadLanguage()
+		//{
+		//	languageStrings.Clear();
 
-			LoadLanguageData();
-		}
+		//	LoadLanguageData();
+		//}
 	}
 }

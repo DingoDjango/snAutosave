@@ -1,4 +1,4 @@
-﻿using Oculus.Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.IO;
 using UnityEngine;
