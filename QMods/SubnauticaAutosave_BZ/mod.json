@@ -1,0 +1,9 @@
+{
+  "Id": "SubnauticaAutosave_BZ",
+  "DisplayName": "Subnautica Below Zero Autosave",
+  "Author": "Dingo - Updated By Delrathi for BZ",
+  "Version": "1.0.0",
+  "Enable": true,
+  "Game": "BelowZero",
+  "AssemblyName": "SubnauticaAutosave_BZ.dll"
+}

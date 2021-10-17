@@ -1,0 +1,6 @@
+{
+  "SecondsBetweenAutosaves": 900,
+  "MaxSaveFiles": 3,
+  "MinimumPlayerHealthPercent": 25,
+  "HardcoreMode": false
+}
