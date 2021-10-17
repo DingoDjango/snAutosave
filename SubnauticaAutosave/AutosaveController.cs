@@ -47,7 +47,7 @@ namespace SubnauticaAutosave
 			PlatformServices platformServices = PlatformUtils.main.GetServices();
 			if (platformServices is PlatformServicesEpic)
 			{
-				savePath = Path.Combine(Application.persistentDataPath, "Subnautica/SavedGames");
+				savePath = Path.Combine(Application.persistentDataPath, "SubnauticaBelowZero/SavedGames");
 			}
 			else if (platformServices is PlatformServicesSteam)
 			{
@@ -120,7 +120,8 @@ namespace SubnauticaAutosave
 				return false;
 			}
 
-			if (PlayerCinematicController.cinematicModeCount > 0 && Time.time - PlayerCinematicController.cinematicActivityStart <= 30f)
+			if (PlayerCinematicController.cinematicModeCount > 0 && Time.time - PlayerCinematicController.cinematicActivityExpireTime <= 30f)
+
 			{
 #if DEBUG
 				Entry.LogMessage("Did not save because cinematics are active");
@@ -207,7 +208,7 @@ namespace SubnauticaAutosave
 
 			if (!hardcoreMode)
 			{
-				SaveLoadManager.main.SetCurrentSlot(autosaveSlot);
+				SaveLoadManager.main.SetCurrentSlot(autosaveSlot, SaveLoadManager.StoryVersion.Reboot);
 			}
 
 #if DEBUG
@@ -232,7 +233,7 @@ namespace SubnauticaAutosave
 				Entry.LogMessage($"Copied screenshots from {cachedSaveSlot} to {autosaveSlot}");
 #endif
 
-				SaveLoadManager.main.SetCurrentSlot(cachedSaveSlot);
+				SaveLoadManager.main.SetCurrentSlot(cachedSaveSlot, SaveLoadManager.StoryVersion.Reboot);
 				this.lastUsedAutosaveName = autosaveSlot;
 			}
 

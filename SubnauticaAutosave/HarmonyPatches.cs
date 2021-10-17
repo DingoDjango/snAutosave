@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Harmony;
+using HarmonyLib;
 
 namespace SubnauticaAutosave
 {
@@ -28,17 +28,18 @@ namespace SubnauticaAutosave
 			Player.main.GetComponent<AutosaveController>()?.DelayAutosave();
 		}
 
-		private static void Patch_SetCurrentLanguage_Postfix()
-		{
-			Translation.ReloadLanguage();
-		}
+		//private static void Patch_SetCurrentLanguage_Postfix()
+		//{
+		//	Translation.ReloadLanguage();
+		//}
 
 		internal static void InitializeHarmony()
 		{
-			HarmonyInstance harmony = HarmonyInstance.Create("dingo.snAutosave");
+			var harmony = new Harmony("delrathi.snAutosave");
 
 #if DEBUG
-			HarmonyInstance.DEBUG = true;
+			Harmony.DEBUG = true;
+
 
 			// Detour menu saves for testing purposes
 			MethodInfo ingameMenuSaveGame = AccessTools.Method(typeof(IngameMenu), nameof(IngameMenu.SaveGame));
@@ -70,10 +71,10 @@ namespace SubnauticaAutosave
 				transpiler: null);
 
 			// Reset language cache upon language change
-			harmony.Patch(setLanguage,
-				prefix: null,
-				postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SetCurrentLanguage_Postfix)),
-				transpiler: null);
+			//harmony.Patch(setLanguage,
+			//	prefix: null,
+			//	postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SetCurrentLanguage_Postfix)),
+			//	transpiler: null);
 		}
 	}
 }

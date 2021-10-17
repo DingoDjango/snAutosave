@@ -8,12 +8,13 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SubnauticaAutosave</RootNamespace>
-    <AssemblyName>SubnauticaAutosave</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AssemblyName>SubnauticaAutosave_BZ</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SUBNAUTICA_PATH Condition=" '$(SUBNAUTICA_PATH)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Subnautica</SUBNAUTICA_PATH>
+    <SUBNAUTICA_PATH Condition=" '$(SUBNAUTICA_PATH)' == '' ">D:\SteamLibrary\steamapps\common\SubnauticaZero</SUBNAUTICA_PATH>
     <DEBUG_OUTPUT_PATH Condition=" '$(DEBUG_OUTPUT_PATH)' == '' ">$(SUBNAUTICA_PATH)\QMods\$(AssemblyName)</DEBUG_OUTPUT_PATH>
     <RELEASE_OUTPUT_PATH Condition=" '$(RELEASE_OUTPUT_PATH)' == '' ">..\QMods\$(AssemblyName)</RELEASE_OUTPUT_PATH>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,7 @@
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -37,27 +39,27 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony-1.2.0.1">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\0Harmony-1.2.0.1.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\BepInEx\core\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Accessibility" />
+    <Reference Include="Assembly-CSharp-firstpass_publicized">
+      <HintPath>D:\SteamLibrary\steamapps\common\SubnauticaZero\SubnauticaZero_Data\Managed\publicized_assemblies\Assembly-CSharp-firstpass_publicized.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Assembly-CSharp_publicized">
+      <HintPath>D:\SteamLibrary\steamapps\common\SubnauticaZero\SubnauticaZero_Data\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="LitJson">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\LitJson.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\SubnauticaZero_Data\Managed\LitJson.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\SubnauticaZero_Data\Managed\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="QModInstaller">
@@ -71,11 +73,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -116,13 +118,16 @@
 	Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
 	</Target> -->
-
   <!-- After a 'Release' build, also copy the result into our debug path (we want to test the build right?) -->
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <ItemGroup>
-       <ReleaseFiles Include="$(OutputPath)\**\*.*"/>
+      <ReleaseFiles Include="$(OutputPath)\**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(ReleaseFiles)"
-          DestinationFiles="@(ReleaseFiles->'$(DEBUG_OUTPUT_PATH)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-	</Target>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(DEBUG_OUTPUT_PATH)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "D:\SteamLibrary\steamapps\common\SubnauticaZero\QMods\$(TargetName)"
+copy /Y "$(TargetPath)" "D:\SteamLibrary\steamapps\common\SubnauticaZero\QMods\$(TargetName)"
+copy /Y "$(ProjectDir)\mod.json" "D:\SteamLibrary\steamapps\common\SubnauticaZero\QMods\$(TargetName)\mod.json"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
