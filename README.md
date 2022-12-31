@@ -1,96 +1,61 @@
-## **Subnautica Autosave by Dingo**
+# **Subnautica Autosave**
 
-#### **Description:**  
-An automated save system which saves in time intervals. The autosave slots are separate from the normal save by default, but can be configured otherwise.  
-You can define several custom parameters in the settings file (see the Configuration section).
+### **Description:**
 
-#### **Installation:**  
-1) Install [QMods](https://www.nexusmods.com/subnautica/mods/201)﻿ if you haven't already  
-2) Download the zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)  
-3) Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)  
+An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options for everything.
 
-#### **(Optional) Configuration:**  
-1) Navigate to the mod's directory (*Subnautica\QMods\SubnauticaAutosave*).  
-2) Edit settings.json with Notepad or your favourite text editor.  
-3) Define custom values according to your preference. The settings available are -  
-   *  "SecondsBetweenAutosaves": 900 -- The time (in seconds) between autosave attempts. Must be at least 120.  
-   *  "MaxSaveFiles": 3  -- The maximum amount of autosave slots. Must be at least 1.  
-   *  "MinimumPlayerHealthPercent": 25 -- If player health is below this percent, no save will occur. Change to 0 to disable this option.  
-   *  "HardcoreMode": false -- If true, autosaves will override the normal save slot instead of using separate slots.  
+### **Installation:**
 
-#### **(Optional) Translation:**  
-If you want to contribute a translation for this mod, please follow these steps:  
-1) Look at the file *"English.json"* in *QMods\SubnauticaAutosave\Languages*  
-2) Copy that file and change the file name to your language. It needs to match the file name in *Subnautica\SNUnmanagedData\LanguageFiles*  
-3) Translate the file. Do not touch the keys ("AutosaveStarting"), only the translated values ("Autosave sequence...")  
-4) Share the file with me, preferrably over GitHub, a Nexus private message or (if you must) a comment  
+1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)
+2. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
+3. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
 
-#### **(Optional) Building:**
-If you want to build from source you may use the following Environmental variables:
-* **SUBNAUTICA_PATH** - 
-The path to your Subnautica install directory where msbuild can find its dependencies, this will default to "```C:\Program Files (x86)\Steam\steamapps\common\Subnautica```".
-* **DEBUG_OUTPUT_PATH** - 
-The path to Subnautica QMods\SubnauticaAutosave directory, this will default to "```$(SUBNAUTICA_PATH)\QMods\SubnauticaAutosave```" so you can fire up Subnautica and debug the mod in-game.
-* **RELEASE_OUTPUT_PATH** - 
-The path to your intended release distribution directory, this will default to "```..\QMods\SubnauticaAutosave```" ending up in this repository. These files will be copied to the DEBUG_OUTPUT_PATH during a release build so you can verify the build before you publish anything.
+### **(Optional) Configuration:**
 
-Example build command:
+#### Recommended - Using Configuration Manager
 
-```dotnet msbuild -p:Platform=AnyCPU -p:Configuration=Release -p:SUBNAUTICA_PATH="D:\Games\Steam\steamapps\common\Subnautica"```
+1. Install the [Configuration Manager](https://www.nexusmods.com/subnautica/mods/1112) mod
+2. Launch Subnautica and open the Configuration Manager (default key: F5)
+3. Configure desired settings in this mod's section
 
-#### **FAQ:**  
-* **Q. Is this mod safe to add or remove from an existing save file?**
-* A. Perfectly safe.
-* **Q. Does this mod have any known conflicts?**
-* A. I don't think so, but I would not use this mod with [Safe Autosave](https://www.nexusmods.com/subnautica/mods/94) due to redundancy.
-* **Q. Does this mod impact performance?**
-* A. Autosaves are stored using the same code as regular saves. Gameplay will "freeze" for a few seconds when saving and then continue normally.
+#### Manual Configuration
 
-[Source code can be found here.](https://github.com/DingoDjango/snAutosave)﻿  
+1. Launch the game at least once after installing the mod
+2. Open *...\Subnautica\BepInEx\config\Dingo.SN.SubnauticaAutosave.cfg* with a text editor
+3. Replace the default values with your preferences
+	- "Autosaves Profile" -- Separate autosaves by profile, for different playthroughs (Value: 1-5)
+    - "Autosave Using Time Intervals" -- Autosave every X seconds as defined in the mod settings
+	- "Autosave On Sleep" -- Autosave when the player goes to sleep
+	- "Seconds Between Autosaves" -- Time to wait between autosave attempts (Value: at least 120)
+    - "Maximum Autosave Slots"  -- Total autosave slots (Value: at least 1)
+    - "Minimum Player Health Percent"  -- Autosaves will not occur if player health is below this percent (Value: 0-1.0, disabled if 0)
+    - "Hardcore Mode"  -- If true, autosaves will override the normal save slot instead of using separate slots
+	- "Quicksave Hotkey" -- Keybinding used to quickly save the game manually	
+    > For hotkeys, use KeyCode names found on [this page](https://docs.unity3d.com/ScriptReference/KeyCode.html)
 
-#### **Credits:**  
-Powered by [Harmony](https://github.com/pardeike/Harmony)  
-Made for the [QMods Subnautica Mod System](https://www.nexusmods.com/subnautica/mods/201)﻿  
-Unity 2019 update by [MrPurple6411](https://github.com/MrPurple6411)  
-September 2020 update by [Bisa](https://github.com/Bisa)  
-German translation + feedback - [DJDosKiller](https://www.nexusmods.com/users/3737367)  
-Russian translation - [ZiiMiller](https://www.nexusmods.com/users/30791070) & [NelttjeN](https://www.nexusmods.com/users/53071371)  
-Swedish translation - [obgr](https://github.com/obgr)  
-French translation - [Yanuut](https://github.com/Yanuut)  
-Polish translation - [vsx06](https://www.nexusmods.com/users/10667357)  
-Turkish translation - [Nodzukav](https://www.nexusmods.com/users/54008122)  
+### **(Optional) Translation:**
 
-2020-09-16 - v1.4.0  
-* Updated and compiled for latest Subnautica build by Bisa  
+1. Navigate to *...\Subnautica\BepInEx\plugins\SubnauticaAutosave\Languages*
+2. Copy *English.json* and change the file name to match your language
+    > Valid language names are found in *...\Subnautica\Subnautica_Data\StreamingAssets\SNUnmanagedData\LanguageFiles*
+3. Translate the file. Do not touch the keys ("AutosaveStarting"), only the values ("Autosave sequence...")
+4. Share the file with me on GitHub or in a Nexus private message
 
-2020-03-22  
-* Turkish translation by Nodzukav  
+### **FAQ:**
 
-2020-03-01 - v1.3.5  
-* New version for QMods 3.0 & latest Subnautica patch by MrPurple6411  
-* French translation by Yanuut  
-* Polish translation by vsx06  
-* Updated Russian translation by NelttjeN  
+- **Q. Does this mod support the latest Subnautica update?**
+- A. Tested on Subnautica version Dec-2022 71137 (Living Large update)
+- **Q. Is this mod safe to add or remove from an existing save?**
+- A. Should be safe, please report any issues
+- **Q. Does this mod have any known conflicts?**
+- A. I would not use this mod with [Safe Autosave](https://www.nexusmods.com/subnautica/mods/94)
+- **Q. Does this mod impact performance?**
+- A. Autosaves are created with vanilla code. Gameplay may "freeze" momentarily when saving
 
-2019-07-12  
-* Uploaded Swedish translation by obgr  
+[Source code can be found here.](https://github.com/DingoDjango/snAutosave)﻿
 
-2019-06-06  
-* Uploaded Russian translation by ZiiMiller  
+### **Credits:**
 
-2019-04-27  
-* Uploaded German translation by DJDosKiller  
-
-2019-04-16 - v1.2.0  
-* Improved save slot rotation method  
-* Added screenshots copying routine  
-* Fixed compatibility with the Map mod and possibly other mods  
-
-2019-04-12 - v1.1.0  
-* Added a HardcoreMode setting. If enabled, the main save file is used instead of separate saves  
-
-2019-04-12 - v1.0.2  
-* Small bug fix  
-
-2019-04-12 - v1.0.1  
-* Initial release
+- Powered by [Harmony](https://github.com/pardeike/Harmony)
+- Code & updates by [MrPurple6411](https://github.com/MrPurple6411), [Bisa](https://github.com/Bisa)
+- Translations by [DJDosKiller](https://www.nexusmods.com/users/3737367), [ZiiMiller](https://www.nexusmods.com/users/30791070), [NelttjeN](https://www.nexusmods.com/users/53071371), [obgr](https://github.com/obgr), [Yanuut](https://github.com/Yanuut), [vsx06](https://www.nexusmods.com/users/10667357), [Nodzukav](https://www.nexusmods.com/users/54008122), [Anthuulos](https://www.nexusmods.com/users/116777063), [Amph3](https://www.nexusmods.com/users/140890058), [realmister](https://www.nexusmods.com/users/11833263), [love309099225](https://github.com/love309099225), [2315506431](https://github.com/2315506431)

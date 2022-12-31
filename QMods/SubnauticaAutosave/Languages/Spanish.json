@@ -1,6 +1,0 @@
-{
-  "AutosaveWarning": "Preparando para guardar automáticamente en {0} segundos.",
-  "AutosaveStarting": "Iniciando secuencia de autoguardado...",
-  "AutosaveEnding": "Autoguardado terminado. Siguiente autoguardado en {0} segundos.",
-  "AutosaveInProgress": "Autoguardado en proceso. No se puede guardar automáticamente en este momento."
-}

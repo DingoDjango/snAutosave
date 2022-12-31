@@ -1,0 +1,6 @@
+{
+  "AutosaveWarning": "即将在 {0} 秒后自动保存。",
+  "AutosaveStarting": "正在自动保存游戏...",
+  "AutosaveEnding": "自动保存完成。 下一次 {0} 秒后自动保存。",
+  "AutosaveInProgress": "正在自动保存游戏。现在无法启动自动保存。"
+}
