@@ -1,35 +1,64 @@
 ﻿using System;
 using HarmonyLib;
-using HarmonyLib.Tools;
 
 namespace SubnauticaAutosave
 {
     public static class HarmonyPatches
     {
-        public static string SavedGamesPath = "";
-
-        private static void Patch_UserStoragePC_Postfix(string _savePath)
-        {
-            ModPlugin.savedGamesPath = _savePath;
-        }
-
         private static bool Patch_ManualSaveGame_Prefix()
         {
-            string currentSlot = SaveLoadManager.main.GetCurrentSlot();
+            AutosaveController controller = Player.main.GetComponent<AutosaveController>();
 
-            if (currentSlot.Contains("autosave"))
+            if (controller != null)
             {
-                string mainSaveSlot = currentSlot.Split('_')[0]; /* Input: slot0000_autosave0001 // Output: slot0000 */
+                if (ModPlugin.ConfigComprehensiveSaves.Value)
+                {
+                    controller.DoSaveLoadManagerLastSaveHack();
+                }
 
-                SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
+                controller.SetMainSlotIfAutosave();
             }
 
             return true;
         }
 
+        private static void Patch_UpdateLoadButtonState_Postfix(MainMenuLoadButton lb)
+        {
+            if (ModPlugin.ConfigShowSaveNames.Value && SaveLoadManager.main.GetGameInfo(lb.saveGame) != null)
+            {
+                string slotNamePrefix = string.Empty;
+
+                if (lb.saveGame.Contains("auto"))
+                {
+                    slotNamePrefix = "[Auto] ";
+                }
+
+                lb.saveGameLengthText.text += "\n\n" + slotNamePrefix + lb.saveGame;
+            }
+        }
+
         private static void Patch_Player_Awake_Postfix(Player __instance)
         {
             __instance.gameObject.AddComponent<AutosaveController>();
+        }
+
+        // Untested
+        private static void Patch_Bed_OnHandClick_Postfix()
+        {
+            if (ModPlugin.ConfigAutosaveOnSleep.Value)
+            {
+#if DEBUG
+                ModPlugin.LogMessage("Player clicked on bed. Executing save on sleep.");
+#endif
+
+                Player player = Player.main;
+
+                // [Bed.cs] private float kSleepInterval = 600f;
+                if (player.timeLastSleep + 600f > DayNightCycle.main.timePassedAsFloat)
+                {
+                    player.GetComponent<AutosaveController>()?.TryExecuteAutosave();
+                }
+            }
         }
 
         private static void Patch_Subroot_PlayerEnteredOrExited_Postfix()
@@ -50,31 +79,37 @@ namespace SubnauticaAutosave
         {
             Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
 
-            /* Patch IngameMenu.SetActive to not do anything if autosave bool is true??			/// TODO IF SOME MENU STUFF ARISES
-			 * (dirty hack and then I can just use the game's save mechanism while only changing slots?) */
-
-            // Set saved games folder path on UserStorage initialization (Steam, Epic, etc.)
-            harmony.Patch(original: AccessTools.Constructor(typeof(UserStoragePC), new Type[] { typeof(string) }),
-                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_UserStoragePC_Postfix)));
-
-            // Correct manual save slot if loaded from autosave
+            /* When saving manually, set to main slot if loaded from autosave */
+            // Patch: IngameMenu.SaveGame
             harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), nameof(IngameMenu.SaveGame)),
                           prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Prefix)));
 
-            // Autosave injection
+            /* Show save names in menu panel */
+            // Patch: MainMenuLoadPanel.UpdateLoadButtonState(MainMenuLoadButton lb)
+            harmony.Patch(original: AccessTools.Method(typeof(MainMenuLoadPanel), "UpdateLoadButtonState", new Type[] { typeof(MainMenuLoadButton) }),
+                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_UpdateLoadButtonState_Postfix)));
+
+            /* Autosave Controller initialization */
+            // Patch: Player.Awake
             harmony.Patch(original: AccessTools.Method(typeof(Player), nameof(Player.Awake)),
                           postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Player_Awake_Postfix)));
 
-            // Delay autosave if player has entered or exited a base or vehicle
-            HarmonyMethod delayAutosave = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
+            /* Save on player sleep */
+            // Patch: Bed.OnHandClick
+            harmony.Patch(original: AccessTools.Method(typeof(Bed), nameof(Bed.OnHandClick)),
+                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Bed_OnHandClick_Postfix)));
 
+            /* Delay autosave if player has entered or exited a base or vehicle */
+            HarmonyMethod delayAutosavePatch = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
+            // Patch: SubRoot.OnPlayerEntered
             harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerEntered)),
-                          postfix: delayAutosave);
-
+                          postfix: delayAutosavePatch);
+            // Patch: SubRoot.OnPlayerExited
             harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
-                          postfix: delayAutosave);
+                          postfix: delayAutosavePatch);
 
-            // Reset language cache upon language change
+            /* Reset language cache upon language change */
+            // Patch: Language.SetCurrentLanguage
             harmony.Patch(original: AccessTools.Method(typeof(Language), nameof(Language.SetCurrentLanguage)),
                           postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SetCurrentLanguage_Postfix)));
         }

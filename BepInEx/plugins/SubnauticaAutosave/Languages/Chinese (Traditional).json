@@ -1,6 +1,6 @@
 {
   "AutosaveWarning": "遊戲在 {0} 秒後自動保存。",
   "AutosaveStarting": "正在自動保存遊戲...",
-  "AutosaveEnding": "自動保存完成。 下一次 {0} 秒後自動保存。",
+  "AutosaveEnding": "自動保存完成。 下一次 {0} 分鐘後自動保存。",
   "AutosaveInProgress": "正在自動保存遊戲。現在無法啟動自動保存。"
 }

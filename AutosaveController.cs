@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,11 +18,29 @@ namespace SubnauticaAutosave
 
     public class AutosaveController : MonoBehaviour
     {
-        private const int RetryTicks = 5;
-        private const int PriorWarningTicks = 30;
-        private const string AutosaveSuffixFormat = "_autosave{0:0000}";
+        private UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
 
-        private int lastUsedAutosaveSlot = -1;
+        private string SavedGamesDirPath
+        {
+            get
+            {
+                DirectoryInfo saveDir = new DirectoryInfo((string)AccessTools.Field(typeof(UserStoragePC), "savePath").GetValue(GlobalUserStorage));
+                string savePath = saveDir.FullName;
+
+#if DEBUG
+                ModPlugin.LogMessage($"Save path is {savePath}");
+#endif
+
+                return savePath;
+            }
+        }
+
+        private const int SecondsToMinutesMultiplier = 60;
+        private const int RetryTicks = 10;
+        private const int PriorWarningTicks = 30;
+        private const string AutosaveSuffixFormat = "_auto{0:0000}";
+
+        private int latestAutosaveSlot = -1;
 
         private bool isSaving = false;
 
@@ -31,20 +48,25 @@ namespace SubnauticaAutosave
 
         private int nextSaveTriggerTick = 120;
 
-        public bool IsSaving => this.IsSaving;
-
         private string SlotSuffixFormatted(int slotNumber)
         {
-            // Example output: "_autosave0003"
+            // Example output: "_auto0003"
             return string.Format(AutosaveSuffixFormat, slotNumber);
+        }
+
+        private string GetMainSlotName(string currentSlot)
+        {
+            // Input:   slot0000_auto0001
+            // Output:  slot0000
+            return currentSlot.Split('_')[0];
         }
 
         private int GetAutosaveSlotNumberFromDir(string directoryName)
         {
-            int slotNumber = int.Parse(directoryName.Split(new string[] { "autosave" }, StringSplitOptions.None).Last());
+            int slotNumber = int.Parse(directoryName.Split(new string[] { "auto" }, StringSplitOptions.None).Last());
 
 #if DEBUG
-            ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir returned {slotNumber}");
+            ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir returned {slotNumber} for {directoryName}");
 #endif
 
             return slotNumber;
@@ -52,17 +74,26 @@ namespace SubnauticaAutosave
 
         private bool IsAllowedAutosaveSlotNumber(int slotNumber)
         {
-            return slotNumber < ModPlugin.ConfigMaxSaveFiles.Value;
+            return slotNumber <= ModPlugin.ConfigMaxSaveFiles.Value;
         }
 
         private int GetLatestAutosaveForSlot(string mainSaveSlot)
         {
-            string savedGamesDir = ModPlugin.savedGamesPath;
-            string searchPattern = "*" + mainSaveSlot + "_autosave" + "*";   /**********************/
+            if (mainSaveSlot.Contains("auto"))
+            {
+                mainSaveSlot = this.GetMainSlotName(mainSaveSlot);
+            }
+
+            string savedGamesDir = this.SavedGamesDirPath;
+            string searchPattern = "*" + mainSaveSlot + "_auto" + "*";
 
             if (Directory.Exists(savedGamesDir))
             {
                 DirectoryInfo[] saveDirectories = new DirectoryInfo(savedGamesDir).GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+
+#if DEBUG
+                ModPlugin.LogMessage($"GetLatestAutosaveForSlot found {saveDirectories.Count()} autosaves for {mainSaveSlot}");
+#endif
 
                 if (saveDirectories.Count() > 0)
                 {
@@ -84,21 +115,26 @@ namespace SubnauticaAutosave
 #if DEBUG
             else
             {
-                ModPlugin.LogMessage("Could not find saved games directory. Is UserStoragePC patched?");
+                ModPlugin.LogMessage($"savedGamesDir == {savedGamesDir}. Could not get save path.");
             }
 #endif
 
             return -1;
         }
 
-        private int NextAutosaveSlotNumber()
+        private int RotateAutosaveSlotNumber()
         {
-            if (this.lastUsedAutosaveSlot > 0 && this.lastUsedAutosaveSlot < ModPlugin.ConfigMaxSaveFiles.Value)
+            if (this.latestAutosaveSlot < 0 || this.latestAutosaveSlot >= ModPlugin.ConfigMaxSaveFiles.Value)
             {
-                return this.lastUsedAutosaveSlot + 1;
+                this.latestAutosaveSlot = 1;
             }
 
-            else return 1;
+            else
+            {
+                this.latestAutosaveSlot++;
+            }
+
+            return this.latestAutosaveSlot;
         }
 
         private bool IsSafePlayerHealth(float minHealthPercent)
@@ -115,7 +151,7 @@ namespace SubnauticaAutosave
 #if DEBUG
             if (getAllowSaving == null)
             {
-                ModPlugin.LogMessage("GetAllowSaving was not accessed correctly.");
+                ModPlugin.LogMessage("GetAllowSaving is null, returning false.");
 
                 return false;
             }
@@ -144,77 +180,68 @@ namespace SubnauticaAutosave
             return true;
         }
 
-        /***
-        private void CopyScreenshotFiles(string originalSlot, string targetSlot)
-        {
-            string originalScreenshotsDir = Path.Combine(Path.Combine(GetSavePath(), originalSlot), ScreenshotManager.screenshotsFolderName);
-
-            if (Directory.Exists(originalScreenshotsDir))
-            {
-                string newScreenshotsDir = originalScreenshotsDir.Replace(originalSlot, targetSlot);
-
-                // .CreateDirectory harmlessly terminates if the target already exists
-                Directory.CreateDirectory(newScreenshotsDir);
-
-                string[] filesToCopy = Directory.GetFiles(originalScreenshotsDir, "*", SearchOption.TopDirectoryOnly);
-
-                // Copy all the files & replace any files with the same name
-                foreach (string screenshot in filesToCopy)
-                {
-                    File.Copy(screenshot, screenshot.Replace(originalSlot, targetSlot), true);
-                }
-            }
-        }
-        ***/
-
         private IEnumerator AutosaveCoroutine()
         {
             this.isSaving = true;
 
-            bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value;
+            bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value; // Add autosave permadeath option as well? (bisa)
 
             ErrorMessage.AddWarning("AutosaveStarting".Translate());
 
             yield return null;
 
-            /****/
+            /* Trick the game into copying screenshots and other files from temporary save storage.
+             * This will make the game copy every file, which can be slower on old hardware.
+             * Can be considered a beta feature. Keep track of non-forseen consequences... */
+            if (ModPlugin.ConfigComprehensiveSaves.Value)
+            {
+                this.DoSaveLoadManagerLastSaveHack();
+            }
+
+            yield return null;
+
+            this.SetMainSlotIfAutosave(); // Make sure the main slot is set correctly. It should always be a clean slot name without _auto
+
             string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
 
+            if (!hardcoreMode)
+            {
+                string autosaveSlotName = mainSaveSlot + SlotSuffixFormatted(RotateAutosaveSlotNumber());
 
-            SaveLoadManager.main.SetCurrentSlot("autosave_test");
-            /***/
+                SaveLoadManager.main.SetCurrentSlot(autosaveSlotName);
+            }
+
+            yield return null;
 
             IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
 
             yield return CoroutineHost.StartCoroutine(saveGameAsync);
 
 #if DEBUG
-            ModPlugin.LogMessage("saveGameAsync reached.");
+            ModPlugin.LogMessage("Post-saveGameAsync reached.");
 #endif
 
-            /***/
-            SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
-            /****/
+            yield return null;
 
             if (!hardcoreMode)
             {
-                int nextAutosaveSlot = this.NextAutosaveSlotNumber();
+                SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
 
-                // delete old autosave contents
-                // copy main save files to autosave slot
+                // Do we have screenshots? What about map, smlhelper etc.?
 
-                this.lastUsedAutosaveSlot = nextAutosaveSlot;
+                yield return null;
             }
 
-            yield return null;
+            if (ModPlugin.ConfigAutosaveOnTimer.Value)
+            {
+                int autosaveMinutesInterval = ModPlugin.ConfigMinutesBetweenAutosaves.Value;
 
-            int autosaveInterval = ModPlugin.ConfigSecondsBetweenAutosaves.Value;
+                this.DelayAutosave(SecondsToMinutesMultiplier * autosaveMinutesInterval);
 
-            this.nextSaveTriggerTick += autosaveInterval;
+                ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(autosaveMinutesInterval.ToString()));
 
-            yield return null;
-
-            ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(autosaveInterval.ToString()));
+                yield return null;
+            }
 
             this.isSaving = false;
 
@@ -229,27 +256,55 @@ namespace SubnauticaAutosave
         {
             this.totalTicks++;
 
-            if (this.totalTicks == this.nextSaveTriggerTick - PriorWarningTicks)
+            if (ModPlugin.ConfigAutosaveOnTimer.Value)
             {
-                ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningTicks.ToString()));
-            }
-
-            else if (this.totalTicks >= this.nextSaveTriggerTick && !this.isSaving)
-            {
-                if (!this.TryExecuteAutosave())
+                if (this.totalTicks == this.nextSaveTriggerTick - PriorWarningTicks)
                 {
+                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningTicks.ToString()));
+                }
+
+                else if (this.totalTicks >= this.nextSaveTriggerTick && !this.isSaving)
+                {
+                    if (!this.TryExecuteAutosave())
+                    {
 #if DEBUG
-                    ModPlugin.LogMessage("Could not autosave on time. Delaying autosave.");
+                        ModPlugin.LogMessage("Could not autosave on time. Delaying autosave.");
 #endif
 
-                    this.DelayAutosave();
+                        this.DelayAutosave();
+                    }
                 }
             }
         }
-
-        public void DelayAutosave()
+        
+        public void DoSaveLoadManagerLastSaveHack()
         {
-            this.nextSaveTriggerTick += RetryTicks;
+            DateTime oldTime = new DateTime(year: 1980, month: 1, day: 1);
+
+            AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime").SetValue(SaveLoadManager.main, oldTime);
+
+#if DEBUG
+            DateTime currentManagerLastSave = (DateTime)AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime").GetValue(SaveLoadManager.main);
+
+            ModPlugin.LogMessage($"Override lastSaveTime. Current value is {currentManagerLastSave}");
+#endif
+        }
+
+        public void SetMainSlotIfAutosave()
+        {
+            string currentSlot = SaveLoadManager.main.GetCurrentSlot();
+
+            if (currentSlot.Contains("auto"))
+            {
+                string mainSaveSlot = this.GetMainSlotName(currentSlot);
+
+                SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
+            }
+        }
+
+        public void DelayAutosave(int addedTicks = RetryTicks)
+        {
+            this.nextSaveTriggerTick = this.totalTicks + addedTicks;
         }
 
         public bool TryExecuteAutosave()
@@ -278,12 +333,13 @@ namespace SubnauticaAutosave
                 }
             }
 
+#if DEBUG
             else
             {
-#if DEBUG
                 ModPlugin.LogMessage("IsSafeToSave returned false.");
-#endif
+
             }
+#endif
 
             return false;
         }
@@ -291,11 +347,11 @@ namespace SubnauticaAutosave
         // Monobehaviour.Awake(), called before Start()
         public void Awake()
         {
-            this.nextSaveTriggerTick = ModPlugin.ConfigSecondsBetweenAutosaves.Value;
+            this.nextSaveTriggerTick = SecondsToMinutesMultiplier * ModPlugin.ConfigMinutesBetweenAutosaves.Value;
 
             if (!ModPlugin.ConfigHardcoreMode.Value)
             {
-                this.lastUsedAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
+                this.latestAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
             }
         }
 

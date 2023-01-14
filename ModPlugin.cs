@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 using UnityEngine;
 
 namespace SubnauticaAutosave
@@ -9,72 +10,89 @@ namespace SubnauticaAutosave
     {
         private const string modGUID = "Dingo.SN.SubnauticaAutosave";
         internal const string modName = "Subnautica Autosave";
-        private const string modVersion = "2.0.0";
+        private const string modVersion = "2.0.1";
 
-        internal static string savedGamesPath = "";
+        private const int MaxMinutesBetweenSaves = 9999;
+        private const int MaxSaveFiles = 9999;        
 
         public static bool LoadedFromAutosave = false;
 
-
-        // General settings
-        public static ConfigEntry<int> ConfigMaxSaveFiles;
+        /* Autosave conditions */
         public static ConfigEntry<bool> ConfigAutosaveOnTimer;
         public static ConfigEntry<bool> ConfigAutosaveOnSleep;
+        public static ConfigEntry<int> ConfigMinutesBetweenAutosaves;
+        public static ConfigEntry<float> ConfigMinimumPlayerHealthPercent;
+
+        /* General settings */
+        public static ConfigEntry<bool> ConfigShowSaveNames;
+        public static ConfigEntry<int> ConfigMaxSaveFiles;
         public static ConfigEntry<bool> ConfigHardcoreMode;
         public static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
-
-        // Autosave conditions
-        public static ConfigEntry<int> ConfigSecondsBetweenAutosaves;
-        public static ConfigEntry<float> ConfigMinimumPlayerHealthPercent;
+        public static ConfigEntry<bool> ConfigComprehensiveSaves;
 
         private void InitializeConfig()
         {
-            /*** // TODO: IMPLEMENT NEW SETTINGS, HOTKEYS, BOOLS ETC. AND TEST // ***/
+            /*** TODO:  TEST
+             ***        TRANSLATIONS ***/
 
-            ConfigMaxSaveFiles = Config.Bind(
-                configDefinition: new ConfigDefinition(section: "General",
-                                                       key: "Maximum Autosave Slots"),
-                defaultValue: 3,
-                configDescription: new ConfigDescription(description: "Total autosave slots. Must be at least 1.",
-                                                         acceptableValues: new AcceptableValueRange<int>(1, 9999)));
-
+            /* Autosave conditions */
             ConfigAutosaveOnTimer = Config.Bind(
-                configDefinition: new ConfigDefinition(section: "General",
+                configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Autosave Using Time Intervals"),
                 defaultValue: true,
-                configDescription: new ConfigDescription(description: "Autosave every X seconds as defined in the mod settings."));
+                configDescription: new ConfigDescription(description: "Autosave every X seconds as defined under Autosave Conditions."));
 
             ConfigAutosaveOnSleep = Config.Bind(
-                configDefinition: new ConfigDefinition(section: "General",
+                configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Autosave On Sleep"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Autosave when the player goes to sleep."));
 
-            ConfigHardcoreMode = Config.Bind(
-                configDefinition: new ConfigDefinition(section: "General",
-                                                       key: "Hardcore Mode"),
-                defaultValue: false,
-                configDescription: new ConfigDescription(description: "If true, autosaves will override the normal save slot instead of using separate slots."));
-
-            ConfigQuicksaveKey = Config.Bind(
-                configDefinition: new ConfigDefinition(section: "General",
-                                                       key: "Quicksave Hotkey"),
-                defaultValue: new KeyboardShortcut(KeyCode.F9),                     ///// CHECK IF THIS HOTKEY IS ALREADY TAKEN /////                          
-                configDescription: new ConfigDescription(description: "Keybinding used to quickly save the game manually."));
-
-            ConfigSecondsBetweenAutosaves = Config.Bind(
+            ConfigMinutesBetweenAutosaves = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
-                                                       key: "Seconds Between Autosaves"),
-                defaultValue: 900,
-                configDescription: new ConfigDescription(description: "Time to wait between autosave attempts. Must be at least 120.",
-                                                         acceptableValues: new AcceptableValueRange<int>(120, int.MaxValue)));
+                                                       key: "Minutes Between Autosaves"),
+                defaultValue: 15,
+                configDescription: new ConfigDescription(description: "Time to wait between autosaves.\nMust be at least 1.",
+                                                         acceptableValues: new AcceptableValueRange<int>(1, MaxMinutesBetweenSaves)));
 
             ConfigMinimumPlayerHealthPercent = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Minimum Player Health Percent"),
                 defaultValue: 0.25f,
-                configDescription: new ConfigDescription(description: "Autosaves will not occur if player health is below this percent. Change to 0 to disable this option.",
+                configDescription: new ConfigDescription(description: "Delay save if player health is below this percent.\nChange to 0 to disable this option.",
                                                          acceptableValues: new AcceptableValueRange<float>(0f, 1f)));
+
+            /* General settings */
+            ConfigShowSaveNames = Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Show Save Names"),
+                defaultValue: true,
+                configDescription: new ConfigDescription(description: "Show slot names in the main menu loading UI."));
+
+            ConfigMaxSaveFiles = Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Maximum Autosave Slots"),
+                defaultValue: 3,
+                configDescription: new ConfigDescription(description: "Total autosave slots.\nMust be at least 1.",
+                                                         acceptableValues: new AcceptableValueRange<int>(1, MaxSaveFiles))); // SaveLoadManager.MaxSlotsAllowed returns 10000 (or 10 for Windows Store version for some reason)
+
+            ConfigHardcoreMode = Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Hardcore Mode"),
+                defaultValue: false,
+                configDescription: new ConfigDescription(description: "Autosaves will override the main save instead of using separate slots."));
+
+            ConfigQuicksaveKey = Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Quicksave Hotkey"),
+                defaultValue: new KeyboardShortcut(KeyCode.F9),                     ///// CHECK IF THIS HOTKEY IS ALREADY TAKEN /////                          
+                configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving manually via the menu."));
+
+            ConfigComprehensiveSaves = Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Save All Files"),
+                defaultValue: true,
+                configDescription: new ConfigDescription(description: "Force the game to save all screenshots and other files.\nWill result in longer save times."));
         }
 
         internal static void LogMessage(string message)
