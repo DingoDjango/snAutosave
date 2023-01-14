@@ -1,4 +1,4 @@
-# **Subnautica Autosave**
+# **Subnautica Autosave 2.0 Beta**
 
 ### **Description:**
 
@@ -22,15 +22,7 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 
 1. Launch the game at least once after installing the mod
 2. Open *...\Subnautica\BepInEx\config\Dingo.SN.SubnauticaAutosave.cfg* with a text editor
-3. Replace the default values with your preferences
-	- "Autosaves Profile" -- Separate autosaves by profile, for different playthroughs (Value: 1-5)
-    - "Autosave Using Time Intervals" -- Autosave every X seconds as defined in the mod settings
-	- "Autosave On Sleep" -- Autosave when the player goes to sleep
-	- "Seconds Between Autosaves" -- Time to wait between autosave attempts (Value: at least 120)
-    - "Maximum Autosave Slots"  -- Total autosave slots (Value: at least 1)
-    - "Minimum Player Health Percent"  -- Autosaves will not occur if player health is below this percent (Value: 0-1.0, disabled if 0)
-    - "Hardcore Mode"  -- If true, autosaves will override the normal save slot instead of using separate slots
-	- "Quicksave Hotkey" -- Keybinding used to quickly save the game manually	
+3. Replace the default values with your preferences. Read setting descriptions before changing values.
     > For hotkeys, use KeyCode names found on [this page](https://docs.unity3d.com/ScriptReference/KeyCode.html)
 
 ### **(Optional) Translation:**
@@ -44,13 +36,13 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **FAQ:**
 
 - **Q. Does this mod support the latest Subnautica update?**
-- A. Tested on Subnautica version Dec-2022 71137 (Living Large update)
+- A. Beta tested on Subnautica version Dec-2022 71137 (Living Large update)
 - **Q. Is this mod safe to add or remove from an existing save?**
 - A. Should be safe, please report any issues
 - **Q. Does this mod have any known conflicts?**
-- A. I would not use this mod with [Safe Autosave](https://www.nexusmods.com/subnautica/mods/94)
+- A. I would not use this mod with other autosave/quicksave mods.
 - **Q. Does this mod impact performance?**
-- A. Autosaves are created with vanilla code. Gameplay may "freeze" momentarily when saving
+- A. Autosaves are created in a similar way to vanilla saves. I implemented one "dirty" hack to for copying screenshots, but that setting can be toggled off if your PC is too slow.
 
 [Source code can be found here.](https://github.com/DingoDjango/snAutosave)﻿
 
