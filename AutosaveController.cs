@@ -196,7 +196,7 @@ namespace SubnauticaAutosave
 
             yield return null;
             
-            if (ModPlugin.ConfigForceFullSaves.Value)
+            if (ModPlugin.ConfigComprehensiveSaves.Value)
             {
                 /* Trick the game into copying screenshots and other files from temporary save storage.
                  * This will make the game copy every file, which can be slower on old hardware.

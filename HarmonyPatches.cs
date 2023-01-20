@@ -11,7 +11,7 @@ namespace SubnauticaAutosave
 
             if (controller != null)
             {
-                if (ModPlugin.ConfigForceFullSaves.Value)
+                if (ModPlugin.ConfigComprehensiveSaves.Value)
                 {
                     controller.DoSaveLoadManagerDateHack();
                 }

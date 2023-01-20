@@ -27,7 +27,7 @@ namespace SubnauticaAutosave
         public static ConfigEntry<int> ConfigMaxSaveFiles;
         public static ConfigEntry<bool> ConfigHardcoreMode;
         public static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
-        public static ConfigEntry<bool> ConfigForceFullSaves;
+        public static ConfigEntry<bool> ConfigComprehensiveSaves;
 
         private void RescheduleOnSettingChanged()
         {
@@ -57,7 +57,7 @@ namespace SubnauticaAutosave
 
             ConfigAutosaveOnSleep = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
-                                                       key: "Autosave on Sleep"),
+                                                       key: "Autosave On Sleep"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Autosave when the player goes to sleep."));
 
@@ -106,9 +106,9 @@ namespace SubnauticaAutosave
                 defaultValue: new KeyboardShortcut(KeyCode.F9),
                 configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving through the ingame menu."));
 
-            ConfigForceFullSaves = Config.Bind(
+            ConfigComprehensiveSaves = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
-                                                       key: "Force Full Saves"),
+                                                       key: "Save All Files"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Always save all screenshots, cache and other files.\nMay result in longer save times."));
         }
