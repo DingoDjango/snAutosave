@@ -9,7 +9,7 @@ namespace SubnauticaAutosave
     {
         private const string modGUID = "Dingo.SN.SubnauticaAutosave";
         internal const string modName = "Subnautica Autosave";
-        private const string modVersion = "2.0.2";
+        private const string modVersion = "2.0.3";
 
         private const int MaxMinutesBetweenSaves = 9999;
         private const int MaxSaveFiles = 9999;        
@@ -29,6 +29,18 @@ namespace SubnauticaAutosave
         public static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
         public static ConfigEntry<bool> ConfigComprehensiveSaves;
 
+        private void RescheduleOnSettingChanged()
+        {
+            if (ConfigAutosaveOnTimer.Value)
+            {
+#if DEBUG
+                LogMessage("RescheduleOnSettingChanged() - trying to reschedule next save.");
+#endif
+
+                Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(ConfigMinutesBetweenAutosaves.Value, true);
+            }
+        }
+
         private void InitializeConfig()
         {
             /*** TODO:  TEST
@@ -43,11 +55,9 @@ namespace SubnauticaAutosave
 
             ConfigAutosaveOnTimer.SettingChanged += delegate
             {
-                if (ConfigAutosaveOnTimer.Value)
-                {
-                    Player.main.GetComponent<AutosaveController>()?.ScheduleAutosave(ConfigMinutesBetweenAutosaves.Value);
-                }
+                RescheduleOnSettingChanged();
             };
+
 
             ConfigAutosaveOnSleep = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
@@ -61,6 +71,11 @@ namespace SubnauticaAutosave
                 defaultValue: 15,
                 configDescription: new ConfigDescription(description: "Time to wait between autosaves.\nMust be at least 1.",
                                                          acceptableValues: new AcceptableValueRange<int>(1, MaxMinutesBetweenSaves)));
+
+            ConfigMinutesBetweenAutosaves.SettingChanged += delegate
+            {
+                RescheduleOnSettingChanged();
+            };
 
             ConfigMinimumPlayerHealthPercent = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",

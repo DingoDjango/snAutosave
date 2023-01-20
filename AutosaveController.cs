@@ -27,7 +27,7 @@ namespace SubnauticaAutosave
 
         private bool warningTriggered = false;
 
-        private float nextSaveTriggerTime = Time.realtimeSinceStartup + 120f;
+        private float nextSaveTriggerTime = Time.time + 120f;
 
         private UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
 
@@ -185,6 +185,10 @@ namespace SubnauticaAutosave
 
         private IEnumerator AutosaveCoroutine()
         {
+#if DEBUG
+            ModPlugin.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
+#endif
+
             this.isSaving = true;
 
             bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value; // Add autosave permadeath option as well? (bisa)
@@ -201,8 +205,6 @@ namespace SubnauticaAutosave
                 this.DoSaveLoadManagerDateHack();
             }
 
-            yield return null;
-
             this.SetMainSlotIfAutosave(); // Make sure the main slot is set correctly. It should always be a clean slot name without _auto
 
             string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
@@ -216,12 +218,31 @@ namespace SubnauticaAutosave
 
             yield return null;
 
+            // Pause during save
+            IngameMenu.main.Open();
+            IngameMenu.main.mainPanel.SetActive(false);
+            FreezeTime.Begin(FreezeTime.Id.None);
+
+#if DEBUG
+            ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
+#endif
+
+            yield return null;
+
             IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
 
             yield return CoroutineHost.StartCoroutine(saveGameAsync);
 
 #if DEBUG
-            ModPlugin.LogMessage("Post-saveGameAsync reached.");
+            ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
+#endif
+
+            // Unpause
+            IngameMenu.main.Close();
+            FreezeTime.End(FreezeTime.Id.None);
+
+#if DEBUG
+            ModPlugin.LogMessage("AutosaveCoroutine() - Unfroze time.");
 #endif
 
             yield return null;
@@ -229,8 +250,6 @@ namespace SubnauticaAutosave
             if (!hardcoreMode)
             {
                 SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
-
-                yield return null;
             }
 
             if (ModPlugin.ConfigAutosaveOnTimer.Value)
@@ -240,15 +259,13 @@ namespace SubnauticaAutosave
                 this.ScheduleAutosave(autosaveMinutesInterval);
 
                 ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(autosaveMinutesInterval.ToString()));
-
-                yield return null;
             }
 
             this.warningTriggered = false;
             this.isSaving = false;
 
 #if DEBUG
-            ModPlugin.LogMessage("Reached post-autosave without crashing");
+            ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
 #endif
 
             yield break;
@@ -258,14 +275,14 @@ namespace SubnauticaAutosave
         {
             if (ModPlugin.ConfigAutosaveOnTimer.Value)
             {
-                if (!this.warningTriggered && Time.realtimeSinceStartup >= this.nextSaveTriggerTime - PriorWarningSeconds)
+                if (!this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
                 {
                     ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
 
                     this.warningTriggered = true;
                 }
 
-                else if (!this.isSaving && Time.realtimeSinceStartup >= this.nextSaveTriggerTime)
+                else if (!this.isSaving && Time.time >= this.nextSaveTriggerTime)
                 {
                     if (!this.TryExecuteAutosave())
                     {
@@ -304,15 +321,32 @@ namespace SubnauticaAutosave
             }
         }
 
-        public void ScheduleAutosave(int addedMinutes)
+        public void ScheduleAutosave(int addedMinutes, bool settingsChanged = false)
         {
-            // Time.realtimeSinceStartup returns a float in terms of seconds
-            this.nextSaveTriggerTime = Time.realtimeSinceStartup + (60 * addedMinutes);
+#if DEBUG
+            ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
+            ModPlugin.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+#endif
+
+            // Time.time returns a float in terms of seconds
+            this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
+
+#if DEBUG
+            ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
+#endif
         }
 
-        public void DelayAutosave(float addedSeconds = 10f)
+        public void DelayAutosave(float addedSeconds = 5f)
         {
+#if DEBUG
+            ModPlugin.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+#endif
+
             this.nextSaveTriggerTime += addedSeconds;
+
+#if DEBUG
+            ModPlugin.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
+#endif
         }
 
         public bool TryExecuteAutosave()

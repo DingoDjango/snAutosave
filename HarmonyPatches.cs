@@ -7,7 +7,7 @@ namespace SubnauticaAutosave
     {
         private static bool Patch_ManualSaveGame_Prefix()
         {
-            AutosaveController controller = Player.main.GetComponent<AutosaveController>();
+            AutosaveController controller = Player.main?.GetComponent<AutosaveController>();
 
             if (controller != null)
             {
@@ -47,18 +47,21 @@ namespace SubnauticaAutosave
         {
             if (ModPlugin.ConfigAutosaveOnSleep.Value)
             {
-#if DEBUG
-                ModPlugin.LogMessage("Player clicked on bed. Executing save on sleep.");
-#endif
-
                 Player player = Player.main;
 
-                /* [Bed.cs] private float kSleepInterval = 600f, added to timeLastSleep when sleep screen ends
-                 * If player did indeed sleep recently, we can trigger a save after the bed click
-                 * Could instead transpile into OnHandClick if(isValidHandTarget), but no reason to complicate things... */
-                if (player.timeLastSleep + 200f > DayNightCycle.main.timePassedAsFloat)
+                if (player != null)
                 {
-                    player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want to test a scheduled save instead
+                    /* [Bed.cs] private float kSleepInterval = 600f, added to timeLastSleep when sleep screen ends
+                     * If player did indeed sleep recently, we can trigger a save after the bed click
+                     * Could instead transpile into OnHandClick if(isValidHandTarget), but no reason to complicate things... */
+                    if (player.timeLastSleep + 200f > DayNightCycle.main.timePassedAsFloat)
+                    {
+#if DEBUG
+                        ModPlugin.LogMessage("Player clicked on bed. Executing save on sleep.");
+#endif
+
+                        player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want to test a scheduled save instead
+                    }
                 }
             }
         }
@@ -69,7 +72,7 @@ namespace SubnauticaAutosave
             ModPlugin.LogMessage("Player entered or exited sub. Delaying autosave.");
 #endif
 
-            Player.main.GetComponent<AutosaveController>()?.DelayAutosave();
+            Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
         }
 
         private static void Patch_SetCurrentLanguage_Postfix()
