@@ -18,12 +18,28 @@ namespace SubnauticaAutosave
 
     public class AutosaveController : MonoBehaviour
     {
+        private const int PriorWarningSeconds = 30;
+        private const string AutosaveSuffixFormat = "_auto{0:0000}";
+
+        private int latestAutosaveSlot = -1;
+
+        private bool isSaving = false;
+
+        private bool warningTriggered = false;
+
+        private float nextSaveTriggerTime = Time.realtimeSinceStartup + 120f;
+
         private UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
 
         private string SavedGamesDirPath
         {
             get
             {
+                if (GlobalUserStorage == null)
+                {
+                    return null;
+                }
+
                 DirectoryInfo saveDir = new DirectoryInfo((string)AccessTools.Field(typeof(UserStoragePC), "savePath").GetValue(GlobalUserStorage));
                 string savePath = saveDir.FullName;
 
@@ -34,19 +50,6 @@ namespace SubnauticaAutosave
                 return savePath;
             }
         }
-
-        private const int SecondsToMinutesMultiplier = 60;
-        private const int RetryTicks = 10;
-        private const int PriorWarningTicks = 30;
-        private const string AutosaveSuffixFormat = "_auto{0:0000}";
-
-        private int latestAutosaveSlot = -1;
-
-        private bool isSaving = false;
-
-        private int totalTicks = 0;
-
-        private int nextSaveTriggerTick = 120;
 
         private string SlotSuffixFormatted(int slotNumber)
         {
@@ -195,7 +198,7 @@ namespace SubnauticaAutosave
              * Can be considered a beta feature. Keep track of non-forseen consequences... */
             if (ModPlugin.ConfigComprehensiveSaves.Value)
             {
-                this.DoSaveLoadManagerLastSaveHack();
+                this.DoSaveLoadManagerDateHack();
             }
 
             yield return null;
@@ -227,8 +230,6 @@ namespace SubnauticaAutosave
             {
                 SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
 
-                // Do we have screenshots? What about map, smlhelper etc.?
-
                 yield return null;
             }
 
@@ -236,13 +237,14 @@ namespace SubnauticaAutosave
             {
                 int autosaveMinutesInterval = ModPlugin.ConfigMinutesBetweenAutosaves.Value;
 
-                this.DelayAutosave(SecondsToMinutesMultiplier * autosaveMinutesInterval);
+                this.ScheduleAutosave(autosaveMinutesInterval);
 
                 ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(autosaveMinutesInterval.ToString()));
 
                 yield return null;
             }
 
+            this.warningTriggered = false;
             this.isSaving = false;
 
 #if DEBUG
@@ -254,16 +256,16 @@ namespace SubnauticaAutosave
 
         private void Tick()
         {
-            this.totalTicks++;
-
             if (ModPlugin.ConfigAutosaveOnTimer.Value)
             {
-                if (this.totalTicks == this.nextSaveTriggerTick - PriorWarningTicks)
+                if (!this.warningTriggered && Time.realtimeSinceStartup >= this.nextSaveTriggerTime - PriorWarningSeconds)
                 {
-                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningTicks.ToString()));
+                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
+
+                    this.warningTriggered = true;
                 }
 
-                else if (this.totalTicks >= this.nextSaveTriggerTick && !this.isSaving)
+                else if (!this.isSaving && Time.realtimeSinceStartup >= this.nextSaveTriggerTime)
                 {
                     if (!this.TryExecuteAutosave())
                     {
@@ -277,7 +279,7 @@ namespace SubnauticaAutosave
             }
         }
         
-        public void DoSaveLoadManagerLastSaveHack()
+        public void DoSaveLoadManagerDateHack()
         {
             DateTime oldTime = new DateTime(year: 1980, month: 1, day: 1);
 
@@ -302,9 +304,15 @@ namespace SubnauticaAutosave
             }
         }
 
-        public void DelayAutosave(int addedTicks = RetryTicks)
+        public void ScheduleAutosave(int addedMinutes)
         {
-            this.nextSaveTriggerTick = this.totalTicks + addedTicks;
+            // Time.realtimeSinceStartup returns a float in terms of seconds
+            this.nextSaveTriggerTime = Time.realtimeSinceStartup + (60 * addedMinutes);
+        }
+
+        public void DelayAutosave(float addedSeconds = 10f)
+        {
+            this.nextSaveTriggerTime += addedSeconds;
         }
 
         public bool TryExecuteAutosave()
@@ -322,8 +330,8 @@ namespace SubnauticaAutosave
 
                     catch (Exception ex)
                     {
-                        ModPlugin.LogMessage(ex.ToString());
                         ModPlugin.LogMessage("Failed to execute save coroutine. Something went wrong.");
+                        ModPlugin.LogMessage(ex.ToString());
                     }
                 }
 
@@ -347,17 +355,26 @@ namespace SubnauticaAutosave
         // Monobehaviour.Awake(), called before Start()
         public void Awake()
         {
-            this.nextSaveTriggerTick = SecondsToMinutesMultiplier * ModPlugin.ConfigMinutesBetweenAutosaves.Value;
+            this.ScheduleAutosave(ModPlugin.ConfigMinutesBetweenAutosaves.Value);            
+
+#if DEBUG
+            ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
+#endif
 
             if (!ModPlugin.ConfigHardcoreMode.Value)
             {
                 this.latestAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
             }
+
+#if DEBUG            
+            ModPlugin.LogMessage($"AutosaveController.Awake() - Latest autosave for {SaveLoadManager.main.GetCurrentSlot()} set to {this.latestAutosaveSlot}");
+#endif
         }
 
         // Monobehaviour.Start
         public void Start()
         {
+            // Repeat the Tick method every second
             this.InvokeRepeating(nameof(AutosaveController.Tick), 1f, 1f);
         }
     }

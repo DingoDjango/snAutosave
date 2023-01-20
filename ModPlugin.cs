@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using HarmonyLib;
 using UnityEngine;
 
 namespace SubnauticaAutosave
@@ -10,7 +9,7 @@ namespace SubnauticaAutosave
     {
         private const string modGUID = "Dingo.SN.SubnauticaAutosave";
         internal const string modName = "Subnautica Autosave";
-        private const string modVersion = "2.0.1";
+        private const string modVersion = "2.0.2";
 
         private const int MaxMinutesBetweenSaves = 9999;
         private const int MaxSaveFiles = 9999;        
@@ -41,6 +40,14 @@ namespace SubnauticaAutosave
                                                        key: "Autosave Using Time Intervals"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Autosave every X seconds as defined under Autosave Conditions."));
+
+            ConfigAutosaveOnTimer.SettingChanged += delegate
+            {
+                if (ConfigAutosaveOnTimer.Value)
+                {
+                    Player.main.GetComponent<AutosaveController>()?.ScheduleAutosave(ConfigMinutesBetweenAutosaves.Value);
+                }
+            };
 
             ConfigAutosaveOnSleep = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
@@ -85,7 +92,7 @@ namespace SubnauticaAutosave
             ConfigQuicksaveKey = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Quicksave Hotkey"),
-                defaultValue: new KeyboardShortcut(KeyCode.F9),                     ///// CHECK IF THIS HOTKEY IS ALREADY TAKEN /////                          
+                defaultValue: new KeyboardShortcut(KeyCode.F9),
                 configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving manually via the menu."));
 
             ConfigComprehensiveSaves = Config.Bind(

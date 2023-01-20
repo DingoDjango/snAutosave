@@ -13,7 +13,7 @@ namespace SubnauticaAutosave
             {
                 if (ModPlugin.ConfigComprehensiveSaves.Value)
                 {
-                    controller.DoSaveLoadManagerLastSaveHack();
+                    controller.DoSaveLoadManagerDateHack();
                 }
 
                 controller.SetMainSlotIfAutosave();
@@ -42,7 +42,7 @@ namespace SubnauticaAutosave
             __instance.gameObject.AddComponent<AutosaveController>();
         }
 
-        // Untested
+        // Untested //
         private static void Patch_Bed_OnHandClick_Postfix()
         {
             if (ModPlugin.ConfigAutosaveOnSleep.Value)
@@ -53,10 +53,12 @@ namespace SubnauticaAutosave
 
                 Player player = Player.main;
 
-                // [Bed.cs] private float kSleepInterval = 600f;
-                if (player.timeLastSleep + 600f > DayNightCycle.main.timePassedAsFloat)
+                /* [Bed.cs] private float kSleepInterval = 600f, added to timeLastSleep when sleep screen ends
+                 * If player did indeed sleep recently, we can trigger a save after the bed click
+                 * Could instead transpile into OnHandClick if(isValidHandTarget), but no reason to complicate things... */
+                if (player.timeLastSleep + 200f > DayNightCycle.main.timePassedAsFloat)
                 {
-                    player.GetComponent<AutosaveController>()?.TryExecuteAutosave();
+                    player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want to test a scheduled save instead
                 }
             }
         }
