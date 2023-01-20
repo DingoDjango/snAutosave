@@ -11,10 +11,7 @@ namespace SubnauticaAutosave
 {
     /* Some of the following code is based on "Safe Autosave" by berkay2578:
 	 * https://www.nexusmods.com/subnautica/mods/94
-	 * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave
-	 *
-	 * Directory replication code from:
-	 * https://stackoverflow.com/questions/58744/copy-the-entire-contents-of-a-directory-in-c-sharp */
+	 * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave */
 
     public class AutosaveController : MonoBehaviour
     {
@@ -27,7 +24,7 @@ namespace SubnauticaAutosave
 
         private bool warningTriggered = false;
 
-        private float nextSaveTriggerTime = Time.time + 120f;
+        private float nextSaveTriggerTime = Time.time + 900f;
 
         private UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
 
@@ -191,21 +188,25 @@ namespace SubnauticaAutosave
 
             this.isSaving = true;
 
-            bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value; // Add autosave permadeath option as well? (bisa)
+            bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value;
+            
+            // Add autosave permadeath option as well? (bisa) //
 
             ErrorMessage.AddWarning("AutosaveStarting".Translate());
 
             yield return null;
-
-            /* Trick the game into copying screenshots and other files from temporary save storage.
-             * This will make the game copy every file, which can be slower on old hardware.
-             * Can be considered a beta feature. Keep track of non-forseen consequences... */
-            if (ModPlugin.ConfigComprehensiveSaves.Value)
+            
+            if (ModPlugin.ConfigForceFullSaves.Value)
             {
+                /* Trick the game into copying screenshots and other files from temporary save storage.
+                 * This will make the game copy every file, which can be slower on old hardware.
+                 * Can be considered a beta feature. Keep track of non-forseen consequences... */
                 this.DoSaveLoadManagerDateHack();
             }
-
-            this.SetMainSlotIfAutosave(); // Make sure the main slot is set correctly. It should always be a clean slot name without _auto
+            
+            /* Make sure the main slot is set correctly. 
+             * It should always be a clean slot name without _auto */
+            this.SetMainSlotIfAutosave(); 
 
             string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
 

@@ -11,7 +11,7 @@ namespace SubnauticaAutosave
 
             if (controller != null)
             {
-                if (ModPlugin.ConfigComprehensiveSaves.Value)
+                if (ModPlugin.ConfigForceFullSaves.Value)
                 {
                     controller.DoSaveLoadManagerDateHack();
                 }
@@ -44,6 +44,10 @@ namespace SubnauticaAutosave
 
         private static void Patch_MainSceneLoading_Postfix()
         {
+#if DEBUG
+            ModPlugin.LogMessage("Main scene loading, scheduling first autosave.");
+#endif
+
             Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(ModPlugin.ConfigMinutesBetweenAutosaves.Value);
         }
 
@@ -65,7 +69,7 @@ namespace SubnauticaAutosave
                         ModPlugin.LogMessage("Player clicked on bed. Executing save on sleep.");
 #endif
 
-                        player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want to test a scheduled save instead
+                        player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want a scheduled save instead
                     }
                 }
             }

@@ -27,7 +27,7 @@ namespace SubnauticaAutosave
         public static ConfigEntry<int> ConfigMaxSaveFiles;
         public static ConfigEntry<bool> ConfigHardcoreMode;
         public static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
-        public static ConfigEntry<bool> ConfigComprehensiveSaves;
+        public static ConfigEntry<bool> ConfigForceFullSaves;
 
         private void RescheduleOnSettingChanged()
         {
@@ -43,15 +43,12 @@ namespace SubnauticaAutosave
 
         private void InitializeConfig()
         {
-            /*** TODO:  TEST
-             ***        TRANSLATIONS ***/
-
             /* Autosave conditions */
             ConfigAutosaveOnTimer = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Autosave Using Time Intervals"),
                 defaultValue: true,
-                configDescription: new ConfigDescription(description: "Autosave every X seconds as defined under Autosave Conditions."));
+                configDescription: new ConfigDescription(description: "Autosave every X minutes as defined under Autosave Conditions."));
 
             ConfigAutosaveOnTimer.SettingChanged += delegate
             {
@@ -60,7 +57,7 @@ namespace SubnauticaAutosave
 
             ConfigAutosaveOnSleep = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
-                                                       key: "Autosave On Sleep"),
+                                                       key: "Autosave on Sleep"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Autosave when the player goes to sleep."));
 
@@ -68,7 +65,7 @@ namespace SubnauticaAutosave
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Minutes Between Autosaves"),
                 defaultValue: 15,
-                configDescription: new ConfigDescription(description: "Time to wait between autosaves.\nMust be at least 1.",
+                configDescription: new ConfigDescription(description: "Time (in minutes) to wait between autosaves.\nMust be at least 1.",
                                                          acceptableValues: new AcceptableValueRange<int>(1, MaxMinutesBetweenSaves)));
 
             ConfigMinutesBetweenAutosaves.SettingChanged += delegate
@@ -88,32 +85,32 @@ namespace SubnauticaAutosave
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Show Save Names"),
                 defaultValue: true,
-                configDescription: new ConfigDescription(description: "Show slot names in the main menu loading UI."));
+                configDescription: new ConfigDescription(description: "Show slot names in the main menu loading screen."));
 
             ConfigMaxSaveFiles = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Maximum Autosave Slots"),
                 defaultValue: 3,
-                configDescription: new ConfigDescription(description: "Total autosave slots.\nMust be at least 1.",
+                configDescription: new ConfigDescription(description: "Total autosave slots per playthrough.\nMust be at least 1.",
                                                          acceptableValues: new AcceptableValueRange<int>(1, MaxSaveFiles))); // SaveLoadManager.MaxSlotsAllowed returns 10000 (or 10 for Windows Store version for some reason)
 
             ConfigHardcoreMode = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Hardcore Mode"),
                 defaultValue: false,
-                configDescription: new ConfigDescription(description: "Autosaves will override the main save instead of using separate slots."));
+                configDescription: new ConfigDescription(description: "Override the main save instead of using separate autosave slots."));
 
             ConfigQuicksaveKey = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Quicksave Hotkey"),
                 defaultValue: new KeyboardShortcut(KeyCode.F9),
-                configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving manually via the menu."));
+                configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving through the ingame menu."));
 
-            ConfigComprehensiveSaves = Config.Bind(
+            ConfigForceFullSaves = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
-                                                       key: "Save All Files"),
+                                                       key: "Force Full Saves"),
                 defaultValue: true,
-                configDescription: new ConfigDescription(description: "Force the game to save all screenshots and other files.\nWill result in longer save times."));
+                configDescription: new ConfigDescription(description: "Always save all screenshots, cache and other files.\nMay result in longer save times."));
         }
 
         internal static void LogMessage(string message)
