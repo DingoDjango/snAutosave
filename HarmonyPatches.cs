@@ -42,7 +42,7 @@ namespace SubnauticaAutosave
             __instance.gameObject.AddComponent<AutosaveController>();
         }
 
-        private static void Patch_MainSceneLoading_Postfix()
+        private static void Patch_ReportStageDurations_Postfix()
         {
 #if DEBUG
             ModPlugin.LogMessage("Main scene loading, scheduling first autosave.");
@@ -107,9 +107,9 @@ namespace SubnauticaAutosave
             // Patch: Player.Awake
             harmony.Patch(original: AccessTools.Method(typeof(Player), nameof(Player.Awake)),
                           postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Player_Awake_Postfix)));
-            // Patch: MainSceneLoading.Launch
-            harmony.Patch(original: AccessTools.Method(typeof(MainSceneLoading), nameof(MainSceneLoading.Launch)),
-                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_MainSceneLoading_Postfix)));
+            // Patch: WaitScreen.ReportStageDurations, called last when loading saved games
+            harmony.Patch(original: AccessTools.Method(typeof(WaitScreen), nameof(WaitScreen.ReportStageDurations)),
+                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportStageDurations_Postfix)));
 
             /* Save on player sleep */
             // Patch: Bed.OnHandClick
