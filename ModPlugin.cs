@@ -9,7 +9,7 @@ namespace SubnauticaAutosave
     {
         private const string modGUID = "Dingo.SN.SubnauticaAutosave";
         internal const string modName = "Subnautica Autosave";
-        private const string modVersion = "2.0.3";
+        private const string modVersion = "2.0.4";
 
         private const int MaxMinutesBetweenSaves = 9999;
         private const int MaxSaveFiles = 9999;        
@@ -57,7 +57,6 @@ namespace SubnauticaAutosave
             {
                 RescheduleOnSettingChanged();
             };
-
 
             ConfigAutosaveOnSleep = Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",

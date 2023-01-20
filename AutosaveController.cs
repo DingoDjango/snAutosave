@@ -389,8 +389,6 @@ namespace SubnauticaAutosave
         // Monobehaviour.Awake(), called before Start()
         public void Awake()
         {
-            this.ScheduleAutosave(ModPlugin.ConfigMinutesBetweenAutosaves.Value);            
-
 #if DEBUG
             ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
 #endif

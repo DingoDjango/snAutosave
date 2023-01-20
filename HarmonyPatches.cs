@@ -42,6 +42,11 @@ namespace SubnauticaAutosave
             __instance.gameObject.AddComponent<AutosaveController>();
         }
 
+        private static void Patch_MainSceneLoading_Postfix()
+        {
+            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(ModPlugin.ConfigMinutesBetweenAutosaves.Value);
+        }
+
         // Untested //
         private static void Patch_Bed_OnHandClick_Postfix()
         {
@@ -98,6 +103,9 @@ namespace SubnauticaAutosave
             // Patch: Player.Awake
             harmony.Patch(original: AccessTools.Method(typeof(Player), nameof(Player.Awake)),
                           postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Player_Awake_Postfix)));
+            // Patch: MainSceneLoading.Launch
+            harmony.Patch(original: AccessTools.Method(typeof(MainSceneLoading), nameof(MainSceneLoading.Launch)),
+                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_MainSceneLoading_Postfix)));
 
             /* Save on player sleep */
             // Patch: Bed.OnHandClick
