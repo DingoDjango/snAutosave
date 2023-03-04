@@ -4,6 +4,8 @@
 
 An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options for everything.
 
+**For Below Zero instructions please view the Nexus mod page.**
+
 ### **Installation:**
 
 1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)

@@ -1,0 +1,12 @@
+﻿{
+  "Id": "SubnauticaAutosave_BZ",
+  "DisplayName": "Subnautica Autosave Below Zero",
+  "Author": "Dingo",
+  "Version": "1.0.0",
+  "Enable": true,
+  "Game": "BelowZero",
+  "VersionChecker": {
+    "LatestVersionURL": "https://github.com/abcd.json"
+  },
+  "AssemblyName": "SubnauticaAutosave_BZ.dll"
+}

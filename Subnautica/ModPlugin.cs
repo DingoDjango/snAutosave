@@ -12,9 +12,7 @@ namespace SubnauticaAutosave
         private const string modVersion = "2.0.4";
 
         private const int MaxMinutesBetweenSaves = 9999;
-        private const int MaxSaveFiles = 9999;        
-
-        public static bool LoadedFromAutosave = false;
+        private const int MaxSaveFiles = 9999;
 
         /* Autosave conditions */
         public static ConfigEntry<bool> ConfigAutosaveOnTimer;
@@ -44,7 +42,7 @@ namespace SubnauticaAutosave
         private void InitializeConfig()
         {
             /* Autosave conditions */
-            ConfigAutosaveOnTimer = Config.Bind(
+            ConfigAutosaveOnTimer = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Autosave Using Time Intervals"),
                 defaultValue: true,
@@ -52,16 +50,16 @@ namespace SubnauticaAutosave
 
             ConfigAutosaveOnTimer.SettingChanged += delegate
             {
-                RescheduleOnSettingChanged();
+                this.RescheduleOnSettingChanged();
             };
 
-            ConfigAutosaveOnSleep = Config.Bind(
+            ConfigAutosaveOnSleep = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Autosave On Sleep"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Autosave when the player goes to sleep."));
 
-            ConfigMinutesBetweenAutosaves = Config.Bind(
+            ConfigMinutesBetweenAutosaves = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Minutes Between Autosaves"),
                 defaultValue: 15,
@@ -70,10 +68,10 @@ namespace SubnauticaAutosave
 
             ConfigMinutesBetweenAutosaves.SettingChanged += delegate
             {
-                RescheduleOnSettingChanged();
+                this.RescheduleOnSettingChanged();
             };
 
-            ConfigMinimumPlayerHealthPercent = Config.Bind(
+            ConfigMinimumPlayerHealthPercent = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "Autosave Conditions",
                                                        key: "Minimum Player Health Percent"),
                 defaultValue: 0.25f,
@@ -81,32 +79,32 @@ namespace SubnauticaAutosave
                                                          acceptableValues: new AcceptableValueRange<float>(0f, 1f)));
 
             /* General settings */
-            ConfigShowSaveNames = Config.Bind(
+            ConfigShowSaveNames = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Show Save Names"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Show slot names in the main menu loading screen."));
 
-            ConfigMaxSaveFiles = Config.Bind(
+            ConfigMaxSaveFiles = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Maximum Autosave Slots"),
                 defaultValue: 3,
                 configDescription: new ConfigDescription(description: "Total autosave slots per playthrough.\nMust be at least 1.",
                                                          acceptableValues: new AcceptableValueRange<int>(1, MaxSaveFiles))); // SaveLoadManager.MaxSlotsAllowed returns 10000 (or 10 for Windows Store version for some reason)
 
-            ConfigHardcoreMode = Config.Bind(
+            ConfigHardcoreMode = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Hardcore Mode"),
                 defaultValue: false,
                 configDescription: new ConfigDescription(description: "Override the main save instead of using separate autosave slots."));
 
-            ConfigQuicksaveKey = Config.Bind(
+            ConfigQuicksaveKey = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Quicksave Hotkey"),
                 defaultValue: new KeyboardShortcut(KeyCode.F9),
                 configDescription: new ConfigDescription(description: "Keybinding used to save the game manually.\nSame functionality as saving through the ingame menu."));
 
-            ConfigComprehensiveSaves = Config.Bind(
+            ConfigComprehensiveSaves = this.Config.Bind(
                 configDefinition: new ConfigDefinition(section: "General",
                                                        key: "Save All Files"),
                 defaultValue: true,
@@ -120,7 +118,7 @@ namespace SubnauticaAutosave
 
         public void Start()
         {
-            InitializeConfig();
+            this.InitializeConfig();
 
             HarmonyPatches.InitializeHarmony();
         }

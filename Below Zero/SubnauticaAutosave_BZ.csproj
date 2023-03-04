@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8EFEEE85-1B28-4557-AB2B-34A35D7C2518}</ProjectGuid>
+    <ProjectGuid>{9F11D600-B09B-4ACD-8DFF-9DFAE00037C4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SubnauticaAutosave</RootNamespace>
-    <AssemblyName>SubnauticaAutosave</AssemblyName>
+    <RootNamespace>SubnauticaAutosave_BZ</RootNamespace>
+    <AssemblyName>SubnauticaAutosave_BZ</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>BepInEx\plugins\SubnauticaAutosave\</OutputPath>
+    <OutputPath>QMods\SubnauticaAutosave_BZ\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>BepInEx\plugins\SubnauticaAutosave\</OutputPath>
+    <OutputPath>QMods\SubnauticaAutosave_BZ\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -40,23 +40,31 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\BepInEx\core\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\..\..\SubnauticaBelowZero\SubnauticaZero_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="LitJson">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\LitJson.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\LitJson.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="QModInstaller">
+      <HintPath>..\..\..\..\SubnauticaBelowZero\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMLHelper">
+      <HintPath>..\..\..\..\SubnauticaBelowZero\QMods\SMLHelper_BZ\SMLHelper.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -66,28 +74,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutosaveController.cs" />
-    <Compile Include="ModPlugin.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SMLConfig.cs" />
     <Compile Include="Translation.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mod.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
@@ -95,17 +108,12 @@
 	<Target Name="BeforeBuild">
 	</Target> -->
   <PropertyGroup>
-    <PostBuildEvent>SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
+    <PostBuildEvent>SET MODDIR=D:\SubnauticaBelowZero\QMods\
 SET ZIPFILE=D:\Downloads\$(ProjectName).zip
 
-xcopy "$(ProjectDir)BepInEx\*" "%25MODDIR%25" /i /e /r /y
+xcopy "$(ProjectDir)QMods\*" "%25MODDIR%25" /i /e /r /y
 
-7z a -mx9 "%25ZIPFILE%25" "$(ProjectDir)BepInEx"
-
-cd $(ProjectDir)
-del /f /s /q bin
-del /f /s /q obj
-rmdir /s /q bin
-rmdir /s /q obj</PostBuildEvent>
+7z a -mx9 "%25ZIPFILE%25" "$(ProjectDir)QMods"
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

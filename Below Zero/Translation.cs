@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using LitJson;
-using UnityEngine;
 
-namespace SubnauticaAutosave
+namespace SubnauticaAutosave_BZ
 {
     internal static class Translation
     {
@@ -34,7 +33,7 @@ namespace SubnauticaAutosave
 
                 if (!File.Exists(langFile))
                 {
-                    throw new Exception($"{ModPlugin.modName} :: Could not find language file.");
+                    throw new Exception($" :: Could not find language file.");
                 }
             }
 
@@ -49,8 +48,8 @@ namespace SubnauticaAutosave
 
                 catch (Exception ex)
                 {
-                    Debug.Log(ex.ToString());
-                    ModPlugin.LogMessage("Failed while loading language json.");
+                    HarmonyPatches.LogMessage(ex.ToString());
+                    HarmonyPatches.LogMessage("Failed while loading language json.");
 
                     return;
                 }
@@ -89,7 +88,7 @@ namespace SubnauticaAutosave
                 return translated;
             }
 
-            ModPlugin.LogMessage($"Could not find translated string for `{source}`");
+            HarmonyPatches.LogMessage($"Could not find translated string for `{source}`");
 
             return source;
         }
@@ -107,8 +106,8 @@ namespace SubnauticaAutosave
 
                 catch (Exception ex)
                 {
-                    Debug.Log(ex.ToString());
-                    ModPlugin.LogMessage($"Failed to format '{source}' with arg0 `{arg0}'");
+                    HarmonyPatches.LogMessage(ex.ToString());
+                    HarmonyPatches.LogMessage($"Failed to format '{source}' with arg0 `{arg0}'");
                 }
             }
 

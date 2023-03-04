@@ -1,0 +1,6 @@
+﻿{
+  "AutosaveWarning": "Salvamento automático em {0} segundos.",
+  "AutosaveStarting": "Sequência de autosalvamento começando...",
+  "AutosaveEnding": "Autosalvamento terminado. Próximo autosalvamento em {0} minutos.",
+  "AutosaveInProgress": "Autosalvamento em andamento. Não é possivel iniciar o autosalvamento novamente neste momento."
+}

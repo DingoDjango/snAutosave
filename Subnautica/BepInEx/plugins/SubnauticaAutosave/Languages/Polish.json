@@ -1,0 +1,6 @@
+{
+  "AutosaveWarning": "Przygotowywanie do automatycznego zapisu za {0} sekund.",
+  "AutosaveStarting": "Sekwencja automatycznego zapisu rozpoczęta...",
+  "AutosaveEnding": "Wykonano automatyczny zapis. Następny za {0} minut.",
+  "AutosaveInProgress": "Automatyczny zapis trwa. Nie można wykonać teraz automatycznego zapisu."
+}
