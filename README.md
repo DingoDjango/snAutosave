@@ -4,7 +4,7 @@
 
 An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options for everything.
 
-**For Below Zero instructions please view the Nexus mod page.**
+**For Below Zero instructions please view the [Nexus mod page](https://www.nexusmods.com/subnauticabelowzero/mods/359).**
 
 ### **Installation:**
 
