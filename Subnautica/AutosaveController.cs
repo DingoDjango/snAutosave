@@ -252,15 +252,8 @@ namespace SubnauticaAutosave
             {
                 SaveLoadManager.main.SetCurrentSlot(mainSaveSlot);
             }
-
-            if (ModPlugin.ConfigAutosaveOnTimer.Value)
-            {
-                int autosaveMinutesInterval = ModPlugin.ConfigMinutesBetweenAutosaves.Value;
-
-                this.ScheduleAutosave(autosaveMinutesInterval);
-
-                ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(autosaveMinutesInterval.ToString()));
-            }
+            
+            this.ScheduleAutosave();
 
             this.warningTriggered = false;
             this.isSaving = false;
@@ -322,19 +315,28 @@ namespace SubnauticaAutosave
             }
         }
 
-        public void ScheduleAutosave(int addedMinutes, bool settingsChanged = false)
+        public void ScheduleAutosave(bool settingsChanged = false, bool showMessage = true)
         {
+            if (ModPlugin.ConfigAutosaveOnTimer.Value)
+            {
+                int addedMinutes = ModPlugin.ConfigMinutesBetweenAutosaves.Value;
+
 #if DEBUG
             ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
             ModPlugin.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
 #endif
 
-            // Time.time returns a float in terms of seconds
-            this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
+                // Time.time returns a float in terms of seconds
+                this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
 
 #if DEBUG
             ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
+                if (showMessage)
+                {
+                    ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(addedMinutes.ToString()));
+                }
+            }
         }
 
         public void DelayAutosave(float addedSeconds = 5f)

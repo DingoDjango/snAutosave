@@ -22,6 +22,19 @@ namespace SubnauticaAutosave
             return true;
         }
 
+        private static void Patch_ManualSaveGame_Postfix()
+        {
+            AutosaveController controller = Player.main?.GetComponent<AutosaveController>();
+
+            if (controller != null)
+            {
+                if (ModPlugin.ConfigDelaySaveOnManual.Value)
+                {
+                    controller.ScheduleAutosave();
+                }
+            }
+        }
+
         private static void Patch_UpdateLoadButtonState_Postfix(MainMenuLoadButton lb)
         {
             if (ModPlugin.ConfigShowSaveNames.Value && SaveLoadManager.main.GetGameInfo(lb.saveGame) != null)
@@ -48,7 +61,7 @@ namespace SubnauticaAutosave
             ModPlugin.LogMessage("Main scene loading, scheduling first autosave.");
 #endif
 
-            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(ModPlugin.ConfigMinutesBetweenAutosaves.Value);
+            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(showMessage: false);
         }
 
         // Untested //
@@ -96,7 +109,8 @@ namespace SubnauticaAutosave
             /* When saving manually, set to main slot if loaded from autosave */
             // Patch: IngameMenu.SaveGame
             harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), nameof(IngameMenu.SaveGame)),
-                          prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Prefix)));
+                          prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Prefix)),
+                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Postfix)));
 
             /* Show save names in menu panel */
             // Patch: MainMenuLoadPanel.UpdateLoadButtonState(MainMenuLoadButton lb)

@@ -1,6 +1,6 @@
 ﻿{
   "AutosaveWarning": "Préparation de la sauvegarde automatique dans {0} secondes.",
   "AutosaveStarting": "Début de la séquence de sauvegarde automatique...",
-  "AutosaveEnding": "Sauvegarde automatique effectuée. Prochaine sauvegarde automatique dans {0} minutes.",
+  "AutosaveEnding": "Prochaine sauvegarde automatique dans {0} minutes.",
   "AutosaveInProgress": "Sauvegarde automatique en cours. Impossible de sauvegarder automatiquement à nouveau pour l'instant."
 }

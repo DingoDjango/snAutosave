@@ -9,7 +9,7 @@ namespace SubnauticaAutosave
     {
         private const string modGUID = "Dingo.SN.SubnauticaAutosave";
         internal const string modName = "Subnautica Autosave";
-        private const string modVersion = "2.0.4";
+        private const string modVersion = "2.0.5";
 
         private const int MaxMinutesBetweenSaves = 9999;
         private const int MaxSaveFiles = 9999;
@@ -26,17 +26,15 @@ namespace SubnauticaAutosave
         public static ConfigEntry<bool> ConfigHardcoreMode;
         public static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
         public static ConfigEntry<bool> ConfigComprehensiveSaves;
+        public static ConfigEntry<bool> ConfigDelaySaveOnManual;
 
         private void RescheduleOnSettingChanged()
         {
-            if (ConfigAutosaveOnTimer.Value)
-            {
 #if DEBUG
                 LogMessage("RescheduleOnSettingChanged() - trying to reschedule next save.");
 #endif
 
-                Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(ConfigMinutesBetweenAutosaves.Value, true);
-            }
+                Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
         }
 
         private void InitializeConfig()
@@ -109,6 +107,12 @@ namespace SubnauticaAutosave
                                                        key: "Save All Files"),
                 defaultValue: true,
                 configDescription: new ConfigDescription(description: "Always save all screenshots, cache and other files.\nMay result in longer save times."));
+
+            ConfigDelaySaveOnManual = this.Config.Bind(
+                configDefinition: new ConfigDefinition(section: "General",
+                                                       key: "Manual Save Resets Timer"),
+                defaultValue: false,
+                configDescription: new ConfigDescription(description: "Reset the next autosave timing when the player performs a manual save."));
         }
 
         internal static void LogMessage(string message)
