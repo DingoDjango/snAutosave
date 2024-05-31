@@ -1,22 +1,22 @@
-# **Subnautica Autosave 2.0 Beta**
+﻿# **Subnautica Autosave 2.1.0 Beta**
 
 ### **Description:**
 
-An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options for everything.
+An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options.
 
 **For Below Zero instructions please view the [Nexus mod page](https://www.nexusmods.com/subnauticabelowzero/mods/359).**
 
 ### **Installation:**
 
-1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)
+1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)
 2. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
-3. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
+3. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
 
 ### **(Optional) Configuration:**
 
 #### Recommended - Using Configuration Manager
 
-1. Install the [Configuration Manager](https://www.nexusmods.com/subnautica/mods/1112) mod
+1. Install the [Configuration Manager](https://www.nexusmods.com/subnautica/mods/1112) mod (also works for BZ)
 2. Launch Subnautica and open the Configuration Manager (default key: F5)
 3. Configure desired settings in this mod's section
 
@@ -38,15 +38,15 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **FAQ:**
 
 - **Q. Does this mod support the latest Subnautica update?**
-- A. Beta tested on Subnautica version Dec-2022 71137 (Living Large update)
+- A. Latest version tested on May 2024
 - **Q. Is this mod safe to add or remove from an existing save?**
-- A. Should be safe, please report any issues
+- A. Should be safe. Please report any issues
 - **Q. Does this mod have any known conflicts?**
-- A. I would not use this mod with other autosave/quicksave mods.
+- A. Do not use this mod with other autosave/quicksave mods. Other known incompatibilities: Cyclops Docking, Map, Deathrun
 - **Q. Does this mod impact performance?**
-- A. Autosaves are created in a similar way to vanilla saves. I implemented one "dirty" hack to for copying screenshots, but that setting can be toggled off if your PC is too slow.
+- A. Autosaves are created in a similar way to vanilla saves. I implemented one "dirty hack" for copying screenshots, but that setting can be toggled off if your PC is too slow
 
-[Source code can be found here.](https://github.com/DingoDjango/snAutosave)﻿
+[Source code can be found here.](https://github.com/DingoDjango/snAutosave)
 
 ### **Credits:**
 

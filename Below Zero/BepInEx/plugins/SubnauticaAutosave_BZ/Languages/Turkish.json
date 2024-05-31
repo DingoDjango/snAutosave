@@ -1,0 +1,6 @@
+﻿{
+  "AutosaveWarning": "{0} saniye içinde otomatik kayıta hazırlanıyor.",
+  "AutosaveStarting": "Otomatik kayıt işlemi başlıyor ...",
+  "AutosaveEnding": "Bir sonraki otomatik kayıt {0} dakika içinde gerçekleşecektir.",
+  "AutosaveInProgress": "Otomatik kayıt devam ediyor. Şu anda tekrar otomatik kayıt yapılamaz."
+}
