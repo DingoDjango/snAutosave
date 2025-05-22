@@ -1,4 +1,4 @@
-﻿# **Subnautica Autosave 2.1.0 Beta**
+﻿# **Subnautica Autosave 2.2.0**
 
 ### **Description:**
 
@@ -38,7 +38,7 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **FAQ:**
 
 - **Q. Does this mod support the latest Subnautica update?**
-- A. Latest version tested on May 2024
+- A. Latest version tested on May 2025
 - **Q. Is this mod safe to add or remove from an existing save?**
 - A. Should be safe. Please report any issues
 - **Q. Does this mod have any known conflicts?**
