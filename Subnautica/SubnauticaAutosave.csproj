@@ -122,6 +122,9 @@
     <Compile Include="..\Shared\AutosaveControllerBase.cs">
       <Link>AutosaveControllerBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\ConfigurationManagerAttributes.cs">
+      <Link>ConfigurationManagerAttributes.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\HarmonyPatches.cs">
       <Link>HarmonyPatches.cs</Link>
     </Compile>

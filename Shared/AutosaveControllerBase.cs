@@ -202,7 +202,10 @@ namespace SubnauticaAutosave
             
             // Add autosave permadeath option as well? (bisa) //
 
-            ErrorMessage.AddWarning("AutosaveStarting".Translate());
+            if (ModPlugin.ConfigShowSaveMessages.Value)
+            {
+                ErrorMessage.AddWarning("AutosaveStarting".Translate());
+            }            
 
             yield return null;
             
@@ -279,7 +282,7 @@ namespace SubnauticaAutosave
         {
             if (ModPlugin.ConfigAutosaveOnTimer.Value)
             {
-                if (!this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
+                if (ModPlugin.ConfigShowSaveMessages.Value && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
                 {
                     ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
 
@@ -342,7 +345,7 @@ namespace SubnauticaAutosave
 #if DEBUG
             ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
-                if (showMessage)
+                if (ModPlugin.ConfigShowSaveMessages.Value && showMessage)
                 {
                     ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(addedMinutes.ToString()));
                 }

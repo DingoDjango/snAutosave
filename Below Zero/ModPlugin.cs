@@ -9,7 +9,7 @@ namespace SubnauticaAutosave
     {
         public const string modGUID = "Dingo.SNBZ.SubnauticaAutosave";
         public const string modName = "Subnautica Autosave BZ";
-        public const string modVersion = "2.1.0";
+        public const string modVersion = "2.2.0";
 
         public override void RescheduleOnSettingChanged()
         {

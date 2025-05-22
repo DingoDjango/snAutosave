@@ -5,6 +5,20 @@ namespace SubnauticaAutosave
 {
     public static class HarmonyPatches
     {
+        private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
+        {
+            if (ModPlugin.ConfigUseCustomDateFormat.Value)
+            {
+                DateTime date = new DateTime(dateTicks);
+
+                __result = Translation.GetCustomDateFormat(date);
+
+                return false;
+            }
+
+            return true;
+        }
+
         private static bool Patch_ManualSaveGame_Prefix()
         {
             AutosaveController controller = Player.main?.GetComponent<AutosaveController>();
@@ -105,6 +119,11 @@ namespace SubnauticaAutosave
         internal static void InitializeHarmony()
         {
             Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
+
+            /* In the main menu, show user-defined save slot date format */
+            // Patch: Utils.PrettifyDate
+            harmony.Patch(original: AccessTools.Method(typeof(Utils), nameof(Utils.PrettifyDate)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_PrettifyDate_Prefix)));
 
             /* When saving manually, set to main slot if loaded from autosave */
             // Patch: IngameMenu.SaveGame
