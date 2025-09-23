@@ -1,11 +1,14 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using Nautilus.Options;
 using UnityEngine;
 
 namespace SubnauticaAutosave
 {
     public abstract class ModPluginBase : BaseUnityPlugin
     {
+        public ModOptions ModSettings;
+
         public const int MaxMinutesBetweenSaves = 600; // 10 hours should be enough
         public const int MaxSaveFiles = 99;
 
@@ -143,7 +146,7 @@ namespace SubnauticaAutosave
                                                          tags: new ConfigurationManagerAttributes { Category = categoryOther, Order = 15 }));
         }
 
-        public abstract void Start();
+        public abstract void Awake();
 
         public abstract void Update();
     }

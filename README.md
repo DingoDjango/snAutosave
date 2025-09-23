@@ -1,4 +1,4 @@
-﻿# **Subnautica Autosave 2.2.0**
+﻿# **Subnautica Autosave**
 
 ### **Description:**
 
@@ -9,8 +9,9 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **Installation:**
 
 1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)
-2. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
-3. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
+2. Install [Nautilus](https://www.nexusmods.com/subnautica/mods/1262)
+3. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
+4. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
 
 ### **(Optional) Configuration:**
 
@@ -29,7 +30,7 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 
 ### **(Optional) Translation:**
 
-1. Navigate to *...\Subnautica\BepInEx\plugins\SubnauticaAutosave\Languages*
+1. Navigate to *...\Subnautica\BepInEx\plugins\SubnauticaAutosave\Localization*
 2. Copy *English.json* and change the file name to match your language
     > Valid language names are found in *...\Subnautica\Subnautica_Data\StreamingAssets\SNUnmanagedData\LanguageFiles*
 3. Translate the file. Do not touch the keys ("AutosaveStarting"), only the values ("Autosave sequence...")
@@ -38,7 +39,7 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **FAQ:**
 
 - **Q. Does this mod support the latest Subnautica update?**
-- A. Latest version tested on May 2025
+- A. Latest version tested on September 2025
 - **Q. Is this mod safe to add or remove from an existing save?**
 - A. Should be safe. Please report any issues
 - **Q. Does this mod have any known conflicts?**

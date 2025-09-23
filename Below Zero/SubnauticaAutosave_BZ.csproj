@@ -97,6 +97,10 @@
       <HintPath>..\..\..\..\SubnauticaBelowZero\SubnauticaZero_Data\Managed\LitJson.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Nautilus">
+      <HintPath>..\..\..\..\SubnauticaBelowZero\BepInEx\plugins\Nautilus\Nautilus.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -113,6 +117,14 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>..\..\..\..\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.InputModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
@@ -133,6 +145,9 @@
     <Compile Include="..\Shared\ModPluginBase.cs">
       <Link>ModPluginBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\ModSettings.cs">
+      <Link>ModSettings.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Translation.cs">
       <Link>Translation.cs</Link>
     </Compile>
@@ -141,56 +156,56 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Shared\Languages\Chinese %28Simplified%29.json">
-      <Link>Languages\Chinese %28Simplified%29.json</Link>
+    <None Include="..\Shared\Localization\Chinese %28Simplified%29.json">
+      <Link>Localization\Chinese %28Simplified%29.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Chinese %28Traditional%29.json">
-      <Link>Languages\Chinese %28Traditional%29.json</Link>
+    <None Include="..\Shared\Localization\Chinese %28Traditional%29.json">
+      <Link>Localization\Chinese %28Traditional%29.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\English.json">
-      <Link>Languages\English.json</Link>
+    <None Include="..\Shared\Localization\English.json">
+      <Link>Localization\English.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\French.json">
-      <Link>Languages\French.json</Link>
+    <None Include="..\Shared\Localization\French.json">
+      <Link>Localization\French.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\German.json">
-      <Link>Languages\German.json</Link>
+    <None Include="..\Shared\Localization\German.json">
+      <Link>Localization\German.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Italian.json">
-      <Link>Languages\Italian.json</Link>
+    <None Include="..\Shared\Localization\Italian.json">
+      <Link>Localization\Italian.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Polish.json">
-      <Link>Languages\Polish.json</Link>
+    <None Include="..\Shared\Localization\Polish.json">
+      <Link>Localization\Polish.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Portuguese %28Brazil%29.json">
-      <Link>Languages\Portuguese %28Brazil%29.json</Link>
+    <None Include="..\Shared\Localization\Portuguese %28Brazil%29.json">
+      <Link>Localization\Portuguese %28Brazil%29.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Russian.json">
-      <Link>Languages\Russian.json</Link>
+    <None Include="..\Shared\Localization\Russian.json">
+      <Link>Localization\Russian.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Spanish.json">
-      <Link>Languages\Spanish.json</Link>
+    <None Include="..\Shared\Localization\Spanish.json">
+      <Link>Localization\Spanish.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Swedish.json">
-      <Link>Languages\Swedish.json</Link>
+    <None Include="..\Shared\Localization\Swedish.json">
+      <Link>Localization\Swedish.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Turkish.json">
-      <Link>Languages\Turkish.json</Link>
+    <None Include="..\Shared\Localization\Turkish.json">
+      <Link>Localization\Turkish.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Shared\Languages\Ukrainian.json">
-      <Link>Languages\Ukrainian.json</Link>
+    <None Include="..\Shared\Localization\Ukrainian.json">
+      <Link>Localization\Ukrainian.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

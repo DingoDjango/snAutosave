@@ -205,9 +205,7 @@ namespace SubnauticaAutosave
             if (ModPlugin.ConfigShowSaveMessages.Value)
             {
                 ErrorMessage.AddWarning("AutosaveStarting".Translate());
-            }            
-
-            yield return null;
+            }
             
             if (ModPlugin.ConfigComprehensiveSaves.Value)
             {
@@ -230,18 +228,12 @@ namespace SubnauticaAutosave
                 this.SetSlot(autosaveSlotName);
             }
 
-            yield return null;
-
             // Pause during save
-            IngameMenu.main.Open();
-            IngameMenu.main.mainPanel.SetActive(false);
             FreezeTime.Begin(FreezeTime.Id.None);
 
 #if DEBUG
             ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
 #endif
-
-            yield return null;
 
             IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
 
@@ -251,15 +243,9 @@ namespace SubnauticaAutosave
             ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
 #endif
 
-            // Unpause
-            IngameMenu.main.Close();
-            FreezeTime.End(FreezeTime.Id.None);
-
 #if DEBUG
             ModPlugin.LogMessage("AutosaveCoroutine() - Unfroze time.");
 #endif
-
-            yield return null;
 
             if (!hardcoreMode)
             {
@@ -275,7 +261,10 @@ namespace SubnauticaAutosave
             ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
 #endif
 
-            yield break;
+			// Unpause
+			FreezeTime.End(FreezeTime.Id.None);
+
+			yield break;
         }
 
         public void Tick()

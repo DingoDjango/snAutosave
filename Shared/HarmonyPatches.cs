@@ -111,11 +111,6 @@ namespace SubnauticaAutosave
             Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
         }
 
-        private static void Patch_SetCurrentLanguage_Postfix()
-        {
-            Translation.ReloadLanguage();
-        }
-
         internal static void InitializeHarmony()
         {
             Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
@@ -157,11 +152,6 @@ namespace SubnauticaAutosave
             // Patch: SubRoot.OnPlayerExited
             harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
                           postfix: delayAutosavePatch);
-
-            /* Reset language cache upon language change */
-            // Patch: Language.SetCurrentLanguage
-            harmony.Patch(original: AccessTools.Method(typeof(Language), nameof(Language.SetCurrentLanguage)),
-                          postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SetCurrentLanguage_Postfix)));
         }
     }
 }
