@@ -54,6 +54,11 @@ namespace SubnauticaAutosave
             return string.Format(AutosaveSuffixFormat, slotNumber);
         }
 
+        public string GetMainSlotDefault()
+        {
+            return this.GetMainSlotName(SaveLoadManager.main.GetCurrentSlot());
+		}
+
         public string GetMainSlotName(string currentSlot)
         {
             // Input:   slot0000_auto0001

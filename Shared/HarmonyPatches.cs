@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using HarmonyLib;
+using static UnityEngine.UI.Image;
 
 namespace SubnauticaAutosave
 {
@@ -111,6 +115,14 @@ namespace SubnauticaAutosave
             Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
         }
 
+        private static IEnumerable<CodeInstruction> Patch_SubnauticaMap_Slot(IEnumerable<CodeInstruction> instructions)
+        {
+			MethodInfo getCurrentSlot = AccessTools.Method(typeof(SaveLoadManager), nameof(SaveLoadManager.GetCurrentSlot));
+			MethodInfo getMainSlot = AccessTools.Method(typeof(AutosaveController), nameof(AutosaveController.GetMainSlotDefault));
+
+			return instructions.MethodReplacer(getCurrentSlot, getMainSlot);
+		}
+
         internal static void InitializeHarmony()
         {
             Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
@@ -128,7 +140,7 @@ namespace SubnauticaAutosave
 
             /* Show save names in menu panel */
             // Patch: MainMenuLoadPanel.UpdateLoadButtonState(MainMenuLoadButton lb)
-            harmony.Patch(original: AccessTools.Method(typeof(MainMenuLoadPanel), "UpdateLoadButtonState", new Type[] { typeof(MainMenuLoadButton) }),
+            harmony.Patch(original: AccessTools.Method(typeof(MainMenuLoadPanel), "UpdateLoadButtonState", new System.Type[] { typeof(MainMenuLoadButton) }),
                           postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_UpdateLoadButtonState_Postfix)));
 
             /* Autosave Controller initialization */
@@ -152,6 +164,32 @@ namespace SubnauticaAutosave
             // Patch: SubRoot.OnPlayerExited
             harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
                           postfix: delayAutosavePatch);
-        }
+
+			/* Compatibility patches? */
+
+			/* Map mod */
+			System.Type mapSlotType = AccessTools.TypeByName("SubnauticaMap.Storage");
+            if (mapSlotType != null)
+            {
+				MethodInfo slotMethod = AccessTools.PropertyGetter(mapSlotType, "slot");
+
+                if (slotMethod != null)
+                {
+					ModPlugin.LogMessage("Subnautica Map detected, applying compatibility patch.");
+
+                    try
+                    {
+                        harmony.Patch(original: slotMethod, prefix: null, postfix: null,
+                        transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SubnauticaMap_Slot)));
+
+                        ModPlugin.LogMessage("Successfully applied Subnautica Map compatibility patch.");
+					}
+                    catch (Exception e)
+                    {
+                        ModPlugin.LogMessage("Failed to apply Subnautica Map compatibility patch: " + e.ToString());
+					}
+				}
+            }
+		}
     }
 }

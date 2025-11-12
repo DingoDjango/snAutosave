@@ -216,7 +216,7 @@
 	</Target> -->
   <PropertyGroup>
     <PostBuildEvent>SET MODDIR=D:\SubnauticaBelowZero\BepInEx\
-SET ZIPFILE=D:\Downloads\$(ProjectName).zip
+SET ZIPFILE=$(ProjectDir)$(ProjectName).zip
 
 xcopy "$(ProjectDir)BepInEx\*" "%25MODDIR%25" /i /e /r /y
 
