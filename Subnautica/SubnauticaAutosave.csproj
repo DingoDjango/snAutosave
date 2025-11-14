@@ -219,9 +219,14 @@
 	</Target> -->
   <PropertyGroup>
     <PostBuildEvent>SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
+
 SET ZIPFILE=$(ProjectDir)$(ProjectName).zip
 
+
+
 xcopy "$(ProjectDir)BepInEx\*" "%25MODDIR%25" /i /e /r /y
+
+
 
 7z a -mx9 "%25ZIPFILE%25" "$(ProjectDir)BepInEx"
 </PostBuildEvent>
