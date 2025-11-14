@@ -7,7 +7,6 @@ namespace SubnauticaAutosave
 {
 	[BepInPlugin(modGUID, modName, modVersion)]
 	[BepInDependency("com.snmodding.nautilus")]
-	[BepInDependency("sn.subnauticamap.mod", BepInDependency.DependencyFlags.SoftDependency)]
 	public class ModPlugin : ModPluginBase
 	{
 		public const string modGUID = "Dingo.SN.SubnauticaAutosave";
