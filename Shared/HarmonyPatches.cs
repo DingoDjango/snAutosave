@@ -45,47 +45,6 @@ namespace SubnauticaAutosave
 			}
 		}
 
-		private static IEnumerable<CodeInstruction> Patch_SaveToDeepStorageAsync_Transpiler(IEnumerable<CodeInstruction> instructions)
-		{
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-
-			try
-			{
-				FieldInfo configComprehensiveSavesFld = AccessTools.Field(typeof(ModPlugin), nameof(ModPlugin.ConfigComprehensiveSaves));
-				MethodInfo configComprehensiveSavesFldValueGetter = AccessTools.PropertyGetter(typeof(ConfigEntry<bool>), "Value");
-				FieldInfo lastSaveTimeFld = AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime");
-				MethodInfo opGreaterThan = AccessTools.Method(typeof(DateTime), "op_GreaterThan", new[] { typeof(DateTime), typeof(DateTime) });
-
-				for (int i = 0; i < codes.Count; i++)
-				{
-					if (codes[i].opcode == OpCodes.Ldfld && (FieldInfo)codes[i].operand == lastSaveTimeFld
-						&& codes[i + 1].opcode == OpCodes.Call && (MethodInfo)codes[i + 1].operand == opGreaterThan)
-					{
-						//	codes.Insert(i - 3, new CodeInstruction(OpCodes.Call, compSavesValueGetter));
-						codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldsfld, configComprehensiveSavesFld));
-						codes.Insert(i + 3, new CodeInstruction(OpCodes.Callvirt, configComprehensiveSavesFldValueGetter));
-						codes.Insert(i + 4, new CodeInstruction(OpCodes.Or));
-
-//#if DEBUG
-//						MethodInfo toStringMethod = AccessTools.Method(typeof(object), "ToString");
-//						MethodInfo logMethod = AccessTools.Method(typeof(ModPlugin), nameof(ModPlugin.LogMessage));
-
-//						codes.Insert(i + 5, new CodeInstruction(OpCodes.Dup)); // duplicate result of OR
-//						codes.Insert(i + 6, new CodeInstruction(OpCodes.Box, typeof(bool))); // box the bool
-//						codes.Insert(i + 7, new CodeInstruction(OpCodes.Callvirt, toStringMethod)); // call ToString()
-//						codes.Insert(i + 8, new CodeInstruction(OpCodes.Call, logMethod)); // log it
-//#endif
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				ModPlugin.LogMessage(ex.ToString());
-			}
-
-			return codes;
-		}
-
 		private static void Patch_UpdateLoadButtonState_Postfix(MainMenuLoadButton lb)
 		{
 			if (ModPlugin.ConfigShowSaveNames.Value && SaveLoadManager.main.GetGameInfo(lb.saveGame) != null)
@@ -148,12 +107,35 @@ namespace SubnauticaAutosave
 			Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
 		}
 
-		private static IEnumerable<CodeInstruction> Patch_SubnauticaMap_Slot(IEnumerable<CodeInstruction> instructions)
+		private static IEnumerable<CodeInstruction> Patch_SaveToDeepStorageAsync_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
-			MethodInfo getCurrentSlot = AccessTools.Method(typeof(SaveLoadManager), nameof(SaveLoadManager.GetCurrentSlot));
-			MethodInfo getMainSlot = AccessTools.Method(typeof(AutosaveController), nameof(AutosaveController.GetMainSlotDefault));
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 
-			return instructions.MethodReplacer(getCurrentSlot, getMainSlot);
+			try
+			{
+				FieldInfo lastSaveTimeFld = AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime");
+				MethodInfo opGreaterThan = AccessTools.Method(typeof(DateTime), "op_GreaterThan", new[] { typeof(DateTime), typeof(DateTime) });
+				FieldInfo configComprehensiveSavesFld = AccessTools.Field(typeof(ModPlugin), nameof(ModPlugin.ConfigComprehensiveSaves));
+				MethodInfo configComprehensiveSavesFldValueGetter = AccessTools.PropertyGetter(typeof(ConfigEntry<bool>), "Value");
+
+				for (int i = 0; i < codes.Count; i++)
+				{
+					if (codes[i].opcode == OpCodes.Ldfld && (FieldInfo)codes[i].operand == lastSaveTimeFld
+						&& codes[i + 1].opcode == OpCodes.Call && (MethodInfo)codes[i + 1].operand == opGreaterThan)
+					{
+						//	codes.Insert(i - 3, new CodeInstruction(OpCodes.Call, compSavesValueGetter));
+						codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldsfld, configComprehensiveSavesFld));
+						codes.Insert(i + 3, new CodeInstruction(OpCodes.Callvirt, configComprehensiveSavesFldValueGetter));
+						codes.Insert(i + 4, new CodeInstruction(OpCodes.Or));
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				ModPlugin.LogMessage(ex.ToString());
+			}
+
+			return codes;
 		}
 
 		internal static void InitializeHarmony()
@@ -199,10 +181,7 @@ namespace SubnauticaAutosave
 						  postfix: delayAutosavePatch);
 
 			/* Save all files option */
-#if DEBUG
-			HarmonyFileLog.Enabled = true;
-			Harmony.DEBUG = true;
-#endif
+			// Patch: SaveLoadManager.SaveToDeepStorageAsync
 			Type[] nestedTypes = typeof(SaveLoadManager).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 			Type saveToDeepStorageStateMachine = nestedTypes.FirstOrDefault(t =>
 				t.Name.Contains("SaveToDeepStorageAsync") &&
@@ -213,11 +192,7 @@ namespace SubnauticaAutosave
 				MethodInfo saveToDeepStorageIterator = AccessTools.Method(saveToDeepStorageStateMachine, "MoveNext");
 
 				harmony.Patch(original: saveToDeepStorageIterator,
-					transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SaveToDeepStorageAsync_Transpiler))
-#if DEBUG
-					{ debug = true }
-#endif
-					);
+					transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SaveToDeepStorageAsync_Transpiler)));
 			}
 		}
 	}
