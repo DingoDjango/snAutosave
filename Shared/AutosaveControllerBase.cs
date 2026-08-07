@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,8 @@ namespace SubnauticaAutosave
 
 	public abstract class AutosaveControllerBase : MonoBehaviour
 	{
+		private const float InitialSaveDelaySeconds = 900f;
+
 		public const int PriorWarningSeconds = 30;
 		public const string AutosaveSuffixFormat = "_auto{0:0000}";
 
@@ -24,7 +27,7 @@ namespace SubnauticaAutosave
 
 		public bool warningTriggered = false;
 
-		public float nextSaveTriggerTime = Time.time + 900f;
+		public float nextSaveTriggerTime = Time.time + InitialSaveDelaySeconds;
 
 		public UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
 
@@ -204,16 +207,12 @@ namespace SubnauticaAutosave
 			this.isSaving = true;
 
 			bool hardcoreMode = ModPlugin.options.HardcoreMode;
-
-			// Add autosave permadeath option as well? (bisa) //
-
+	
 			if (ModPlugin.options.ShowSaveMessages)
 			{
 				ErrorMessage.AddWarning("AutosaveStarting".Translate());
 			}
 
-			/* Make sure the main slot is set correctly. 
-             * It should always be a clean slot name without _auto */
 			this.SetMainSlotIfAutosave();
 
 			string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
@@ -224,8 +223,7 @@ namespace SubnauticaAutosave
 
 				this.SetSlot(autosaveSlotName);
 			}
-
-			// Pause during save
+	
 			FreezeTime.Begin(FreezeTime.Id.None);
 
 #if DEBUG
@@ -233,13 +231,18 @@ namespace SubnauticaAutosave
 #endif
 
 			IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
-
-			// yield return CoroutineHost.StartCoroutine(saveGameAsync);
 			yield return saveGameAsync;
 
 #if DEBUG
 			ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
 #endif
+
+			if (!hardcoreMode && ModPlugin.options.ComprehensiveSaves)
+			{
+				string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
+
+				this.MirrorTemporarySaveToSlot(autosaveSlotName);
+			}
 
 			if (!hardcoreMode)
 			{
@@ -259,6 +262,76 @@ namespace SubnauticaAutosave
 			FreezeTime.End(FreezeTime.Id.None);
 
 			yield break;
+		}
+
+		private void MirrorTemporarySaveToSlot(string autosaveSlotName)
+		{
+			string tempPath = SaveLoadManager.GetTemporarySavePath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+			if (!Directory.Exists(tempPath))
+			{
+				return;
+			}
+
+			string slotPath = Path.Combine(this.SavedGamesDirPath, autosaveSlotName);
+
+			HashSet<string> mirroredFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			string[] tempFiles = Directory.GetFiles(tempPath, "*", SearchOption.AllDirectories);
+
+			foreach (string tempFile in tempFiles)
+			{
+				try
+				{
+					string relativePath = tempFile.Substring(tempPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+					string destinationPath = Path.Combine(slotPath, relativePath);
+
+					Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+					File.Copy(tempFile, destinationPath, true);
+
+					mirroredFiles.Add(relativePath);
+				}
+				catch (Exception ex)
+				{
+					ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to mirror {tempFile}: {ex}");
+				}
+			}
+
+#if DEBUG
+			ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Mirrored {mirroredFiles.Count} files from {tempPath} to {slotPath}.");
+#endif
+
+			if (!Directory.Exists(slotPath))
+			{
+				return;
+			}
+
+			string[] slotFiles = Directory.GetFiles(slotPath, "*", SearchOption.AllDirectories);
+
+			int purgedFiles = 0;
+			int keptFiles = 0;
+
+			foreach (string slotFile in slotFiles)
+			{
+				try
+				{
+					string relativePath = slotFile.Substring(slotPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+					// Keep batch-cell zip bundles and delete-meta files; temp holds uncompressed rows only
+					if (mirroredFiles.Contains(relativePath) || relativePath.EndsWith(".delete-meta", StringComparison.OrdinalIgnoreCase) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+					{
+						keptFiles++;
+						continue;
+					}
+
+					File.Delete(slotFile);
+					purgedFiles++;
+				}
+				catch (Exception ex)
+				{
+					ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to purge {slotFile}: {ex}");
+				}
+			}
+
 		}
 
 		public void Tick()

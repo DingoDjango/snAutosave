@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
 
@@ -11,6 +9,8 @@ namespace SubnauticaAutosave
 {
 	public static class HarmonyPatches
 	{
+		private static ManualLogSource logSource;
+
 		private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
 		{
 			if (ModPlugin.options.UseCustomDateFormat)
@@ -107,34 +107,47 @@ namespace SubnauticaAutosave
 			Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
 		}
 
-		private static IEnumerable<CodeInstruction> Patch_SaveToDeepStorageAsync_Transpiler(IEnumerable<CodeInstruction> instructions)
+		private static void Patch_CopyFilesToContainerAsyncImpl_Postfix(object owner, object state)
 		{
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-
 			try
 			{
-				FieldInfo lastSaveTimeFld = AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime");
-				MethodInfo opGreaterThan = AccessTools.Method(typeof(DateTime), "op_GreaterThan", new[] { typeof(DateTime), typeof(DateTime) });
-				FieldInfo optionsFld = AccessTools.Field(typeof(ModPlugin), nameof(ModPlugin.options));
-				FieldInfo comprehensiveSavesFld = AccessTools.Field(typeof(AutosaveOptions), nameof(AutosaveOptions.ComprehensiveSaves));
+				// CopyFilesToContainerWrapper passed via state (ioThread.Enqueue(delegate, this, wrapper)); operation field on base Wrapper
+				UserStorageUtils.AsyncOperation operation = FindWrapperOperation(state) ?? FindWrapperOperation(owner);
 
-				for (int i = 0; i < codes.Count; i++)
+				if (operation != null && operation.result != UserStorageUtils.Result.Success)
 				{
-					if (codes[i].opcode == OpCodes.Ldfld && (FieldInfo)codes[i].operand == lastSaveTimeFld
-						&& codes[i + 1].opcode == OpCodes.Call && (MethodInfo)codes[i + 1].operand == opGreaterThan)
+					if (logSource == null)
 					{
-						codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldsfld, optionsFld));
-						codes.Insert(i + 3, new CodeInstruction(OpCodes.Ldfld, comprehensiveSavesFld));
-						codes.Insert(i + 4, new CodeInstruction(OpCodes.Or));
+						logSource = BepInEx.Logging.Logger.CreateLogSource(ModPlugin.modName);
 					}
+
+					logSource.LogError($"CopyFilesToContainerAsyncImpl failed: {operation.result} - {operation.errorMessage}");
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				ModPlugin.LogMessage(ex.ToString());
+				// Never break vanilla save flow
+			}
+		}
+
+		private static UserStorageUtils.AsyncOperation FindWrapperOperation(object wrapper)
+		{
+			if (wrapper == null)
+			{
+				return null;
 			}
 
-			return codes;
+			for (Type type = wrapper.GetType(); type != null; type = type.BaseType)
+			{
+				FieldInfo field = type.GetField("operation", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+				if (field != null && field.FieldType == typeof(UserStorageUtils.AsyncOperation))
+				{
+					return (UserStorageUtils.AsyncOperation)field.GetValue(wrapper);
+				}
+			}
+
+			return null;
 		}
 
 		internal static void InitializeHarmony()
@@ -181,20 +194,11 @@ namespace SubnauticaAutosave
 				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
 							  postfix: delayAutosavePatch);
 
-				/* Save all files option */
-				// Patch: SaveLoadManager.SaveToDeepStorageAsync
-				Type[] nestedTypes = typeof(SaveLoadManager).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Type saveToDeepStorageStateMachine = nestedTypes.FirstOrDefault(t =>
-					t.Name.Contains("SaveToDeepStorageAsync") &&
-					t.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance) != null);
+				/* Log vanilla copy failures instead of silent catch */
+				// Patch: UserStoragePC.CopyFilesToContainerAsyncImpl (postfix, no IL manipulation)
+				harmony.Patch(original: AccessTools.Method(typeof(UserStoragePC), "CopyFilesToContainerAsyncImpl"),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_CopyFilesToContainerAsyncImpl_Postfix)));
 
-				if (saveToDeepStorageStateMachine != null)
-				{
-					MethodInfo saveToDeepStorageIterator = AccessTools.Method(saveToDeepStorageStateMachine, "MoveNext");
-
-					harmony.Patch(original: saveToDeepStorageIterator,
-						transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SaveToDeepStorageAsync_Transpiler)));
-				}
 			}
 			catch (Exception ex)
 			{

@@ -37,8 +37,7 @@ namespace SubnauticaAutosave
 
     internal static class Translation
     {
-        // Log each missing key only once to avoid log spam (checked every hover frame).
-        private static readonly HashSet<string> LoggedMissingKeys = new HashSet<string>();
+    	private static readonly HashSet<string> LoggedMissingKeys = new HashSet<string>();
 
         private static void LogMissingKey(string source)
         {
