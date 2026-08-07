@@ -139,59 +139,66 @@ namespace SubnauticaAutosave
 
 		internal static void InitializeHarmony()
 		{
-			Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
-
-			/* In the main menu, show user-defined save slot date format */
-			// Patch: Utils.PrettifyDate
-			harmony.Patch(original: AccessTools.Method(typeof(Utils), nameof(Utils.PrettifyDate)),
-				prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_PrettifyDate_Prefix)));
-
-			/* When saving manually, set to main slot if loaded from autosave */
-			// Patch: IngameMenu.SaveGame
-			harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), nameof(IngameMenu.SaveGame)),
-						  prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Prefix)),
-						  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Postfix)));
-
-			/* Show save names in menu panel */
-			// Patch: MainMenuLoadPanel.UpdateLoadButtonState(MainMenuLoadButton lb)
-			harmony.Patch(original: AccessTools.Method(typeof(MainMenuLoadPanel), "UpdateLoadButtonState", new System.Type[] { typeof(MainMenuLoadButton) }),
-						  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_UpdateLoadButtonState_Postfix)));
-
-			/* Autosave Controller initialization */
-			// Patch: Player.Awake
-			harmony.Patch(original: AccessTools.Method(typeof(Player), nameof(Player.Awake)),
-						  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Player_Awake_Postfix)));
-			// Patch: WaitScreen.ReportStageDurations, called last when loading saved games
-			harmony.Patch(original: AccessTools.Method(typeof(WaitScreen), nameof(WaitScreen.ReportStageDurations)),
-						  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportStageDurations_Postfix)));
-
-			/* Save on player sleep */
-			// Patch: Bed.OnHandClick
-			harmony.Patch(original: AccessTools.Method(typeof(Bed), nameof(Bed.OnHandClick)),
-						  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Bed_OnHandClick_Postfix)));
-
-			/* Delay autosave if player has entered or exited a base or vehicle */
-			HarmonyMethod delayAutosavePatch = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
-			// Patch: SubRoot.OnPlayerEntered
-			harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerEntered)),
-						  postfix: delayAutosavePatch);
-			// Patch: SubRoot.OnPlayerExited
-			harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
-						  postfix: delayAutosavePatch);
-
-			/* Save all files option */
-			// Patch: SaveLoadManager.SaveToDeepStorageAsync
-			Type[] nestedTypes = typeof(SaveLoadManager).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-			Type saveToDeepStorageStateMachine = nestedTypes.FirstOrDefault(t =>
-				t.Name.Contains("SaveToDeepStorageAsync") &&
-				t.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance) != null);
-
-			if (saveToDeepStorageStateMachine != null)
+			try
 			{
-				MethodInfo saveToDeepStorageIterator = AccessTools.Method(saveToDeepStorageStateMachine, "MoveNext");
+				Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
 
-				harmony.Patch(original: saveToDeepStorageIterator,
-					transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SaveToDeepStorageAsync_Transpiler)));
+				/* In the main menu, show user-defined save slot date format */
+				// Patch: Utils.PrettifyDate
+				harmony.Patch(original: AccessTools.Method(typeof(Utils), nameof(Utils.PrettifyDate)),
+					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_PrettifyDate_Prefix)));
+
+				/* When saving manually, set to main slot if loaded from autosave */
+				// Patch: IngameMenu.SaveGame
+				harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), nameof(IngameMenu.SaveGame)),
+							  prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Prefix)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ManualSaveGame_Postfix)));
+
+				/* Show save names in menu panel */
+				// Patch: MainMenuLoadPanel.UpdateLoadButtonState(MainMenuLoadButton lb)
+				harmony.Patch(original: AccessTools.Method(typeof(MainMenuLoadPanel), "UpdateLoadButtonState", new System.Type[] { typeof(MainMenuLoadButton) }),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_UpdateLoadButtonState_Postfix)));
+
+				/* Autosave Controller initialization */
+				// Patch: Player.Awake
+				harmony.Patch(original: AccessTools.Method(typeof(Player), nameof(Player.Awake)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Player_Awake_Postfix)));
+				// Patch: WaitScreen.ReportStageDurations, called last when loading saved games
+				harmony.Patch(original: AccessTools.Method(typeof(WaitScreen), nameof(WaitScreen.ReportStageDurations)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportStageDurations_Postfix)));
+
+				/* Save on player sleep */
+				// Patch: Bed.OnHandClick
+				harmony.Patch(original: AccessTools.Method(typeof(Bed), nameof(Bed.OnHandClick)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Bed_OnHandClick_Postfix)));
+
+				/* Delay autosave if player has entered or exited a base or vehicle */
+				HarmonyMethod delayAutosavePatch = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
+				// Patch: SubRoot.OnPlayerEntered
+				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerEntered)),
+							  postfix: delayAutosavePatch);
+				// Patch: SubRoot.OnPlayerExited
+				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
+							  postfix: delayAutosavePatch);
+
+				/* Save all files option */
+				// Patch: SaveLoadManager.SaveToDeepStorageAsync
+				Type[] nestedTypes = typeof(SaveLoadManager).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+				Type saveToDeepStorageStateMachine = nestedTypes.FirstOrDefault(t =>
+					t.Name.Contains("SaveToDeepStorageAsync") &&
+					t.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance) != null);
+
+				if (saveToDeepStorageStateMachine != null)
+				{
+					MethodInfo saveToDeepStorageIterator = AccessTools.Method(saveToDeepStorageStateMachine, "MoveNext");
+
+					harmony.Patch(original: saveToDeepStorageIterator,
+						transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SaveToDeepStorageAsync_Transpiler)));
+				}
+			}
+			catch (Exception ex)
+			{
+				ModPlugin.LogMessage($"Harmony patch initialization FAILED: {ex}");
 			}
 		}
 	}
