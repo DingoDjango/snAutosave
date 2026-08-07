@@ -53,7 +53,7 @@ namespace SubnauticaAutosave
         [Toggle(null, LabelLanguageId = "UseCustomDateFormat", TooltipLanguageId = "Tooltip_UseCustomDateFormat")]
         public bool UseCustomDateFormat = false;
 
-        [Choice(null, LabelLanguageId = "CustomDateTimeFormat", TooltipLanguageId = "Tooltip_CustomDateTimeFormat",
+        [Choice(LabelLanguageId = "CustomDateTimeFormat", TooltipLanguageId = "Tooltip_CustomDateTimeFormat",
             Options = new[]
             {
                 "DateTimeFormat_DMMMYYYY_24Hour",
