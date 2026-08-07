@@ -154,58 +154,9 @@
     <Compile Include="ModPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <None Include="..\Shared\Localization\Chinese %28Simplified%29.json">
-      <Link>Localization\Chinese %28Simplified%29.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Chinese %28Traditional%29.json">
-      <Link>Localization\Chinese %28Traditional%29.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\English.json">
-      <Link>Localization\English.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\French.json">
-      <Link>Localization\French.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\German.json">
-      <Link>Localization\German.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Italian.json">
-      <Link>Localization\Italian.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Polish.json">
-      <Link>Localization\Polish.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Portuguese %28Brazil%29.json">
-      <Link>Localization\Portuguese %28Brazil%29.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Russian.json">
-      <Link>Localization\Russian.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Spanish.json">
-      <Link>Localization\Spanish.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Swedish.json">
-      <Link>Localization\Swedish.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Turkish.json">
-      <Link>Localization\Turkish.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Shared\Localization\Ukrainian.json">
-      <Link>Localization\Ukrainian.json</Link>
+    <None Include="..\Shared\Localization\*.*">
+      <Link>Localization\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -214,18 +165,23 @@
 	Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
 	</Target> -->
+  <Target Name="CleanPluginOutput" BeforeTargets="BeforeBuild" Condition="Exists('$(ProjectDir)BepInEx\plugins\SubnauticaAutosave')">
+    <RemoveDir Directories="$(ProjectDir)BepInEx\plugins\SubnauticaAutosave" ContinueOnError="true" />
+  </Target>
   <PropertyGroup>
-    <PostBuildEvent>SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
+    <PostBuildEvent>cd /d "$(ProjectDir)"
+SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
+SET ZIPFILE=..\ZIP\Subnautica\$(ProjectName).zip
 
-SET ZIPFILE=$(ProjectDir)$(ProjectName).zip
+if exist "%25MODDIR%25plugins\SubnauticaAutosave" rmdir /s /q "%25MODDIR%25plugins\SubnauticaAutosave"
 
+xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave\*" "%25MODDIR%25plugins\SubnauticaAutosave\" /i /e /r /y /q >nul
 
-
-xcopy "$(ProjectDir)BepInEx\*" "%25MODDIR%25" /i /e /r /y
-
-
-
-7z a -mx9 "%25ZIPFILE%25" "$(ProjectDir)BepInEx"
-</PostBuildEvent>
+if "$(Configuration)" == "Debug" (
+    if exist "%25ZIPFILE%25" del /f /q "%25ZIPFILE%25"
+) else (
+    if not exist "..\ZIP\Subnautica" mkdir "..\ZIP\Subnautica"
+    "C:\Program Files\7-Zip\7z.exe" a -mx9 -bso0 -bse2 -bsp0 "%25ZIPFILE%25" "BepInEx\plugins\SubnauticaAutosave"
+)</PostBuildEvent>
   </PropertyGroup>
 </Project>
