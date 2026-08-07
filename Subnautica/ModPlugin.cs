@@ -1,64 +1,44 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using Nautilus.Handlers;
 using UnityEngine;
 
 namespace SubnauticaAutosave
 {
-	[BepInPlugin(modGUID, modName, modVersion)]
-	[BepInDependency("com.snmodding.nautilus")]
-	public class ModPlugin : ModPluginBase
-	{
-		public const string modGUID = "Dingo.SN.SubnauticaAutosave";
-		public const string modName = "Subnautica Autosave";
-		public const string modVersion = "2.4.0";
+    [BepInPlugin(modGUID, modName, modVersion)]
+    [BepInDependency("com.snmodding.nautilus")]
+    public class ModPlugin : ModPluginBase
+    {
+        public const string modGUID = "Dingo.SN.SubnauticaAutosave";
+        public const string modName = "Subnautica Autosave";
+        public const string modVersion = "2.4.0";
 
-		public override void RescheduleOnSettingChanged()
-		{
-#if DEBUG
-                LogMessage("RescheduleOnSettingChanged() - trying to reschedule next save.");
-#endif
+        private void Awake()
+        {
+            LanguageHandler.RegisterLocalizationFolder();
 
-			Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
-		}
+            options = OptionsPanelHandler.RegisterModOptions<AutosaveOptions>();
 
-		public override void InitializeConfig()
-		{
-			base.InitializeConfig();
+            AutosaveOptions.OnTimingChanged += RescheduleOnSettingChanged;
 
-			ConfigAutosaveOnTimer.SettingChanged += delegate
-			{
-				this.RescheduleOnSettingChanged();
-			};
+            HarmonyPatches.InitializeHarmony();
+        }
 
-			ConfigMinutesBetweenAutosaves.SettingChanged += delegate
-			{
-				this.RescheduleOnSettingChanged();
-			};
-		}
+        private void OnDestroy()
+        {
+            AutosaveOptions.OnTimingChanged -= RescheduleOnSettingChanged;
+        }
 
-		public static void LogMessage(string message)
-		{
-			Debug.Log($"{modName} :: {message}");
-		}
+        private void RescheduleOnSettingChanged()
+        {
+            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
+        }
 
-		public override void Awake()
-		{
-			LanguageHandler.RegisterLocalizationFolder();
-
-			this.InitializeConfig();
-
-			this.ModSettings = new ModSettings();
-
-			HarmonyPatches.InitializeHarmony();
-		}
-
-		public override void Update()
-		{
-			if (Input.GetKeyDown(ConfigQuicksaveKey.Value))
-			{
-				IngameMenu.main?.SaveGame();
-			}
+        private void Update()
+        {
+            if (Input.GetKeyDown(options.QuicksaveKey))
+            {
+                IngameMenu.main?.SaveGame();
+            }
 
 #if DEBUG
             if (Input.GetKeyDown(KeyCode.LeftBracket))
@@ -68,6 +48,11 @@ namespace SubnauticaAutosave
                 Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
             }
 #endif
-		}
-	}
+        }
+
+        public static void LogMessage(string message)
+        {
+            Debug.Log($"{modName} :: {message}");
+        }
+    }
 }

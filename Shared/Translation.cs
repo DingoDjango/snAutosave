@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using LitJson;
 
 namespace SubnauticaAutosave
 {
@@ -21,7 +20,7 @@ namespace SubnauticaAutosave
         [Description("mm.dd.yyyy (12h) → 05.22.2025 - 03:30 PM")]
         MDY_12Hour,
     }
-    
+
     public static class DateTimeFormatLibrary
     {
         public static readonly Dictionary<DateTimeFormat, string> DateTimes = new Dictionary<DateTimeFormat, string>();
@@ -38,6 +37,17 @@ namespace SubnauticaAutosave
 
     internal static class Translation
     {
+        // Log each missing key only once to avoid log spam (checked every hover frame).
+        private static readonly HashSet<string> LoggedMissingKeys = new HashSet<string>();
+
+        private static void LogMissingKey(string source)
+        {
+            if (LoggedMissingKeys.Add(source))
+            {
+                ModPlugin.LogMessage($"Could not find translated string for `{source}`");
+            }
+        }
+
         internal static string Translate(this string source)
         {
             if (Language.main.TryGet(source, out string translated))
@@ -45,30 +55,52 @@ namespace SubnauticaAutosave
                 return translated;
             }
 
-            ModPlugin.LogMessage($"Could not find translated string for `{source}`");
-
+            LogMissingKey(source);
             return source;
         }
 
-        internal static string FormatTranslate(this string source, string arg0)
+        internal static string FormatTranslate(this string source, params object[] args)
         {
             string basic = source.Translate();
 
-            if (!string.IsNullOrEmpty(arg0))
+            if (args != null && args.Length > 0)
             {
                 try
                 {
-                    return string.Format(basic, arg0);
+                    return string.Format(basic, args);
                 }
-
                 catch (Exception ex)
                 {
                     ModPlugin.LogMessage(ex.ToString());
-                    ModPlugin.LogMessage($"Failed to format '{source}' with arg0 `{arg0}'");
+                    ModPlugin.LogMessage($"Failed to format '{source}'");
                 }
             }
 
             return basic;
+        }
+
+        internal static string TryFormatTranslate(this string source, params object[] args)
+        {
+            if (!Language.main.TryGet(source, out string basic))
+            {
+                return null;
+            }
+
+            if (args == null || args.Length == 0)
+            {
+                return basic;
+            }
+
+            try
+            {
+                return string.Format(basic, args);
+            }
+            catch (Exception ex)
+            {
+                ModPlugin.LogMessage(ex.ToString());
+                ModPlugin.LogMessage($"Failed to format '{source}'");
+                return null;
+            }
         }
 
         internal static string GetCustomDateFormat(DateTime dateTime)
@@ -79,7 +111,7 @@ namespace SubnauticaAutosave
             ModPlugin.LogMessage($"culture == {culture}.");
 #endif
 
-            string customFormat = DateTimeFormatLibrary.DateTimes[ModPlugin.ConfigCustomDateTimeFormat.Value];
+            string customFormat = DateTimeFormatLibrary.DateTimes[ModPlugin.options.CustomDateTimeFormat];
             object[] args = new object[] { dateTime };
             string formattedDate = string.Format(culture, customFormat, args);
 

@@ -138,17 +138,14 @@
     <Compile Include="..\Shared\AutosaveControllerBase.cs">
       <Link>AutosaveControllerBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ConfigurationManagerAttributes.cs">
-      <Link>ConfigurationManagerAttributes.cs</Link>
+    <Compile Include="..\Shared\AutosaveOptions.cs">
+      <Link>AutosaveOptions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\HarmonyPatches.cs">
       <Link>HarmonyPatches.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ModPluginBase.cs">
       <Link>ModPluginBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\ModSettings.cs">
-      <Link>ModSettings.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Translation.cs">
       <Link>Translation.cs</Link>

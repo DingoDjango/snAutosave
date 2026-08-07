@@ -79,7 +79,7 @@ namespace SubnauticaAutosave
 
 		public bool IsAllowedAutosaveSlotNumber(int slotNumber)
 		{
-			return slotNumber <= ModPlugin.ConfigMaxSaveFiles.Value;
+			return slotNumber <= ModPlugin.options.MaxSaveFiles;
 		}
 
 		public int GetLatestAutosaveForSlot(string mainSaveSlot)
@@ -129,7 +129,7 @@ namespace SubnauticaAutosave
 
 		public int RotateAutosaveSlotNumber()
 		{
-			if (this.latestAutosaveSlot < 0 || this.latestAutosaveSlot >= ModPlugin.ConfigMaxSaveFiles.Value)
+			if (this.latestAutosaveSlot < 0 || this.latestAutosaveSlot >= ModPlugin.options.MaxSaveFiles)
 			{
 				this.latestAutosaveSlot = 1;
 			}
@@ -185,7 +185,7 @@ namespace SubnauticaAutosave
 
 			/* (Optional) Check if player health is in allowed range */
 
-			float safeHealthFraction = ModPlugin.ConfigMinimumPlayerHealthPercent.Value;
+			float safeHealthFraction = ModPlugin.options.MinimumPlayerHealthPercent;
 
 			if (safeHealthFraction > 0f && !this.IsSafePlayerHealth(safeHealthFraction))
 			{
@@ -203,11 +203,11 @@ namespace SubnauticaAutosave
 
 			this.isSaving = true;
 
-			bool hardcoreMode = ModPlugin.ConfigHardcoreMode.Value;
+			bool hardcoreMode = ModPlugin.options.HardcoreMode;
 
 			// Add autosave permadeath option as well? (bisa) //
 
-			if (ModPlugin.ConfigShowSaveMessages.Value)
+			if (ModPlugin.options.ShowSaveMessages)
 			{
 				ErrorMessage.AddWarning("AutosaveStarting".Translate());
 			}
@@ -263,9 +263,9 @@ namespace SubnauticaAutosave
 
 		public void Tick()
 		{
-			if (ModPlugin.ConfigAutosaveOnTimer.Value)
+			if (ModPlugin.options.AutosaveOnTimer)
 			{
-				if (ModPlugin.ConfigShowSaveMessages.Value && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
+				if (ModPlugin.options.ShowSaveMessages && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
 				{
 					ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
 
@@ -300,9 +300,9 @@ namespace SubnauticaAutosave
 
 		public void ScheduleAutosave(bool settingsChanged = false, bool showMessage = true)
 		{
-			if (ModPlugin.ConfigAutosaveOnTimer.Value)
+			if (ModPlugin.options.AutosaveOnTimer)
 			{
-				int addedMinutes = ModPlugin.ConfigMinutesBetweenAutosaves.Value;
+				int addedMinutes = ModPlugin.options.MinutesBetweenAutosaves;
 
 #if DEBUG
 				ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
@@ -315,7 +315,7 @@ namespace SubnauticaAutosave
 #if DEBUG
 				ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
-				if (ModPlugin.ConfigShowSaveMessages.Value && showMessage)
+				if (ModPlugin.options.ShowSaveMessages && showMessage)
 				{
 					ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(addedMinutes.ToString()));
 				}
@@ -379,7 +379,7 @@ namespace SubnauticaAutosave
 			ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
 #endif
 
-			if (!ModPlugin.ConfigHardcoreMode.Value)
+			if (!ModPlugin.options.HardcoreMode)
 			{
 				this.latestAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
 			}

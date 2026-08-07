@@ -13,7 +13,7 @@ namespace SubnauticaAutosave
 	{
 		private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
 		{
-			if (ModPlugin.ConfigUseCustomDateFormat.Value)
+			if (ModPlugin.options.UseCustomDateFormat)
 			{
 				DateTime date = new DateTime(dateTicks);
 
@@ -38,7 +38,7 @@ namespace SubnauticaAutosave
 
 			if (controller != null)
 			{
-				if (ModPlugin.ConfigDelaySaveOnManual.Value)
+				if (ModPlugin.options.DelaySaveOnManual)
 				{
 					controller.ScheduleAutosave();
 				}
@@ -47,7 +47,7 @@ namespace SubnauticaAutosave
 
 		private static void Patch_UpdateLoadButtonState_Postfix(MainMenuLoadButton lb)
 		{
-			if (ModPlugin.ConfigShowSaveNames.Value && SaveLoadManager.main.GetGameInfo(lb.saveGame) != null)
+			if (ModPlugin.options.ShowSaveNames && SaveLoadManager.main.GetGameInfo(lb.saveGame) != null)
 			{
 				string slotNamePrefix = string.Empty;
 
@@ -77,7 +77,7 @@ namespace SubnauticaAutosave
 		// Untested //
 		private static void Patch_Bed_OnHandClick_Postfix()
 		{
-			if (ModPlugin.ConfigAutosaveOnSleep.Value)
+			if (ModPlugin.options.AutosaveOnSleep)
 			{
 				Player player = Player.main;
 
@@ -115,17 +115,16 @@ namespace SubnauticaAutosave
 			{
 				FieldInfo lastSaveTimeFld = AccessTools.Field(typeof(SaveLoadManager), "lastSaveTime");
 				MethodInfo opGreaterThan = AccessTools.Method(typeof(DateTime), "op_GreaterThan", new[] { typeof(DateTime), typeof(DateTime) });
-				FieldInfo configComprehensiveSavesFld = AccessTools.Field(typeof(ModPlugin), nameof(ModPlugin.ConfigComprehensiveSaves));
-				MethodInfo configComprehensiveSavesFldValueGetter = AccessTools.PropertyGetter(typeof(ConfigEntry<bool>), "Value");
+				FieldInfo optionsFld = AccessTools.Field(typeof(ModPlugin), nameof(ModPlugin.options));
+				FieldInfo comprehensiveSavesFld = AccessTools.Field(typeof(AutosaveOptions), nameof(AutosaveOptions.ComprehensiveSaves));
 
 				for (int i = 0; i < codes.Count; i++)
 				{
 					if (codes[i].opcode == OpCodes.Ldfld && (FieldInfo)codes[i].operand == lastSaveTimeFld
 						&& codes[i + 1].opcode == OpCodes.Call && (MethodInfo)codes[i + 1].operand == opGreaterThan)
 					{
-						//	codes.Insert(i - 3, new CodeInstruction(OpCodes.Call, compSavesValueGetter));
-						codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldsfld, configComprehensiveSavesFld));
-						codes.Insert(i + 3, new CodeInstruction(OpCodes.Callvirt, configComprehensiveSavesFldValueGetter));
+						codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldsfld, optionsFld));
+						codes.Insert(i + 3, new CodeInstruction(OpCodes.Ldfld, comprehensiveSavesFld));
 						codes.Insert(i + 4, new CodeInstruction(OpCodes.Or));
 					}
 				}
