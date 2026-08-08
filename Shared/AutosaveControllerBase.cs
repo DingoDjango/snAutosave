@@ -10,463 +10,520 @@ using UWE;
 
 namespace SubnauticaAutosave
 {
-	/* Some of the following code is based on "Safe Autosave" by berkay2578:
-	 * https://www.nexusmods.com/subnautica/mods/94
-	 * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave */
+    /* Some of the following code is based on "Safe Autosave" by berkay2578:
+     * https://www.nexusmods.com/subnautica/mods/94
+     * https://github.com/berkay2578/SubnauticaMods/tree/master/SafeAutosave */
 
-	public abstract class AutosaveControllerBase : MonoBehaviour
-	{
-		private const float InitialSaveDelaySeconds = 900f;
+    public abstract class AutosaveControllerBase : MonoBehaviour
+    {
+        private const float InitialSaveDelaySeconds = 900f;
 
-		public const int PriorWarningSeconds = 30;
-		public const string AutosaveSuffixFormat = "_auto{0:0000}";
+        private static readonly FieldInfo SavePathField = AccessTools.Field(typeof(UserStoragePC), "savePath");
 
-		public int latestAutosaveSlot = -1;
+        private static readonly MethodInfo GetAllowSavingMethod = AccessTools.Method(typeof(IngameMenu), "GetAllowSaving");
 
-		public bool isSaving = false;
+        public const int PriorWarningSeconds = 30;
+        public const string AutosaveSuffixFormat = "_auto{0:0000}";
 
-		public bool warningTriggered = false;
+        protected int latestAutosaveSlot = -1;
 
-		public float nextSaveTriggerTime = Time.time + InitialSaveDelaySeconds;
+        protected bool isSaving = false;
 
-		public UserStorage GlobalUserStorage => PlatformUtils.main.GetUserStorage();
+        protected bool warningTriggered = false;
 
-		public string SavedGamesDirPath
-		{
-			get
-			{
-				if (this.GlobalUserStorage == null)
-				{
-					return null;
-				}
+        protected float nextSaveTriggerTime = Time.time + InitialSaveDelaySeconds;
 
-				DirectoryInfo saveDir = new DirectoryInfo((string)AccessTools.Field(typeof(UserStoragePC), "savePath").GetValue(this.GlobalUserStorage));
-				string savePath = saveDir.FullName;
+        public UserStorage GlobalUserStorage => PlatformUtils.main?.GetUserStorage();
 
-#if DEBUG
-				ModPlugin.LogMessage($"Save path is {savePath}");
-#endif
+        public string SavedGamesDirPath
+        {
+            get
+            {
+                UserStorage globalUserStorage = this.GlobalUserStorage;
 
-				return savePath;
-			}
-		}
+                if (globalUserStorage == null || SavePathField == null)
+                {
+                    return null;
+                }
 
-		public string SlotSuffixFormatted(int slotNumber)
-		{
-			// Example output: "_auto0003"
-			return string.Format(AutosaveSuffixFormat, slotNumber);
-		}
-
-		public string GetMainSlotDefault()
-		{
-			return this.GetMainSlotName(SaveLoadManager.main.GetCurrentSlot());
-		}
-
-		public string GetMainSlotName(string currentSlot)
-		{
-			// Input:   slot0000_auto0001
-			// Output:  slot0000
-			return currentSlot.Split('_')[0];
-		}
-
-		public int GetAutosaveSlotNumberFromDir(string directoryName)
-		{
-			int slotNumber = int.Parse(directoryName.Split(new string[] { "auto" }, StringSplitOptions.None).Last());
+                DirectoryInfo saveDir = new DirectoryInfo((string)SavePathField.GetValue(globalUserStorage));
+                string savePath = saveDir.FullName;
 
 #if DEBUG
-			ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir returned {slotNumber} for {directoryName}");
+                ModPlugin.LogMessage($"Save path is {savePath}");
 #endif
 
-			return slotNumber;
-		}
+                return savePath;
+            }
+        }
 
-		public bool IsAllowedAutosaveSlotNumber(int slotNumber)
-		{
-			return slotNumber <= ModPlugin.options.MaxSaveFiles;
-		}
+        private bool GetAllowSavingExtra()
+        {
+            if (Player.main.GetPDA().isInUse)
+            {
+                return false;
+            }
 
-		public int GetLatestAutosaveForSlot(string mainSaveSlot)
-		{
-			if (mainSaveSlot.Contains("auto"))
-			{
-				mainSaveSlot = this.GetMainSlotName(mainSaveSlot);
-			}
+            // Vanilla GetAllowSaving has 60s timeout escape; block mid-cinematic saves
+            if (PlayerCinematicController.cinematicModeCount > 0)
+            {
+                return false;
+            }
 
-			string savedGamesDir = this.SavedGamesDirPath;
-			string searchPattern = "*" + mainSaveSlot + "_auto" + "*";
+            // Respawn screen outlives vanilla 5s allowSaving grace
+            if (!Player.main.liveMixin.IsAlive())
+            {
+                return false;
+            }
 
-			if (Directory.Exists(savedGamesDir))
-			{
-				DirectoryInfo[] saveDirectories = new DirectoryInfo(savedGamesDir).GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+            // Vehicles: piloting, enter/exit, docked
+            if (Player.main.isPiloting)
+            {
+                return false;
+            }
+
+            // Prevent save mid-ghost-placement desync
+            if (Builder.isPlacing)
+            {
+                return false;
+            }
+
+            // Any UI input group active: sign/subname/console/crafting/builder menu etc.
+            if (FPSInputModule.current != null && FPSInputModule.current.lastGroup != null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool GetAllowSavingOptionals()
+        {
+            float safeHealthFraction = ModPlugin.options.MinimumPlayerHealthPercent;
+
+            if (safeHealthFraction > 0f && !this.IsSafePlayerHealth(safeHealthFraction))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private IEnumerator AutosaveCoroutine()
+        {
+#if DEBUG
+            ModPlugin.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
+#endif
+
+            this.isSaving = true;
+
+            bool hardcoreMode = ModPlugin.options.HardcoreMode;
+
+            this.SetMainSlotIfAutosave();
+
+            string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
+
+            if (!hardcoreMode)
+            {
+                string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.RotateAutosaveSlotNumber());
+
+                this.SetSlot(autosaveSlotName);
+            }
+
+            FreezeTime.Begin(FreezeTime.Id.None);
 
 #if DEBUG
-				ModPlugin.LogMessage($"GetLatestAutosaveForSlot found {saveDirectories.Count()} autosaves for {mainSaveSlot}");
+            ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
 #endif
 
-				if (saveDirectories.Count() > 0)
-				{
-					// Skip dirs without gameinfo.json (interrupted saves) — GetFiles[0] would throw IndexOutOfRange
-					IOrderedEnumerable<DirectoryInfo> saveSlotsByLastModified = saveDirectories
-						.Where(d => d.GetFiles("gameinfo.json").Length > 0)
-						.OrderByDescending(d => d.GetFiles("gameinfo.json")[0].LastWriteTime);
-
-					foreach (DirectoryInfo saveDir in saveSlotsByLastModified)
-					{
-						int autosaveSlotNumber = this.GetAutosaveSlotNumberFromDir(saveDir.Name);
-
-						if (this.IsAllowedAutosaveSlotNumber(autosaveSlotNumber))
-						{
-							// The most recent save slot used, which matches the maximum save slots setting
-							return autosaveSlotNumber;
-						}
-					}
-				}
-			}
+            IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
+            yield return saveGameAsync;
 
 #if DEBUG
-			else
-			{
-				ModPlugin.LogMessage($"savedGamesDir == {savedGamesDir}. Could not get save path.");
-			}
+            ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
 #endif
 
-			return -1;
-		}
+            if (!hardcoreMode && ModPlugin.options.ComprehensiveSaves)
+            {
+                string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
 
-		public int RotateAutosaveSlotNumber()
-		{
-			if (this.latestAutosaveSlot < 0 || this.latestAutosaveSlot >= ModPlugin.options.MaxSaveFiles)
-			{
-				this.latestAutosaveSlot = 1;
-			}
+                this.MirrorTemporarySaveToSlot(autosaveSlotName);
+            }
 
-			else
-			{
-				this.latestAutosaveSlot++;
-			}
+            if (!hardcoreMode)
+            {
+                this.SetSlot(mainSaveSlot);
+            }
 
-			return this.latestAutosaveSlot;
-		}
+            this.ScheduleAutosave();
 
-		public bool IsSafePlayerHealth(float minHealthPercent)
-		{
-#if DEBUG
-			ModPlugin.LogMessage($"Setting minHealthPercent returned {minHealthPercent}");
-#endif
-
-			return Player.main.liveMixin.GetHealthFraction() >= minHealthPercent;
-		}
-
-		public bool IsSafeToSave()
-		{
-			/* Use vanilla checks for cinematics and current saving status */
-
-			MethodInfo getAllowSaving = AccessTools.Method(typeof(IngameMenu), "GetAllowSaving");
+            this.warningTriggered = false;
+            this.isSaving = false;
 
 #if DEBUG
-			if (getAllowSaving == null)
-			{
-				ModPlugin.LogMessage("GetAllowSaving is null, returning false.");
-
-				return false;
-			}
+            ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
 #endif
 
-			bool saveAllowed = (bool)getAllowSaving?.Invoke(IngameMenu.main, null);
+            // Unpause
+            FreezeTime.End(FreezeTime.Id.None);
 
-			if (!saveAllowed)
-			{
-#if DEBUG
-				ModPlugin.LogMessage($"Did not save. GetAllowSaving returned {saveAllowed}.");
-#endif
+            yield break;
+        }
 
-				return false;
-			}
+        private void MirrorTemporarySaveToSlot(string autosaveSlotName)
+        {
+            string tempPath = SaveLoadManager.GetTemporarySavePath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-			/* (Test) Delay save if PDA is in use */
-			if (Player.main.GetPDA().isInUse)
-			{
-				return false;
-			}
+            if (!Directory.Exists(tempPath))
+            {
+                return;
+            }
 
-			/* (Optional) Check if player health is in allowed range */
+            string slotPath = Path.Combine(this.SavedGamesDirPath, autosaveSlotName);
 
-			float safeHealthFraction = ModPlugin.options.MinimumPlayerHealthPercent;
+            HashSet<string> mirroredFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string[] tempFiles = Directory.GetFiles(tempPath, "*", SearchOption.AllDirectories);
 
-			if (safeHealthFraction > 0f && !this.IsSafePlayerHealth(safeHealthFraction))
-			{
-				return false;
-			}
+            foreach (string tempFile in tempFiles)
+            {
+                try
+                {
+                    string relativePath = tempFile.Substring(tempPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    string destinationPath = Path.Combine(slotPath, relativePath);
 
-			return true;
-		}
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                    File.Copy(tempFile, destinationPath, true);
 
-		private IEnumerator AutosaveCoroutine()
-		{
-#if DEBUG
-			ModPlugin.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
-#endif
-
-			this.isSaving = true;
-
-			bool hardcoreMode = ModPlugin.options.HardcoreMode;
-	
-			this.SetMainSlotIfAutosave();
-
-			string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
-
-			if (!hardcoreMode)
-			{
-				string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.RotateAutosaveSlotNumber());
-
-				this.SetSlot(autosaveSlotName);
-			}
-	
-			FreezeTime.Begin(FreezeTime.Id.None);
+                    mirroredFiles.Add(relativePath);
+                }
+                catch (Exception ex)
+                {
+                    ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to mirror {tempFile}: {ex}");
+                }
+            }
 
 #if DEBUG
-			ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
+            ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Mirrored {mirroredFiles.Count} files from {tempPath} to {slotPath}.");
 #endif
 
-			IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
-			yield return saveGameAsync;
+            if (!Directory.Exists(slotPath))
+            {
+                return;
+            }
+
+            string[] slotFiles = Directory.GetFiles(slotPath, "*", SearchOption.AllDirectories);
+
+            int purgedFiles = 0;
+            int keptFiles = 0;
+
+            foreach (string slotFile in slotFiles)
+            {
+                try
+                {
+                    string relativePath = slotFile.Substring(slotPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                    // Keep vanilla delete-meta markers (.deleted) and batch-cell zip bundles; temp holds uncompressed rows only
+                    if (mirroredFiles.Contains(relativePath) || SaveLoadManager.IsDeleteMetaFileName(relativePath) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        keptFiles++;
+                        continue;
+                    }
+
+                    File.Delete(slotFile);
+                    purgedFiles++;
+                }
+                catch (Exception ex)
+                {
+                    ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to purge {slotFile}: {ex}");
+                }
+            }
+
+        }
+
+        public string SlotSuffixFormatted(int slotNumber)
+        {
+            // Example output: "_auto0003"
+            return string.Format(AutosaveSuffixFormat, slotNumber);
+        }
+
+        public string GetCurrentMainSlot()
+        {
+            return this.GetMainSlotName(SaveLoadManager.main.GetCurrentSlot());
+        }
+
+        public string GetMainSlotName(string currentSlot)
+        {
+            // Input:   slot0000_auto0001
+            // Output:  slot0000
+            return currentSlot.Split('_')[0];
+        }
+
+        public int GetAutosaveSlotNumberFromDir(string directoryName)
+        {
+            string slotPart = directoryName.Split(new[] { "auto" }, StringSplitOptions.None).Last();
+            int slotNumber;
+
+            if (!int.TryParse(slotPart, out slotNumber))
+            {
+#if DEBUG
+                ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir could not parse {directoryName}");
+#endif
+
+                return -1;
+            }
 
 #if DEBUG
-			ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
+            ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir returned {slotNumber} for {directoryName}");
 #endif
 
-			if (!hardcoreMode && ModPlugin.options.ComprehensiveSaves)
-			{
-				string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
+            return slotNumber;
+        }
 
-				this.MirrorTemporarySaveToSlot(autosaveSlotName);
-			}
+        public bool IsAllowedAutosaveSlotNumber(int slotNumber)
+        {
+            return slotNumber <= ModPlugin.options.MaxSaveFiles;
+        }
 
-			if (!hardcoreMode)
-			{
-				this.SetSlot(mainSaveSlot);
-			}
+        public int GetLatestAutosaveForSlot(string mainSaveSlot)
+        {
+            if (mainSaveSlot.Contains("auto"))
+            {
+                mainSaveSlot = this.GetMainSlotName(mainSaveSlot);
+            }
 
-			this.ScheduleAutosave();
+            string savedGamesDir = this.SavedGamesDirPath;
+            string searchPattern = "*" + mainSaveSlot + "_auto" + "*";
 
-			this.warningTriggered = false;
-			this.isSaving = false;
+            if (!string.IsNullOrEmpty(savedGamesDir) && Directory.Exists(savedGamesDir))
+            {
+                DirectoryInfo[] saveDirectories = new DirectoryInfo(savedGamesDir).GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
 
 #if DEBUG
-			ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
+                ModPlugin.LogMessage($"GetLatestAutosaveForSlot found {saveDirectories.Length} autosaves for {mainSaveSlot}");
 #endif
 
-			// Unpause
-			FreezeTime.End(FreezeTime.Id.None);
+                if (saveDirectories.Length > 0)
+                {
+                    // Skip interrupted saves (no gameinfo.json)
+                    IEnumerable<DirectoryInfo> saveSlotsByLastModified = saveDirectories
+                        .Select(d => new { Dir = d, Info = d.GetFiles("gameinfo.json").FirstOrDefault() })
+                        .Where(x => x.Info != null)
+                        .OrderByDescending(x => x.Info.LastWriteTime)
+                        .Select(x => x.Dir);
 
-			yield break;
-		}
+                    foreach (DirectoryInfo saveDir in saveSlotsByLastModified)
+                    {
+                        int autosaveSlotNumber = this.GetAutosaveSlotNumberFromDir(saveDir.Name);
 
-		private void MirrorTemporarySaveToSlot(string autosaveSlotName)
-		{
-			string tempPath = SaveLoadManager.GetTemporarySavePath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        if (autosaveSlotNumber <= 0)
+                        {
+                            continue;
+                        }
 
-			if (!Directory.Exists(tempPath))
-			{
-				return;
-			}
-
-			string slotPath = Path.Combine(this.SavedGamesDirPath, autosaveSlotName);
-
-			HashSet<string> mirroredFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			string[] tempFiles = Directory.GetFiles(tempPath, "*", SearchOption.AllDirectories);
-
-			foreach (string tempFile in tempFiles)
-			{
-				try
-				{
-					string relativePath = tempFile.Substring(tempPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-					string destinationPath = Path.Combine(slotPath, relativePath);
-
-					Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-					File.Copy(tempFile, destinationPath, true);
-
-					mirroredFiles.Add(relativePath);
-				}
-				catch (Exception ex)
-				{
-					ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to mirror {tempFile}: {ex}");
-				}
-			}
+                        if (this.IsAllowedAutosaveSlotNumber(autosaveSlotNumber))
+                        {
+                            // The most recent save slot used, which matches the maximum save slots setting
+                            return autosaveSlotNumber;
+                        }
+                    }
+                }
+            }
 
 #if DEBUG
-			ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Mirrored {mirroredFiles.Count} files from {tempPath} to {slotPath}.");
+            else
+            {
+                ModPlugin.LogMessage($"savedGamesDir == {savedGamesDir}. Could not get save path.");
+            }
 #endif
 
-			if (!Directory.Exists(slotPath))
-			{
-				return;
-			}
+            return -1;
+        }
 
-			string[] slotFiles = Directory.GetFiles(slotPath, "*", SearchOption.AllDirectories);
+        public int RotateAutosaveSlotNumber()
+        {
+            if (this.latestAutosaveSlot < 0 || this.latestAutosaveSlot >= ModPlugin.options.MaxSaveFiles)
+            {
+                this.latestAutosaveSlot = 1;
+            }
+            else
+            {
+                this.latestAutosaveSlot++;
+            }
 
-			int purgedFiles = 0;
-			int keptFiles = 0;
+            return this.latestAutosaveSlot;
+        }
 
-			foreach (string slotFile in slotFiles)
-			{
-				try
-				{
-					string relativePath = slotFile.Substring(slotPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-					// Keep vanilla delete-meta markers (.deleted) and batch-cell zip bundles; temp holds uncompressed rows only
-					if (mirroredFiles.Contains(relativePath) || SaveLoadManager.IsDeleteMetaFileName(relativePath) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-					{
-						keptFiles++;
-						continue;
-					}
-
-					File.Delete(slotFile);
-					purgedFiles++;
-				}
-				catch (Exception ex)
-				{
-					ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to purge {slotFile}: {ex}");
-				}
-			}
-
-		}
-
-		public void Tick()
-		{
-			if (ModPlugin.options.AutosaveOnTimer)
-			{
-				if (ModPlugin.options.ShowSaveMessages && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
-				{
-					ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
-
-					this.warningTriggered = true;
-				}
-
-				else if (!this.isSaving && Time.time >= this.nextSaveTriggerTime)
-				{
-					if (!this.TryExecuteAutosave())
-					{
+        public bool IsSafePlayerHealth(float minHealthPercent)
+        {
 #if DEBUG
-						ModPlugin.LogMessage("Could not autosave on time. Delaying autosave.");
+            ModPlugin.LogMessage($"Setting minHealthPercent returned {minHealthPercent}");
 #endif
 
-						this.DelayAutosave();
-					}
-				}
-			}
-		}
+            return Player.main.liveMixin.GetHealthFraction() >= minHealthPercent;
+        }
 
-		public void SetMainSlotIfAutosave()
-		{
-			string currentSlot = SaveLoadManager.main.GetCurrentSlot();
+        public bool IsSafeToSave()
+        {
+            /* vanilla checks (cinematics, saving status) */
 
-			if (currentSlot.Contains("auto"))
-			{
-				string mainSaveSlot = this.GetMainSlotName(currentSlot);
-
-				this.SetSlot(mainSaveSlot);
-			}
-		}
-
-		public void ScheduleAutosave(bool settingsChanged = false, bool showMessage = true)
-		{
-			if (ModPlugin.options.AutosaveOnTimer)
-			{
-				int addedMinutes = ModPlugin.options.MinutesBetweenAutosaves;
+            bool saveAllowed = (bool)GetAllowSavingMethod?.Invoke(IngameMenu.main, null);
 
 #if DEBUG
-				ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
-				ModPlugin.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+            if (GetAllowSavingMethod == null)
+            {
+                ModPlugin.LogMessage("GetAllowSaving is null, returning false.");
+
+                return false;
+            }
 #endif
 
-				// Time.time returns a float in terms of seconds
-				this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
+            if (!saveAllowed)
+            {
+#if DEBUG
+                ModPlugin.LogMessage($"Did not save. GetAllowSaving returned {saveAllowed}.");
+#endif
+
+                return false;
+            }
+
+            return this.GetAllowSavingExtra() && this.GetAllowSavingOptionals();
+        }
+
+        public void Tick()
+        {
+            if (ModPlugin.options.AutosaveOnTimer)
+            {
+                if (ModPlugin.options.ShowSaveMessages && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
+                {
+                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
+
+                    this.warningTriggered = true;
+                }
+
+                else if (!this.isSaving && Time.time >= this.nextSaveTriggerTime)
+                {
+                    if (!this.TryExecuteAutosave())
+                    {
+#if DEBUG
+                        ModPlugin.LogMessage("Could not autosave on time. Delaying autosave.");
+#endif
+
+                        this.DelayAutosave();
+                    }
+                }
+            }
+        }
+
+        public void SetMainSlotIfAutosave()
+        {
+            string currentSlot = SaveLoadManager.main.GetCurrentSlot();
+
+            if (currentSlot.Contains("auto"))
+            {
+                string mainSaveSlot = this.GetMainSlotName(currentSlot);
+
+                this.SetSlot(mainSaveSlot);
+            }
+        }
+
+        public void ScheduleAutosave(bool settingsChanged = false, bool showMessage = true)
+        {
+            if (ModPlugin.options.AutosaveOnTimer)
+            {
+                int addedMinutes = ModPlugin.options.MinutesBetweenAutosaves;
 
 #if DEBUG
-				ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
-#endif
-				if (ModPlugin.options.ShowSaveMessages && showMessage)
-				{
-					ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(addedMinutes.ToString()));
-				}
-			}
-		}
-
-		public void DelayAutosave(float addedSeconds = 5f)
-		{
-#if DEBUG
-			ModPlugin.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+                ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
+                ModPlugin.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
 #endif
 
-			this.nextSaveTriggerTime += addedSeconds;
+                // Time.time returns a float in terms of seconds
+                this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
 
 #if DEBUG
-			ModPlugin.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
+                ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
-		}
+                if (ModPlugin.options.ShowSaveMessages && showMessage)
+                {
+                    ErrorMessage.AddWarning("AutosaveEnding".FormatTranslate(addedMinutes.ToString()));
+                }
+            }
+        }
 
-		public bool TryExecuteAutosave()
-		{
-			if (this.IsSafeToSave())
-			{
-				if (!this.isSaving)
-				{
-					try
-					{
-						CoroutineHost.StartCoroutine(this.AutosaveCoroutine());
+        public void DelayAutosave(float addedSeconds = 5f)
+        {
+#if DEBUG
+            ModPlugin.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+#endif
 
-						return true;
-					}
-
-					catch (Exception ex)
-					{
-						ModPlugin.LogMessage("Failed to execute save coroutine. Something went wrong.");
-						ModPlugin.LogMessage(ex.ToString());
-					}
-				}
-
-				else
-				{
-					ErrorMessage.AddWarning("AutosaveInProgress".Translate());
-				}
-			}
+            this.nextSaveTriggerTime += addedSeconds;
 
 #if DEBUG
-			else
-			{
-				ModPlugin.LogMessage("IsSafeToSave returned false.");
-
-			}
+            ModPlugin.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
+        }
 
-			return false;
-		}
+        public bool TryExecuteAutosave()
+        {
+            if (this.IsSafeToSave())
+            {
+                if (!this.isSaving)
+                {
+                    try
+                    {
+                        CoroutineHost.StartCoroutine(this.AutosaveCoroutine());
 
-		// Monobehaviour.Awake(), called before Start()
-		public void Awake()
-		{
+                        return true;
+                    }
+
+                    catch (Exception ex)
+                    {
+                        ModPlugin.LogMessage("Failed to execute save coroutine. Something went wrong.");
+                        ModPlugin.LogMessage(ex.ToString());
+                    }
+                }
+
+                else
+                {
+                    ErrorMessage.AddWarning("AutosaveInProgress".Translate());
+                }
+            }
+
 #if DEBUG
-			ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
+            else
+            {
+                ModPlugin.LogMessage("IsSafeToSave returned false.");
+
+            }
 #endif
 
-			if (!ModPlugin.options.HardcoreMode)
-			{
-				this.latestAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
-			}
+            return false;
+        }
+
+        // Monobehaviour.Awake(), called before Start()
+        public void Awake()
+        {
+#if DEBUG
+            ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
+#endif
+
+            if (!ModPlugin.options.HardcoreMode)
+            {
+                this.latestAutosaveSlot = this.GetLatestAutosaveForSlot(SaveLoadManager.main.GetCurrentSlot());
+            }
 
 #if DEBUG
-			ModPlugin.LogMessage($"AutosaveController.Awake() - Latest autosave for {SaveLoadManager.main.GetCurrentSlot()} set to {this.latestAutosaveSlot}");
+            ModPlugin.LogMessage($"AutosaveController.Awake() - Latest autosave for {SaveLoadManager.main.GetCurrentSlot()} set to {this.latestAutosaveSlot}");
 #endif
-		}
+        }
 
-		// Monobehaviour.Start
-		public void Start()
-		{
-			// Repeat the Tick method every second
-			this.InvokeRepeating(nameof(AutosaveControllerBase.Tick), 1f, 1f);
-		}
+        // Monobehaviour.Start
+        public void Start()
+        {
+            // Repeat the Tick method every second
+            this.InvokeRepeating(nameof(AutosaveControllerBase.Tick), 1f, 1f);
+        }
 
-		public abstract void SetSlot(string newSlot);
-	}
+        public abstract void SetSlot(string newSlot);
+    }
 }
