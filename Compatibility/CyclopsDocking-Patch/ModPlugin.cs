@@ -27,11 +27,6 @@ namespace SubnauticaAutosave_Compatibility
                 var compat = new Harmony("com.snautosave.cyclopscompat");
                 SaveHooks.MoveCyclopsSaveHooks(compat, CyclopsHarmonyId);
                 SaveHooks.ApplyPatches(compat);
-#if DEBUG
-                // [DEBUG-TEMP]
-                LogMessage("Hooks installed, ready");
-                // [DEBUG-TEMP-END]
-#endif
             }
             catch (Exception ex)
             {

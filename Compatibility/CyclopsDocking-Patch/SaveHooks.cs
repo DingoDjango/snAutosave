@@ -30,11 +30,6 @@ namespace SubnauticaAutosave_Compatibility
 
         private static void SaveGameAsync_Postfix()
         {
-#if DEBUG
-            // [DEBUG-TEMP]
-            ModPlugin.LogMessage("SaveGameAsync postfix fired, slot=" + SaveLoadManager.main.GetCurrentSlot());
-            // [DEBUG-TEMP-END]
-#endif
             SaveCyclopsData();
         }
 
@@ -44,11 +39,6 @@ namespace SubnauticaAutosave_Compatibility
             {
                 return;
             }
-#if DEBUG
-            // [DEBUG-TEMP]
-            ModPlugin.LogMessage("QuitGame postfix (permadeath) fired, slot=" + SaveLoadManager.main.GetCurrentSlot());
-            // [DEBUG-TEMP-END]
-#endif
             SaveCyclopsData();
         }
 

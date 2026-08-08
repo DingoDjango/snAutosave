@@ -82,11 +82,6 @@ namespace SubnauticaAutosave
 			if (ModPlugin.options.AutosaveOnSleep)
 			{
 				/* [Bed.cs] StopSleepScreen called only when sleep ends (ExitInUseMode); wake cinematic may still run */
-#if DEBUG
-				// [DEBUG-TEMP] Validate: cinematicModeCount expected 0 here; coroutine next frame sees stand-up cinematic (count > 0) -> wait engages
-				ModPlugin.LogMessage($"StopSleepScreen postfix. cinematicModeCount={PlayerCinematicController.cinematicModeCount}, Time.time={Time.time}");
-				// [DEBUG-TEMP-END]
-#endif
 				CoroutineHost.StartCoroutine(AutosaveAfterWakeCinematic());
 			}
 		}
