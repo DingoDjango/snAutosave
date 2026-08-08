@@ -79,7 +79,7 @@ SET ZIPFILE=..\..\..\ZIP\Subnautica\$(ProjectName).zip
 
 if exist "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking" rmdir /s /q "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking"
 
-xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\*" "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking\" /i /e /r /y /q >nul
+xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\*" "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking\" /i /e /r /y /q &gt;nul
 
 if "$(Configuration)" == "Debug" (
     if exist "%25ZIPFILE%25" del /f /q "%25ZIPFILE%25"
