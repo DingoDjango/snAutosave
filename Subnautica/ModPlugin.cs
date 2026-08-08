@@ -10,7 +10,7 @@ namespace SubnauticaAutosave
     {
         public const string modGUID = "Dingo.SN.SubnauticaAutosave";
         public const string modName = "Subnautica Autosave";
-        public const string modVersion = "2.4.0";
+        public const string modVersion = "3.0.8.3031";
 
         private void Awake()
         {
