@@ -123,10 +123,23 @@ namespace SubnauticaAutosave
 
         private void ApplyVisibility()
         {
-            maxSaveFilesOptionObject?.SetActive(!HardcoreMode);
-            delaySaveOnManualOptionObject?.SetActive(AutosaveOnTimer);
-            minutesBetweenAutosavesOptionObject?.SetActive(AutosaveOnTimer);
-            customDateTimeFormatOptionObject?.SetActive(UseCustomDateFormat);
+            // Unity == null treats destroyed objects as null; ?. checks managed reference only
+            if (maxSaveFilesOptionObject != null)
+            {
+                maxSaveFilesOptionObject.SetActive(!HardcoreMode);
+            }
+            if (delaySaveOnManualOptionObject != null)
+            {
+                delaySaveOnManualOptionObject.SetActive(AutosaveOnTimer);
+            }
+            if (minutesBetweenAutosavesOptionObject != null)
+            {
+                minutesBetweenAutosavesOptionObject.SetActive(AutosaveOnTimer);
+            }
+            if (customDateTimeFormatOptionObject != null)
+            {
+                customDateTimeFormatOptionObject.SetActive(UseCustomDateFormat);
+            }
         }
     }
 }
