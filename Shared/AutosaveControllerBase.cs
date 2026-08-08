@@ -105,7 +105,10 @@ namespace SubnauticaAutosave
 
 				if (saveDirectories.Count() > 0)
 				{
-					IOrderedEnumerable<DirectoryInfo> saveSlotsByLastModified = saveDirectories.OrderByDescending(d => d.GetFiles("gameinfo.json")[0].LastWriteTime);
+					// Skip dirs without gameinfo.json (interrupted saves) — GetFiles[0] would throw IndexOutOfRange
+					IOrderedEnumerable<DirectoryInfo> saveSlotsByLastModified = saveDirectories
+						.Where(d => d.GetFiles("gameinfo.json").Length > 0)
+						.OrderByDescending(d => d.GetFiles("gameinfo.json")[0].LastWriteTime);
 
 					foreach (DirectoryInfo saveDir in saveSlotsByLastModified)
 					{
@@ -311,8 +314,8 @@ namespace SubnauticaAutosave
 				{
 					string relativePath = slotFile.Substring(slotPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-					// Keep batch-cell zip bundles and delete-meta files; temp holds uncompressed rows only
-					if (mirroredFiles.Contains(relativePath) || relativePath.EndsWith(".delete-meta", StringComparison.OrdinalIgnoreCase) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+					// Keep vanilla delete-meta markers (.deleted) and batch-cell zip bundles; temp holds uncompressed rows only
+					if (mirroredFiles.Contains(relativePath) || SaveLoadManager.IsDeleteMetaFileName(relativePath) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
 					{
 						keptFiles++;
 						continue;
