@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using UWE;
+using UnityEngine;
 using HarmonyLib;
 using HarmonyLib.Tools;
 
@@ -74,28 +77,36 @@ namespace SubnauticaAutosave
 			Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(showMessage: false);
 		}
 
-		// Untested //
-		private static void Patch_Bed_OnHandClick_Postfix()
+		private static void Patch_SleepScreen_Stop_Postfix()
 		{
 			if (ModPlugin.options.AutosaveOnSleep)
 			{
-				Player player = Player.main;
-
-				if (player != null)
-				{
-					/* [Bed.cs] private float kSleepInterval = 600f, added to timeLastSleep when sleep screen ends
-                     * If player did indeed sleep recently, we can trigger a save after the bed click
-                     * Could instead transpile into OnHandClick if(isValidHandTarget), but no reason to complicate things... */
-					if (player.timeLastSleep + 200f > DayNightCycle.main.timePassedAsFloat)
-					{
+				/* [Bed.cs] StopSleepScreen called only when sleep ends (ExitInUseMode); wake cinematic may still run */
 #if DEBUG
-						ModPlugin.LogMessage("Player clicked on bed. Executing save on sleep.");
+				// [DEBUG-TEMP] Validate: cinematicModeCount expected 0 here; coroutine next frame sees stand-up cinematic (count > 0) -> wait engages
+				ModPlugin.LogMessage($"StopSleepScreen postfix. cinematicModeCount={PlayerCinematicController.cinematicModeCount}, Time.time={Time.time}");
+				// [DEBUG-TEMP-END]
+#endif
+				CoroutineHost.StartCoroutine(AutosaveAfterWakeCinematic());
+			}
+		}
+
+		private static IEnumerator AutosaveAfterWakeCinematic()
+		{
+			const float maxWaitSeconds = 10f;
+			float waited = 0f;
+
+			do
+			{
+				yield return null;
+				waited += Time.deltaTime;
+			} while (PlayerCinematicController.cinematicModeCount > 0 && waited < maxWaitSeconds);
+
+#if DEBUG
+			ModPlugin.LogMessage("Player woke up. Executing save on sleep.");
 #endif
 
-						player.GetComponent<AutosaveController>()?.TryExecuteAutosave(); // Might want a scheduled save instead
-					}
-				}
-			}
+			Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
 		}
 
 		private static void Patch_Subroot_PlayerEnteredOrExited_Postfix()
@@ -181,9 +192,9 @@ namespace SubnauticaAutosave
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportStageDurations_Postfix)));
 
 				/* Save on player sleep */
-				// Patch: Bed.OnHandClick
-				harmony.Patch(original: AccessTools.Method(typeof(Bed), nameof(Bed.OnHandClick)),
-							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Bed_OnHandClick_Postfix)));
+				// Patch: uGUI_PlayerSleep.StopSleepScreen
+				harmony.Patch(original: AccessTools.Method(typeof(uGUI_PlayerSleep), nameof(uGUI_PlayerSleep.StopSleepScreen)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SleepScreen_Stop_Postfix)));
 
 				/* Delay autosave if player has entered or exited a base or vehicle */
 				HarmonyMethod delayAutosavePatch = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
