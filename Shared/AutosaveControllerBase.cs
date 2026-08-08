@@ -20,6 +20,8 @@ namespace SubnauticaAutosave
 
         private static readonly FieldInfo SavePathField = AccessTools.Field(typeof(UserStoragePC), "savePath");
 
+        private static readonly FieldInfo BuilderToolIsConstructingField = AccessTools.Field(typeof(BuilderTool), "isConstructing");
+
         private static readonly MethodInfo GetAllowSavingMethod = AccessTools.Method(typeof(IngameMenu), "GetAllowSaving");
 
         public const int PriorWarningSeconds = 30;
@@ -82,8 +84,12 @@ namespace SubnauticaAutosave
                 return false;
             }
 
-            // Prevent save mid-ghost-placement desync
-            if (Builder.isPlacing)
+            // Builder menu open or ghost placing; menu closes on save → janky camera
+            // Actively constructing existing piece (build beam active)
+            if (Builder.isPlacing || uGUI_BuilderMenu.IsOpen() ||
+                (Inventory.main.GetHeldTool() is BuilderTool buildTool &&
+                 BuilderToolIsConstructingField != null &&
+                 (bool)BuilderToolIsConstructingField.GetValue(buildTool)))
             {
                 return false;
             }
