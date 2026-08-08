@@ -37,6 +37,12 @@ namespace SubnauticaAutosave
 
         private void Update()
         {
+            // GameInput.input null before init and during scene transitions
+            if (!GameInput.IsInitialized)
+            {
+                return;
+            }
+
             if (GameInput.GetButtonDown(Keybinds.Quicksave))
             {
                 if (SaveLoadManager.main.isSaving)
