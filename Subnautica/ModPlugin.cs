@@ -39,7 +39,16 @@ namespace SubnauticaAutosave
         {
             if (GameInput.GetButtonDown(Keybinds.Quicksave))
             {
-                IngameMenu.main?.SaveGame();
+                if (SaveLoadManager.main.isSaving)
+                {
+#if DEBUG
+                    LogMessage("Quicksave skipped: save operation in progress");
+#endif
+                }
+                else
+                {
+                    IngameMenu.main?.SaveGame();
+                }
             }
 
 #if DEBUG
