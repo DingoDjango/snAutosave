@@ -208,11 +208,6 @@ namespace SubnauticaAutosave
 
 			bool hardcoreMode = ModPlugin.options.HardcoreMode;
 	
-			if (ModPlugin.options.ShowSaveMessages)
-			{
-				ErrorMessage.AddWarning("AutosaveStarting".Translate());
-			}
-
 			this.SetMainSlotIfAutosave();
 
 			string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();

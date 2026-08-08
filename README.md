@@ -33,7 +33,7 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 1. Navigate to *...\Subnautica\BepInEx\plugins\SubnauticaAutosave\Localization*
 2. Copy *English.json* and change the file name to match your language
     > Valid language names are found in *...\Subnautica\Subnautica_Data\StreamingAssets\SNUnmanagedData\LanguageFiles*
-3. Translate the file. Do not touch the keys ("AutosaveStarting"), only the values ("Autosave sequence...")
+3. Translate the file. Do not touch the keys ("QuicksaveKey"), only the values ("Quicksave Hotkey")
 4. Share the file with me on GitHub or in a Nexus private message
 
 ### **FAQ:**

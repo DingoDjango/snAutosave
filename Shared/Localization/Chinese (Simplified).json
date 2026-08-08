@@ -31,7 +31,6 @@
   "QuicksaveKey": "快速保存快捷键",
   "Tooltip_QuicksaveKey": "用于手动保存游戏的按键绑定。\n与通过游戏内菜单保存的功能相同。",
   "AutosaveWarning": "即将在 {0} 秒后自动保存。",
-  "AutosaveStarting": "正在启动自动保存…",
   "AutosaveEnding": "将在 {0} 分钟后进行下一次自动保存。",
   "AutosaveInProgress": "正在自动保存。现在无法再次进行自动保存。"
 }

@@ -31,7 +31,6 @@
   "QuicksaveKey": "Snabbsparningstangent",
   "Tooltip_QuicksaveKey": "Tangentbindning som används för att spara spelet manuellt.\nSamma funktion som att spara via menyn i spelet.",
   "AutosaveWarning": "Förbereder autosparning om {0} sekunder.",
-  "AutosaveStarting": "Autosparning påbörjas…",
   "AutosaveEnding": "Nästa autosparning om {0} minuter.",
   "AutosaveInProgress": "Autosparning pågår. Kan inte autospara igen just nu."
 }

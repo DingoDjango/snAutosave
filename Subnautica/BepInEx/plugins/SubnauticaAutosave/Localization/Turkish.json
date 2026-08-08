@@ -31,7 +31,6 @@
   "QuicksaveKey": "Hızlı Kayıt Kısayolu",
   "Tooltip_QuicksaveKey": "Oyunu manuel olarak kaydetmek için kullanılan tuş kombinasyonu.\nOyun içi menüden kaydetmekle aynı işlevi görür.",
   "AutosaveWarning": "{0} saniye sonra otomatik kayıt yapılacak.",
-  "AutosaveStarting": "Otomatik kayıt işlemi başlıyor…",
   "AutosaveEnding": "Sonraki otomatik kayıt {0} dakika sonra.",
   "AutosaveInProgress": "Otomatik kayıt sürüyor. Şu anda tekrar otomatik kayıt başlatılamaz."
 }

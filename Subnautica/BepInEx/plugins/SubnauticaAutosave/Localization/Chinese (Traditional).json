@@ -31,7 +31,6 @@
   "QuicksaveKey": "快速保存快速鍵",
   "Tooltip_QuicksaveKey": "用來手動保存遊戲的按鍵綁定。\n與透過遊戲內選單保存的功能相同。",
   "AutosaveWarning": "即將在 {0} 秒後自動保存。",
-  "AutosaveStarting": "正在啟動自動保存……",
   "AutosaveEnding": "將在 {0} 分鐘後進行下一次自動保存。",
   "AutosaveInProgress": "正在自動保存。現在無法再次自動保存。"
 }

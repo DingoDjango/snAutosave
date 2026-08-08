@@ -31,7 +31,6 @@
   "QuicksaveKey": "Tasto di salvataggio rapido",
   "Tooltip_QuicksaveKey": "Tasto utilizzato per salvare il gioco manualmente.\nStessa funzione del salvataggio tramite il menu di gioco.",
   "AutosaveWarning": "Preparazione del salvataggio automatico in {0} secondi.",
-  "AutosaveStarting": "Avvio della sequenza di salvataggio automatico…",
   "AutosaveEnding": "Prossimo salvataggio automatico in {0} minuti.",
   "AutosaveInProgress": "Salvataggio automatico in corso. Impossibile eseguire un altro salvataggio automatico in questo momento."
 }

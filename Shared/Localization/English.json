@@ -31,7 +31,6 @@
   "QuicksaveKey": "Quicksave Hotkey",
   "Tooltip_QuicksaveKey": "Keybinding used to save the game manually.\nSame functionality as saving through the ingame menu.",
   "AutosaveWarning": "Preparing to autosave in {0} seconds.",
-  "AutosaveStarting": "Autosave sequence starting...",
   "AutosaveEnding": "Next autosave in {0} minutes.",
   "AutosaveInProgress": "Autosave in progress. Cannot autosave again right now."
 }

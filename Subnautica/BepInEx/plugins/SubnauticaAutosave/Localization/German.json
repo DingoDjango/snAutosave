@@ -31,7 +31,6 @@
   "QuicksaveKey": "Quickspeichern-Taste",
   "Tooltip_QuicksaveKey": "Tastenbelegung zum manuellen Speichern des Spiels.\nBietet dieselbe Funktion wie das Speichern über das Spielmenü.",
   "AutosaveWarning": "Autospeicherung in {0} Sekunden.",
-  "AutosaveStarting": "Autospeicherung wird gestartet…",
   "AutosaveEnding": "Nächste Autospeicherung in {0} Minuten.",
   "AutosaveInProgress": "Autospeicherung läuft bereits. Ein erneutes Autospeichern ist gerade nicht möglich."
 }

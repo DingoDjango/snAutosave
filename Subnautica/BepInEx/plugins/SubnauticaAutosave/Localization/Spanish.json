@@ -31,7 +31,6 @@
   "QuicksaveKey": "Tecla de guardado rápido",
   "Tooltip_QuicksaveKey": "Combinación de teclas para guardar la partida manualmente.\nLa misma función que guardar desde el menú del juego.",
   "AutosaveWarning": "Preparando el autoguardado en {0} segundos.",
-  "AutosaveStarting": "Iniciando la secuencia de autoguardado…",
   "AutosaveEnding": "Siguiente autoguardado en {0} minutos.",
   "AutosaveInProgress": "Autoguardado en curso. No se puede iniciar otro autoguardado en este momento."
 }
