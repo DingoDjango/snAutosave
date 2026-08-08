@@ -151,6 +151,7 @@
       <Link>Translation.cs</Link>
     </Compile>
     <Compile Include="AutosaveController.cs" />
+    <Compile Include="Keybinds.cs" />
     <Compile Include="ModPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

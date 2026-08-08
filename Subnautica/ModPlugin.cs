@@ -19,7 +19,9 @@ namespace SubnauticaAutosave
             options = OptionsPanelHandler.RegisterModOptions<AutosaveOptions>();
 
             AutosaveOptions.OnTimingChanged += RescheduleOnSettingChanged;
-
+            
+            Keybinds.Initialize();
+            
             HarmonyPatches.InitializeHarmony();
         }
 
@@ -35,7 +37,7 @@ namespace SubnauticaAutosave
 
         private void Update()
         {
-            if (Input.GetKeyDown(options.QuicksaveKey))
+            if (GameInput.GetButtonDown(Keybinds.Quicksave))
             {
                 IngameMenu.main?.SaveGame();
             }
