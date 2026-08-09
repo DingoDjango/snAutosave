@@ -13,7 +13,7 @@
   "Tooltip_AutosaveOnSleep": "Salvamento automático quando o jogador for dormir.",
   "AutosaveErrorReport": "Relate este problema ao autor do mod, incluindo o log.",
   "SaveWhilePiloting": "Salvar enquanto pilota <color=yellow>[COM FALHAS]</color>",
-  "Tooltip_SaveWhilePiloting": "Permite salvamentos automáticos ao pilotar veículos como o Seamoth ou o traje PRAWN. Pode causar glitches, especialmente com módulos como o Braço de Gancho. Use por sua conta e risco.",
+  "Tooltip_SaveWhilePiloting": "Permite salvamentos automáticos ao pilotar veículos. Pode causar glitches, especialmente com módulos como o Braço de Gancho. <b><color=red>Use por sua conta e risco.</color></b>",
   "ShowSaveMessages": "Mostrar mensagens de salvamento automático",
   "Tooltip_ShowSaveMessages": "Exibe mensagens, como avisos sobre salvamentos automáticos.",
   "AutosaveWarningTime": "Tempo de aviso de salvamento",

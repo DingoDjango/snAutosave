@@ -13,7 +13,7 @@
   "Tooltip_AutosaveOnSleep": "玩家入睡时自动保存游戏。",
   "AutosaveErrorReport": "请将此问题报告给模组作者，并附上日志。",
   "SaveWhilePiloting": "驾驶时自动保存 <color=yellow>[存在 BUG]</color>",
-  "Tooltip_SaveWhilePiloting": "允许在驾驶 Seamoth 或 PRAWN 潜水服等载具时进行自动保存。可能会导致问题，尤其是使用抓钩臂等模组时。使用风险自负。",
+  "Tooltip_SaveWhilePiloting": "允许在驾驶载具时进行自动保存。可能会导致问题，尤其是使用抓钩臂等模组时。 <b><color=red>使用风险自负。</color></b>",
   "ShowSaveMessages": "显示自动保存消息",
   "Tooltip_ShowSaveMessages": "显示自动保存相关的消息，例如自动保存警告。",
   "AutosaveWarningTime": "自动保存警告时间",

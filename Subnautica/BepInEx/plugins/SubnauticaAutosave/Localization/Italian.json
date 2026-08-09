@@ -13,7 +13,7 @@
   "Tooltip_AutosaveOnSleep": "Salvataggio automatico quando il giocatore va a dormire.",
   "AutosaveErrorReport": "Segnala questo problema all'autore della mod, includendo il registro.",
   "SaveWhilePiloting": "Salva durante la guida <color=yellow>[POSSIBILI BUG]</color>",
-  "Tooltip_SaveWhilePiloting": "Abilita il salvataggio automatico durante la guida di veicoli come il Seamoth o la tuta PRAWN. Può causare glitch, specialmente con moduli come il Braccio Rampino. Usalo a tuo rischio.",
+  "Tooltip_SaveWhilePiloting": "Abilita il salvataggio automatico durante la guida di veicoli. Può causare glitch, specialmente con moduli come il Braccio Rampino. <b><color=red>Usalo a tuo rischio.</color></b>",
   "ShowSaveMessages": "Mostra i messaggi di salvataggio automatico",
   "Tooltip_ShowSaveMessages": "Mostra messaggi, come gli avvisi sui salvataggi automatici.",
   "AutosaveWarningTime": "Tempo di avviso salvataggio automatico",

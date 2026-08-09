@@ -13,7 +13,7 @@
   "Tooltip_AutosaveOnSleep": "Automatyczny zapis, gdy gracz idzie spać.",
   "AutosaveErrorReport": "Zgłoś ten problem autorowi moda, dołączając dziennik (log).",
   "SaveWhilePiloting": "Zapis podczas pilotowania <color=yellow>[Z BŁĘDAMI]</color>",
-  "Tooltip_SaveWhilePiloting": "Włącza automatyczny zapis podczas prowadzenia pojazdów takich jak Seamoth czy skafander PRAWN. Może powodować błędy, szczególnie z modułami takimi jak Ramię Chwytające. Używasz na własne ryzyko.",
+  "Tooltip_SaveWhilePiloting": "Włącza automatyczny zapis podczas prowadzenia pojazdów. Może powodować błędy, szczególnie z modułami takimi jak Ramię Chwytające. <b><color=red>Używasz na własne ryzyko.</color></b>",
   "ShowSaveMessages": "Pokazuj komunikaty automatycznego zapisu",
   "Tooltip_ShowSaveMessages": "Wyświetla komunikaty, takie jak ostrzeżenia o automatycznym zapisie.",
   "AutosaveWarningTime": "Czas ostrzeżenia automatycznego zapisu",

@@ -13,7 +13,7 @@
   "Tooltip_AutosaveOnSleep": "Guarda automáticamente cuando el jugador se va a dormir.",
   "AutosaveErrorReport": "Informe de este problema al autor del mod, incluyendo el registro.",
   "SaveWhilePiloting": "Guardar mientras se pilota <color=yellow>[CON ERRORES]</color>",
-  "Tooltip_SaveWhilePiloting": "Permite guardar automáticamente mientras conduces vehículos como el Seamoth o el traje PRAWN. Puede causar fallos, especialmente con módulos como el Brazo de Garfio. Úsalo bajo tu responsabilidad.",
+  "Tooltip_SaveWhilePiloting": "Permite guardar automáticamente mientras conduces vehículos. Puede causar fallos, especialmente con módulos como el Brazo de Garfio. <b><color=red>Úsalo bajo tu responsabilidad.</color></b>",
   "ShowSaveMessages": "Mostrar mensajes de autoguardado",
   "Tooltip_ShowSaveMessages": "Muestra mensajes, como los avisos sobre los autoguardados.",
   "AutosaveWarningTime": "Tiempo de aviso de autoguardado",
