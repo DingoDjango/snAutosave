@@ -17,6 +17,7 @@ namespace SubnauticaAutosave
         private static GameObject delaySaveOnManualOptionObject;
         private static GameObject minutesBetweenAutosavesOptionObject;
         private static GameObject customDateTimeFormatOptionObject;
+        private static GameObject autosaveWarningTimeOptionObject;
 
         /* General settings */
         [Toggle(null, LabelLanguageId = "HardcoreMode", TooltipLanguageId = "Tooltip_HardcoreMode")]
@@ -48,7 +49,13 @@ namespace SubnauticaAutosave
 
         /* Other settings */
         [Toggle(null, LabelLanguageId = "ShowSaveMessages", TooltipLanguageId = "Tooltip_ShowSaveMessages")]
+        [OnChange(nameof(OnShowSaveMessagesChanged))]
         public bool ShowSaveMessages = true;
+
+        // Only shown when ShowSaveMessages is enabled.
+        [Slider(null, 5, 60, DefaultValue = 30, Format = "{0:F0}", Step = 1, LabelLanguageId = "AutosaveWarningTime", TooltipLanguageId = "Tooltip_AutosaveWarningTime")]
+        [OnGameObjectCreated(nameof(OnAutosaveWarningTimeOptionCreated))]
+        public int AutosaveWarningTime = 30;
 
         [Slider(null, 0f, 1f, DefaultValue = 0.25f, Format = "{0:P0}", Step = 0.05f, LabelLanguageId = "MinimumPlayerHealthPercent", TooltipLanguageId = "Tooltip_MinimumPlayerHealthPercent")]
         public float MinimumPlayerHealthPercent = 0.25f;
@@ -121,6 +128,17 @@ namespace SubnauticaAutosave
             ApplyVisibility();
         }
 
+        private void OnAutosaveWarningTimeOptionCreated(GameObjectCreatedEventArgs e)
+        {
+            autosaveWarningTimeOptionObject = e.Value;
+            ApplyVisibility();
+        }
+
+        private void OnShowSaveMessagesChanged(object sender, ToggleChangedEventArgs e)
+        {
+            ApplyVisibility();
+        }
+
         private void ApplyVisibility()
         {
             // Unity == null treats destroyed objects as null; ?. checks managed reference only
@@ -139,6 +157,10 @@ namespace SubnauticaAutosave
             if (customDateTimeFormatOptionObject != null)
             {
                 customDateTimeFormatOptionObject.SetActive(UseCustomDateFormat);
+            }
+            if (autosaveWarningTimeOptionObject != null)
+            {
+                autosaveWarningTimeOptionObject.SetActive(ShowSaveMessages);
             }
         }
     }

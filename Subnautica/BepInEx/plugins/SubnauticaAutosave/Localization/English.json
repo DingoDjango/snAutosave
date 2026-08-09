@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Enable autosaves while driving vehicles such as Seamoth or PRAWN suit. May cause glitches, especially with modules such as the Grappling Arm. Use at your own risk.",
   "ShowSaveMessages": "Show AutoSave Messages",
   "Tooltip_ShowSaveMessages": "Display messages, such as warning about autosaves.",
+  "AutosaveWarningTime": "Autosave Warning Time",
+  "Tooltip_AutosaveWarningTime": "Control when the autosave warning message appears.\n<b>Default</b>: 30 seconds before autosave.",
   "MinimumPlayerHealthPercent": "Minimum Player Health Percent",
   "Tooltip_MinimumPlayerHealthPercent": "Delay save if player health is below this percent.\nChange to 0 to disable this option.",
   "ShowSaveNames": "Show Save Names",

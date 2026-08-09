@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "允許在駕駛 Seamoth 或 PRAWN 潛水服等載具時自動保存。特別是使用抓鉤臂等模組時可能會發生問題。使用風險自負。",
   "ShowSaveMessages": "顯示自動保存訊息",
   "Tooltip_ShowSaveMessages": "顯示自動保存相關的訊息，例如自動保存警告。",
+  "AutosaveWarningTime": "自動保存警告時間",
+  "Tooltip_AutosaveWarningTime": "控制自動保存警告訊息出現的時機。\n<b>預設</b>：儲存前 30 秒。",
   "MinimumPlayerHealthPercent": "玩家最低生命值百分比",
   "Tooltip_MinimumPlayerHealthPercent": "當玩家生命值低於此百分比時，延遲保存。\n設為 0 可停用此選項。",
   "ShowSaveNames": "顯示存檔名稱",

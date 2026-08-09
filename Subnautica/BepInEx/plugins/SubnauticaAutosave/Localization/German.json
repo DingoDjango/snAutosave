@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Aktiviert Autospeicherung beim Steuern von Fahrzeugen wie Seamoth oder PRAWN-Anzug. Kann Fehler verursachen, besonders bei Modulen wie dem Greifarm. Verwendung auf eigenes Risiko.",
   "ShowSaveMessages": "Autospeichermeldungen anzeigen",
   "Tooltip_ShowSaveMessages": "Zeigt Meldungen an, z. B. Warnungen zur Autospeicherung.",
+  "AutosaveWarningTime": "Vorwarnzeit für Autospeicherung",
+  "Tooltip_AutosaveWarningTime": "Legt fest, wann die Vorwarnung vor dem Autospeichern erscheint.\n<b>Standard</b>: 30 Sekunden vor dem Speichern.",
   "MinimumPlayerHealthPercent": "Minimaler Gesundheitsprozentsatz des Spielers",
   "Tooltip_MinimumPlayerHealthPercent": "Verzögert das Speichern, wenn die Gesundheit des Spielers unter diesem Prozentsatz liegt.\nAuf 0 setzen, um diese Option zu deaktivieren.",
   "ShowSaveNames": "Speichernamen anzeigen",

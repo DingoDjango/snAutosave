@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Abilita il salvataggio automatico durante la guida di veicoli come il Seamoth o la tuta PRAWN. Può causare glitch, specialmente con moduli come il Braccio Rampino. Usalo a tuo rischio.",
   "ShowSaveMessages": "Mostra i messaggi di salvataggio automatico",
   "Tooltip_ShowSaveMessages": "Mostra messaggi, come gli avvisi sui salvataggi automatici.",
+  "AutosaveWarningTime": "Tempo di avviso salvataggio automatico",
+  "Tooltip_AutosaveWarningTime": "Controlla quando appare il messaggio di avviso del salvataggio automatico.\n<b>Predefinito</b>: 30 secondi prima del salvataggio.",
   "MinimumPlayerHealthPercent": "Percentuale minima di salute del giocatore",
   "Tooltip_MinimumPlayerHealthPercent": "Ritarda il salvataggio se la salute del giocatore è inferiore a questa percentuale.\nImposta 0 per disabilitare questa opzione.",
   "ShowSaveNames": "Mostra i nomi dei salvataggi",

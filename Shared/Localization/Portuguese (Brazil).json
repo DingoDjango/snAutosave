@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Permite salvamentos automáticos ao pilotar veículos como o Seamoth ou o traje PRAWN. Pode causar glitches, especialmente com módulos como o Braço de Gancho. Use por sua conta e risco.",
   "ShowSaveMessages": "Mostrar mensagens de salvamento automático",
   "Tooltip_ShowSaveMessages": "Exibe mensagens, como avisos sobre salvamentos automáticos.",
+  "AutosaveWarningTime": "Tempo de aviso de salvamento",
+  "Tooltip_AutosaveWarningTime": "Controla quando a mensagem de aviso do salvamento automático aparece.\n<b>Padrão</b>: 30 segundos antes do salvamento.",
   "MinimumPlayerHealthPercent": "Percentual mínimo de vida do jogador",
   "Tooltip_MinimumPlayerHealthPercent": "Adia o salvamento se a vida do jogador estiver abaixo desse percentual.\nDefina como 0 para desativar esta opção.",
   "ShowSaveNames": "Mostrar nomes dos salvamentos",

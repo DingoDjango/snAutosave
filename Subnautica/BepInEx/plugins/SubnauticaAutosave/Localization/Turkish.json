@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Seamoth veya PRAWN elbisesi gibi araçları kullanırken otomatik kayıt yapılmasını sağlar. Özellikle Kanca Kol gibi modüllerle hatalara yol açabilir. Kendi sorumluluğunuzda kullanın.",
   "ShowSaveMessages": "Otomatik Kayıt Mesajlarını Göster",
   "Tooltip_ShowSaveMessages": "Otomatik kayıt uyarıları gibi mesajları görüntüler.",
+  "AutosaveWarningTime": "Otomatik Kayıt Uyarı Süresi",
+  "Tooltip_AutosaveWarningTime": "Otomatik kayıt uyarı mesajının ne zaman görüneceğini kontrol eder.\n<b>Varsayılan</b>: Kayıttan 30 saniye önce.",
   "MinimumPlayerHealthPercent": "Minimum Oyuncu Sağlığı Yüzdesi",
   "Tooltip_MinimumPlayerHealthPercent": "Oyuncu sağlığı bu yüzdenin altındaysa kaydı geciktirir.\nBu seçeneği devre dışı bırakmak için 0 yapın.",
   "ShowSaveNames": "Kayıt Adlarını Göster",

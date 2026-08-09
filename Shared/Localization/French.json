@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Permet la sauvegarde automatique pendant la conduite de véhicules comme le Seamoth ou la combinaison PRAWN. Peut provoquer des bugs, notamment avec des modules comme le Bras Grappin. Utilisez à vos risques.",
   "ShowSaveMessages": "Afficher les messages de sauvegarde automatique",
   "Tooltip_ShowSaveMessages": "Affichez les messages, tels que les avertissements concernant les sauvegardes automatiques.",
+  "AutosaveWarningTime": "Délai d'avertissement de sauvegarde",
+  "Tooltip_AutosaveWarningTime": "Contrôle quand le message d'avertissement de sauvegarde automatique apparaît.\n<b>Par défaut</b> : 30 secondes avant la sauvegarde.",
   "MinimumPlayerHealthPercent": "Pourcentage de santé minimal du joueur",
   "Tooltip_MinimumPlayerHealthPercent": "Retardez la sauvegarde si la santé du joueur est inférieure à ce pourcentage.\nMettez 0 pour désactiver cette option.",
   "ShowSaveNames": "Afficher les noms des sauvegardes",

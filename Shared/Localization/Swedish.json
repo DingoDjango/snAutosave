@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Aktiverar autosparning medan du kör fordon som Seamoth eller PRAWN-dräkten. Kan orsaka buggar, särskilt med moduler som Griparmen. Använd på egen risk.",
   "ShowSaveMessages": "Visa autosparningsmeddelanden",
   "Tooltip_ShowSaveMessages": "Visar meddelanden, till exempel varningar om autosparningar.",
+  "AutosaveWarningTime": "Tid för autosparningsvarning",
+  "Tooltip_AutosaveWarningTime": "Styr när varningsmeddelandet för autosparning visas.\n<b>Standard</b>: 30 sekunder före sparningen.",
   "MinimumPlayerHealthPercent": "Minsta spelarhälsa i procent",
   "Tooltip_MinimumPlayerHealthPercent": "Fördröj sparningen om spelarens hälsa är lägre än denna procentsats.\nÄndra till 0 för att inaktivera detta alternativ.",
   "ShowSaveNames": "Visa sparnamn",

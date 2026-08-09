@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Permite guardar automáticamente mientras conduces vehículos como el Seamoth o el traje PRAWN. Puede causar fallos, especialmente con módulos como el Brazo de Garfio. Úsalo bajo tu responsabilidad.",
   "ShowSaveMessages": "Mostrar mensajes de autoguardado",
   "Tooltip_ShowSaveMessages": "Muestra mensajes, como los avisos sobre los autoguardados.",
+  "AutosaveWarningTime": "Tiempo de aviso de autoguardado",
+  "Tooltip_AutosaveWarningTime": "Controla cuándo aparece el mensaje de aviso de autoguardado.\n<b>Por defecto</b>: 30 segundos antes del guardado.",
   "MinimumPlayerHealthPercent": "Porcentaje mínimo de salud del jugador",
   "Tooltip_MinimumPlayerHealthPercent": "Retrasa el guardado si la salud del jugador está por debajo de este porcentaje.\nCambia a 0 para desactivar esta opción.",
   "ShowSaveNames": "Mostrar nombres de guardado",

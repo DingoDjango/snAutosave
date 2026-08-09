@@ -16,6 +16,8 @@
   "Tooltip_SaveWhilePiloting": "Włącza automatyczny zapis podczas prowadzenia pojazdów takich jak Seamoth czy skafander PRAWN. Może powodować błędy, szczególnie z modułami takimi jak Ramię Chwytające. Używasz na własne ryzyko.",
   "ShowSaveMessages": "Pokazuj komunikaty automatycznego zapisu",
   "Tooltip_ShowSaveMessages": "Wyświetla komunikaty, takie jak ostrzeżenia o automatycznym zapisie.",
+  "AutosaveWarningTime": "Czas ostrzeżenia automatycznego zapisu",
+  "Tooltip_AutosaveWarningTime": "Kontroluje, kiedy pojawia się komunikat ostrzegawczy o automatycznym zapisie.\n<b>Domyślnie</b>: 30 sekund przed zapisem.",
   "MinimumPlayerHealthPercent": "Minimalny procent zdrowia gracza",
   "Tooltip_MinimumPlayerHealthPercent": "Opóźnia zapis, jeśli zdrowie gracza jest poniżej tego progu.\nUstaw 0, aby wyłączyć tę opcję.",
   "ShowSaveNames": "Pokazuj nazwy zapisów",

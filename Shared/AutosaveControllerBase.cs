@@ -27,7 +27,6 @@ namespace SubnauticaAutosave
 
         private static readonly string[] BackupSuffixes = { "-old", "-old(1)", "-old(2)", "-old(3)", "-old(4)", "-old(5)", "-old(6)", "-old(7)", "-old(8)", "-old(9)" };
 
-        public const int PriorWarningSeconds = 30;
         public const string AutosaveSuffixFormat = "_auto{0:0000}";
 
         // Set by IngameMenu.ReportSaveError patch, cleared before invoke, read after yield.
@@ -605,9 +604,11 @@ namespace SubnauticaAutosave
         {
             if (ModPlugin.options.AutosaveOnTimer)
             {
-                if (ModPlugin.options.ShowSaveMessages && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - PriorWarningSeconds)
+                int priorWarningSeconds = ModPlugin.options.AutosaveWarningTime;
+
+                if (ModPlugin.options.ShowSaveMessages && !this.warningTriggered && Time.time >= this.nextSaveTriggerTime - priorWarningSeconds)
                 {
-                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(PriorWarningSeconds.ToString()));
+                    ErrorMessage.AddWarning("AutosaveWarning".FormatTranslate(priorWarningSeconds.ToString()));
 
                     this.warningTriggered = true;
                 }
