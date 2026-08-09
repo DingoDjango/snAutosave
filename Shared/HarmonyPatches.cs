@@ -14,6 +14,12 @@ namespace SubnauticaAutosave
 	{
 		private static ManualLogSource logSource;
 
+		private static void Patch_ReportSaveError_Postfix(SaveLoadManager.SaveResult saveResult)
+		{
+			// Store result for the controller; decision + logging happen after the save completes.
+			AutosaveControllerBase.lastSaveResult = saveResult;
+		}
+
 		private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
 		{
 			if (ModPlugin.options.UseCustomDateFormat)
@@ -204,6 +210,11 @@ namespace SubnauticaAutosave
 				// Patch: UserStoragePC.CopyFilesToContainerAsyncImpl (postfix, no IL manipulation)
 				harmony.Patch(original: AccessTools.Method(typeof(UserStoragePC), "CopyFilesToContainerAsyncImpl"),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_CopyFilesToContainerAsyncImpl_Postfix)));
+
+				/* Surface vanilla save failures to the autosave controller (backup keep + error flag) */
+				// Patch: IngameMenu.ReportSaveError
+				harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), "ReportSaveError"),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportSaveError_Postfix)));
 
 			}
 			catch (Exception ex)

@@ -47,9 +47,6 @@ namespace SubnauticaAutosave
         public bool AutosaveOnSleep = true;
 
         /* Other settings */
-        [Toggle(null, LabelLanguageId = "ComprehensiveSaves", TooltipLanguageId = "Tooltip_ComprehensiveSaves")]
-        public bool ComprehensiveSaves = true;
-
         [Toggle(null, LabelLanguageId = "ShowSaveMessages", TooltipLanguageId = "Tooltip_ShowSaveMessages")]
         public bool ShowSaveMessages = true;
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using HarmonyLib;
 using UnityEngine;
 using UWE;
@@ -24,8 +25,16 @@ namespace SubnauticaAutosave
 
         private static readonly MethodInfo GetAllowSavingMethod = AccessTools.Method(typeof(IngameMenu), "GetAllowSaving");
 
+        private static readonly string[] BackupSuffixes = { "-old", "-old(1)", "-old(2)", "-old(3)", "-old(4)", "-old(5)", "-old(6)", "-old(7)", "-old(8)", "-old(9)" };
+
         public const int PriorWarningSeconds = 30;
         public const string AutosaveSuffixFormat = "_auto{0:0000}";
+
+        // Set by IngameMenu.ReportSaveError patch, cleared before invoke, read after yield.
+        internal static SaveLoadManager.SaveResult lastSaveResult = null;
+
+        // Blocks new autosave triggers while the error report popup is open.
+        internal static bool awaitingConfirmation = false;
 
         protected int latestAutosaveSlot = -1;
 
@@ -127,12 +136,8 @@ namespace SubnauticaAutosave
 
             string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
 
-            if (!ModPlugin.options.HardcoreMode)
-            {
-                string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.RotateAutosaveSlotNumber());
-
-                this.SetSlot(autosaveSlotName);
-            }
+            string backupPath = null;
+            bool abort = false;
 
             FreezeTime.Begin(FreezeTime.Id.None);
 
@@ -144,77 +149,235 @@ namespace SubnauticaAutosave
                 ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
 #endif
 
-                IEnumerator saveGameAsync = null;
+                lastSaveResult = null;
 
-                try
+                if (!ModPlugin.options.HardcoreMode)
                 {
-                    saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
+                    string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.RotateAutosaveSlotNumber());
+
+                    this.SetSlot(autosaveSlotName);
+
+                    backupPath = this.PrepareAutosaveSlot(autosaveSlotName, out abort);
                 }
-                catch (Exception e)
-                {
-                    failure = e;
-                }
 
-                if (failure == null)
+                if (!abort)
                 {
-                    yield return saveGameAsync;
-
-#if DEBUG
-                    ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
-#endif
+                    IEnumerator saveGameAsync = null;
 
                     try
                     {
-                        this.SetSlot(mainSaveSlot);
-
-                        this.ScheduleAutosave();
-
-#if DEBUG
-                        ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
-#endif
-
-                        if (!ModPlugin.options.HardcoreMode && ModPlugin.options.ComprehensiveSaves)
-                        {
-                            string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
-
-                            this.MirrorTemporarySaveToSlot(autosaveSlotName);
-                        }
+                        saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
                     }
                     catch (Exception e)
                     {
                         failure = e;
                     }
+
+                    if (failure == null)
+                    {
+                        yield return saveGameAsync;
+
+#if DEBUG
+                        ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
+#endif
+
+                        try
+                        {
+                            this.ScheduleAutosave();
+
+#if DEBUG
+                            ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
+#endif
+                        }
+                        catch (Exception e)
+                        {
+                            failure = e;
+                        }
+                    }
                 }
             }
             finally
             {
-                // always unpause + reset state
+                // always restore slot + unpause + reset state
+                this.SetSlot(mainSaveSlot);
+
                 FreezeTime.End(FreezeTime.Id.None);
+
                 this.warningTriggered = false;
+
                 this.isSaving = false;
             }
 
-            if (failure != null)
+            bool saveFailed = failure != null || (lastSaveResult != null && !lastSaveResult.success);
+
+            if (!saveFailed)
             {
-                ModPlugin.LogMessage($"AutosaveCoroutine() - Autosave failed: {failure}");
+                if (!string.IsNullOrEmpty(backupPath))
+                {
+                    this.DeleteBackupAsync(backupPath);
+                }
+            }
+            else
+            {
+                string errorCode = lastSaveResult != null ? lastSaveResult.error.ToString() : "None";
+                string errorMessage = lastSaveResult != null ? lastSaveResult.errorMessage : null;
+
+                ModPlugin.LogMessage($"AutosaveCoroutine() - Autosave failure (exception: {failure}, error: {errorCode}, message: {errorMessage}). Backup kept: {backupPath}");
             }
         }
 
-        private void MirrorTemporarySaveToSlot(string autosaveSlotName)
+        // Renames the existing slot dir to the next free backup name, then pre-seeds a fresh slot.
+        // Returns this cycle's backupPath (null = abort, or no backup created on a fresh slot).
+        private string PrepareAutosaveSlot(string autosaveSlotName, out bool abort)
         {
+            abort = false;
+
+            string slotPath = Path.Combine(this.SavedGamesDirPath, autosaveSlotName);
             string tempPath = SaveLoadManager.GetTemporarySavePath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
+            try
+            {
+                if (!Directory.Exists(slotPath))
+                {
+                    // fresh slot: pre-seed from temp, no backup this cycle
+                    this.PreSeedTemporarySaveToSlot(tempPath, slotPath);
+
+                    return null;
+                }
+
+                string newestBackup = this.FindNewestBackup(slotPath);
+
+                if (newestBackup != null && AutosaveControllerBase.GameInfoIdentical(Path.Combine(slotPath, "gameinfo.json"), Path.Combine(newestBackup, "gameinfo.json")))
+                {
+                    ModPlugin.LogMessage($"PrepareAutosaveSlot() - Slot {autosaveSlotName} matches newest backup {newestBackup}. Aborting autosave, backups kept.");
+
+                    this.ShowAutosaveWarning();
+
+                    abort = true;
+
+                    return null;
+                }
+
+                string backupPath = this.NextFreeBackup(slotPath);
+
+                if (backupPath == null)
+                {
+                    ModPlugin.LogMessage($"PrepareAutosaveSlot() - No free backup name for {autosaveSlotName} (10 max). Aborting autosave, backups kept.");
+
+                    this.ShowAutosaveWarning();
+
+                    abort = true;
+
+                    return null;
+                }
+
+                Directory.Move(slotPath, backupPath);
+
+#if DEBUG
+                ModPlugin.LogMessage($"PrepareAutosaveSlot() - Renamed {slotPath} to {backupPath}.");
+#endif
+
+                this.PreSeedTemporarySaveToSlot(tempPath, slotPath);
+
+                return backupPath;
+            }
+            catch (Exception ex)
+            {
+                ModPlugin.LogMessage($"PrepareAutosaveSlot() - Failed for {slotPath}: {ex}");
+
+                this.ShowAutosaveWarning();
+
+                abort = true;
+
+                return null;
+            }
+        }
+
+        // Highest-numbered existing backup: -old, -old(1) ... -old(9). Returns null if none.
+        private string FindNewestBackup(string slotPath)
+        {
+            string newestBackup = null;
+
+            foreach (string backupPath in BackupSuffixes)
+            {
+                string candidate = slotPath + backupPath;
+
+                if (Directory.Exists(candidate))
+                {
+                    newestBackup = candidate;
+                }
+            }
+
+            return newestBackup;
+        }
+
+        // First free backup name. Returns null when all 10 are taken.
+        private string NextFreeBackup(string slotPath)
+        {
+            foreach (string backupPath in BackupSuffixes)
+            {
+                string candidate = slotPath + backupPath;
+
+                if (!Directory.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        // Byte-compares gameinfo.json of two dirs. Missing file on either side → not identical.
+        private static bool GameInfoIdentical(string firstGameInfoPath, string secondGameInfoPath)
+        {
+            if (!File.Exists(firstGameInfoPath) || !File.Exists(secondGameInfoPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                byte[] firstBytes = File.ReadAllBytes(firstGameInfoPath);
+                byte[] secondBytes = File.ReadAllBytes(secondGameInfoPath);
+
+                if (firstBytes.Length != secondBytes.Length)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < firstBytes.Length; i++)
+                {
+                    if (firstBytes[i] != secondBytes[i])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ModPlugin.LogMessage($"GameInfoIdentical() - Failed to compare {firstGameInfoPath} and {secondGameInfoPath}: {ex}");
+
+                return false;
+            }
+        }
+
+        // Recursive copy of ALL temp files into the slot dir (rows, screenshots, cyclops, anything).
+        private void PreSeedTemporarySaveToSlot(string tempPath, string slotPath)
+        {
             if (!Directory.Exists(tempPath))
             {
+                ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Temporary save folder does not exist: {tempPath}");
+
                 return;
             }
 
-            string slotPath = Path.Combine(this.SavedGamesDirPath, autosaveSlotName);
+            Directory.CreateDirectory(slotPath);
 
-            HashSet<string> mirroredFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            string[] tempFiles = Directory.GetFiles(tempPath, "*", SearchOption.AllDirectories);
+            int copiedFiles = 0;
 
-            foreach (string tempFile in tempFiles)
+            foreach (string tempFile in Directory.GetFiles(tempPath, "*", SearchOption.AllDirectories))
             {
                 try
                 {
@@ -222,52 +385,75 @@ namespace SubnauticaAutosave
                     string destinationPath = Path.Combine(slotPath, relativePath);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
                     File.Copy(tempFile, destinationPath, true);
 
-                    mirroredFiles.Add(relativePath);
+                    copiedFiles++;
                 }
                 catch (Exception ex)
                 {
-                    ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to mirror {tempFile}: {ex}");
+                    ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Failed to copy {tempFile}: {ex}");
                 }
             }
 
 #if DEBUG
-            ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Mirrored {mirroredFiles.Count} files from {tempPath} to {slotPath}.");
+            ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Pre-seeded {copiedFiles} files from {tempPath} to {slotPath}.");
 #endif
+        }
 
-            if (!Directory.Exists(slotPath))
+        // Background delete of THIS cycle's backup only, off the main thread. Older backups never touched.
+        private void DeleteBackupAsync(string backupPath)
+        {
+            try
+            {
+                System.Threading.ThreadPool.QueueUserWorkItem(delegate
+                {
+                    try
+                    {
+                        Directory.Delete(backupPath, true);
+
+#if DEBUG
+                        ModPlugin.LogMessage($"DeleteBackupAsync() - Deleted backup {backupPath}.");
+#endif
+                    }
+                    catch (Exception ex)
+                    {
+                        ModPlugin.LogMessage($"DeleteBackupAsync() - Failed to delete backup {backupPath}: {ex}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ModPlugin.LogMessage($"DeleteBackupAsync() - Failed to queue deletion of {backupPath}: {ex}");
+            }
+        }
+
+        // Vanilla-style modal (mirrors IngameMenu.ReportSaveError). Freeze id separate from mod's Id.None.
+        private void ShowAutosaveWarning()
+        {
+            if (awaitingConfirmation)
             {
                 return;
             }
 
-            string[] slotFiles = Directory.GetFiles(slotPath, "*", SearchOption.AllDirectories);
+            awaitingConfirmation = true;
 
-            int purgedFiles = 0;
-            int keptFiles = 0;
+            FreezeTime.Begin(FreezeTime.Id.IngameMenu);
 
-            foreach (string slotFile in slotFiles)
-            {
-                try
-                {
-                    string relativePath = slotFile.Substring(slotPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            uGUI.main.confirmation.Show("AutosaveErrorReport".Translate(), new uGUI_SceneConfirmation.ConfirmationFinishedDelegate(this.OnAutosaveWarningConfirmed), null);
 
-                    // Keep vanilla delete-meta markers (.deleted) and batch-cell zip bundles; temp holds uncompressed rows only
-                    if (mirroredFiles.Contains(relativePath) || SaveLoadManager.IsDeleteMetaFileName(relativePath) || relativePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        keptFiles++;
-                        continue;
-                    }
+#if DEBUG
+            ModPlugin.LogMessage("ShowAutosaveWarning() - Autosave error report popup shown.");
+#endif
+        }
 
-                    File.Delete(slotFile);
-                    purgedFiles++;
-                }
-                catch (Exception ex)
-                {
-                    ModPlugin.LogMessage($"MirrorTemporarySaveToSlot() - Failed to purge {slotFile}: {ex}");
-                }
-            }
+        private void OnAutosaveWarningConfirmed(bool confirmed)
+        {
+            FreezeTime.End(FreezeTime.Id.IngameMenu);
 
+            awaitingConfirmation = false;
+
+            ModPlugin.LogMessage($"OnAutosaveWarningConfirmed() - Autosave error report acknowledged (confirmed: {confirmed}).");
         }
 
         public string SlotSuffixFormatted(int slotNumber)
@@ -301,10 +487,6 @@ namespace SubnauticaAutosave
 
                 return -1;
             }
-
-#if DEBUG
-            ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir returned {slotNumber} for {directoryName}");
-#endif
 
             return slotNumber;
         }
@@ -495,6 +677,11 @@ namespace SubnauticaAutosave
 
         public bool TryExecuteAutosave()
         {
+            if (awaitingConfirmation)
+            {
+                return false;
+            }
+
             if (this.IsSafeToSave())
             {
                 if (!this.isSaving)
