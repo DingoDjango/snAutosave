@@ -12,6 +12,8 @@
   "AutosaveOnSleep": "Uyurken Otomatik Kayıt",
   "Tooltip_AutosaveOnSleep": "Oyuncu uyuduğunda otomatik kayıt yapar.",
   "AutosaveErrorReport": "Lütfen bu sorunu mod yazarına bildirin ve log dosyasını ekleyin.",
+  "SaveWhilePiloting": "Sürüş Sırasında Kaydet <color=yellow>[HATALI]</color>",
+  "Tooltip_SaveWhilePiloting": "Seamoth veya PRAWN elbisesi gibi araçları kullanırken otomatik kayıt yapılmasını sağlar. Özellikle Kanca Kol gibi modüllerle hatalara yol açabilir. Kendi sorumluluğunuzda kullanın.",
   "ShowSaveMessages": "Otomatik Kayıt Mesajlarını Göster",
   "Tooltip_ShowSaveMessages": "Otomatik kayıt uyarıları gibi mesajları görüntüler.",
   "MinimumPlayerHealthPercent": "Minimum Oyuncu Sağlığı Yüzdesi",

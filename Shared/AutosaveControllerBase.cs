@@ -88,7 +88,7 @@ namespace SubnauticaAutosave
             }
 
             // Vehicles: piloting, enter/exit, docked
-            if (Player.main.isPiloting)
+            if (!ModPlugin.options.SaveWhilePiloting && Player.main.isPiloting)
             {
                 return false;
             }

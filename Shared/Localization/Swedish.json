@@ -12,6 +12,8 @@
   "AutosaveOnSleep": "Autosparning vid sömn",
   "Tooltip_AutosaveOnSleep": "Autosparar när spelaren går och sover.",
   "AutosaveErrorReport": "Vänligen rapportera detta problem till mod-författaren, inklusive loggen.",
+  "SaveWhilePiloting": "Spara vid körning <color=yellow>[FELAKTIG]</color>",
+  "Tooltip_SaveWhilePiloting": "Aktiverar autosparning medan du kör fordon som Seamoth eller PRAWN-dräkten. Kan orsaka buggar, särskilt med moduler som Griparmen. Använd på egen risk.",
   "ShowSaveMessages": "Visa autosparningsmeddelanden",
   "Tooltip_ShowSaveMessages": "Visar meddelanden, till exempel varningar om autosparningar.",
   "MinimumPlayerHealthPercent": "Minsta spelarhälsa i procent",

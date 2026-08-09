@@ -12,6 +12,8 @@
   "AutosaveOnSleep": "Autospeicherung beim Schlafen",
   "Tooltip_AutosaveOnSleep": "Speichert automatisch, wenn der Spieler schlafen geht.",
   "AutosaveErrorReport": "Bitte melden Sie dieses Problem dem Mod-Autor und fügen Sie das Log bei.",
+  "SaveWhilePiloting": "Speichern während Pilotensicht <color=yellow>[FEHLERHAFT]</color>",
+  "Tooltip_SaveWhilePiloting": "Aktiviert Autospeicherung beim Steuern von Fahrzeugen wie Seamoth oder PRAWN-Anzug. Kann Fehler verursachen, besonders bei Modulen wie dem Greifarm. Verwendung auf eigenes Risiko.",
   "ShowSaveMessages": "Autospeichermeldungen anzeigen",
   "Tooltip_ShowSaveMessages": "Zeigt Meldungen an, z. B. Warnungen zur Autospeicherung.",
   "MinimumPlayerHealthPercent": "Minimaler Gesundheitsprozentsatz des Spielers",

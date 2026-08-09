@@ -53,6 +53,9 @@ namespace SubnauticaAutosave
         [Slider(null, 0f, 1f, DefaultValue = 0.25f, Format = "{0:P0}", Step = 0.05f, LabelLanguageId = "MinimumPlayerHealthPercent", TooltipLanguageId = "Tooltip_MinimumPlayerHealthPercent")]
         public float MinimumPlayerHealthPercent = 0.25f;
 
+        [Toggle(null, LabelLanguageId = "SaveWhilePiloting", TooltipLanguageId = "Tooltip_SaveWhilePiloting")]
+        public bool SaveWhilePiloting = false;
+
         [Toggle(null, LabelLanguageId = "ShowSaveNames", TooltipLanguageId = "Tooltip_ShowSaveNames")]
         public bool ShowSaveNames = true;
 

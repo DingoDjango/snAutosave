@@ -12,6 +12,8 @@
   "AutosaveOnSleep": "Autosave On Sleep",
   "Tooltip_AutosaveOnSleep": "Autosave when the player goes to sleep.",
   "AutosaveErrorReport": "Please report this issue to the mod author, including log",
+  "SaveWhilePiloting": "Save While Piloting <color=yellow>[BUGGY]</color>",
+  "Tooltip_SaveWhilePiloting": "Enable autosaves while driving vehicles such as Seamoth or PRAWN suit. May cause glitches, especially with modules such as the Grappling Arm. Use at your own risk.",
   "ShowSaveMessages": "Show AutoSave Messages",
   "Tooltip_ShowSaveMessages": "Display messages, such as warning about autosaves.",
   "MinimumPlayerHealthPercent": "Minimum Player Health Percent",
