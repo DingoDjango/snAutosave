@@ -123,13 +123,11 @@ namespace SubnauticaAutosave
 
             this.isSaving = true;
 
-            bool hardcoreMode = ModPlugin.options.HardcoreMode;
-
             this.SetMainSlotIfAutosave();
 
             string mainSaveSlot = SaveLoadManager.main.GetCurrentSlot();
 
-            if (!hardcoreMode)
+            if (!ModPlugin.options.HardcoreMode)
             {
                 string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.RotateAutosaveSlotNumber());
 
@@ -138,42 +136,68 @@ namespace SubnauticaAutosave
 
             FreezeTime.Begin(FreezeTime.Id.None);
 
-#if DEBUG
-            ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
-#endif
+            Exception failure = null;
 
-            IEnumerator saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
-            yield return saveGameAsync;
-
-#if DEBUG
-            ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
-#endif
-
-            if (!hardcoreMode && ModPlugin.options.ComprehensiveSaves)
+            try
             {
-                string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
+#if DEBUG
+                ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
+#endif
 
-                this.MirrorTemporarySaveToSlot(autosaveSlotName);
+                IEnumerator saveGameAsync = null;
+
+                try
+                {
+                    saveGameAsync = (IEnumerator)typeof(IngameMenu).GetMethod("SaveGameAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(IngameMenu.main, null);
+                }
+                catch (Exception e)
+                {
+                    failure = e;
+                }
+
+                if (failure == null)
+                {
+                    yield return saveGameAsync;
+
+#if DEBUG
+                    ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
+#endif
+
+                    try
+                    {
+                        this.SetSlot(mainSaveSlot);
+
+                        this.ScheduleAutosave();
+
+#if DEBUG
+                        ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
+#endif
+
+                        if (!ModPlugin.options.HardcoreMode && ModPlugin.options.ComprehensiveSaves)
+                        {
+                            string autosaveSlotName = mainSaveSlot + this.SlotSuffixFormatted(this.latestAutosaveSlot);
+
+                            this.MirrorTemporarySaveToSlot(autosaveSlotName);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        failure = e;
+                    }
+                }
+            }
+            finally
+            {
+                // always unpause + reset state
+                FreezeTime.End(FreezeTime.Id.None);
+                this.warningTriggered = false;
+                this.isSaving = false;
             }
 
-            if (!hardcoreMode)
+            if (failure != null)
             {
-                this.SetSlot(mainSaveSlot);
+                ModPlugin.LogMessage($"AutosaveCoroutine() - Autosave failed: {failure}");
             }
-
-            this.ScheduleAutosave();
-
-            this.warningTriggered = false;
-            this.isSaving = false;
-
-#if DEBUG
-            ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
-#endif
-
-            // Unpause
-            FreezeTime.End(FreezeTime.Id.None);
-
-            yield break;
         }
 
         private void MirrorTemporarySaveToSlot(string autosaveSlotName)
