@@ -110,7 +110,7 @@ namespace SubnauticaAutosave
 			Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
 		}
 
-		private static void Patch_Subroot_PlayerEnteredOrExited_Postfix()
+		private static void Patch_Subroot_PlayerExited_Postfix()
 		{
 #if DEBUG
 			ModPlugin.LogMessage("Player entered or exited sub. Delaying autosave.");
@@ -197,14 +197,10 @@ namespace SubnauticaAutosave
 				harmony.Patch(original: AccessTools.Method(typeof(uGUI_PlayerSleep), nameof(uGUI_PlayerSleep.StopSleepScreen)),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_SleepScreen_Stop_Postfix)));
 
-				/* Delay autosave if player has entered or exited a base or vehicle */
-				HarmonyMethod delayAutosavePatch = new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerEnteredOrExited_Postfix));
-				// Patch: SubRoot.OnPlayerEntered
-				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerEntered)),
-							  postfix: delayAutosavePatch);
+				/* Delay autosave if player exited a vehicle */
 				// Patch: SubRoot.OnPlayerExited
 				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
-							  postfix: delayAutosavePatch);
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerExited_Postfix)));
 
 				/* Log vanilla copy failures instead of silent catch */
 				// Patch: UserStoragePC.CopyFilesToContainerAsyncImpl (postfix, no IL manipulation)
