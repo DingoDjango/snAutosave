@@ -20,6 +20,16 @@ namespace SubnauticaAutosave
 			AutosaveControllerBase.lastSaveResult = saveResult;
 		}
 
+#if DEBUG
+		// Vanilla CycleNext/CyclePrev secondary bindings use [/]. Release those so the
+		// debug autosave trigger (default [) does not also cycle quickslots.
+		private static void Patch_GameInputSystem_Initialize_Postfix(GameInputSystem __instance)
+		{
+			__instance.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CycleNext, GameInput.BindingSet.Secondary, string.Empty);
+			__instance.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CyclePrev, GameInput.BindingSet.Secondary, string.Empty);
+		}
+#endif
+
 		private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
 		{
 			if (ModPlugin.options.UseCustomDateFormat)
@@ -211,6 +221,12 @@ namespace SubnauticaAutosave
 				// Patch: IngameMenu.ReportSaveError
 				harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), "ReportSaveError"),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportSaveError_Postfix)));
+
+#if DEBUG
+				// Patch: GameInputSystem.Initialize (rebind vanilla [/] quickslot secondary, debug only)
+				harmony.Patch(original: AccessTools.Method(typeof(GameInputSystem), nameof(GameInputSystem.Initialize)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_GameInputSystem_Initialize_Postfix)));
+#endif
 
 			}
 			catch (Exception ex)

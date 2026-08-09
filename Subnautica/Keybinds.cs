@@ -8,8 +8,13 @@ namespace SubnauticaAutosave
     internal static class Keybinds
     {
         private const string DefaultBinding = "<Keyboard>/f9";
+        private const string DebugDefaultBinding = "<Keyboard>/leftBracket";
 
         internal static GameInput.Button Quicksave { get; private set; }
+
+#if DEBUG
+        internal static GameInput.Button DebugAutosaveTrigger { get; private set; }
+#endif
 
         internal static void Initialize()
         {
@@ -20,6 +25,16 @@ namespace SubnauticaAutosave
                 .WithBinding(GameInput.Device.Controller, GameInput.BindingSet.Primary, string.Empty)
                 .AvoidConflicts(GameInput.Device.Keyboard)
                 .WithCategory(ModPlugin.modName);
+
+#if DEBUG
+            // Hardcoded label per debug-only requirement; avoid leaking to release.
+            DebugAutosaveTrigger = EnumHandler.AddEntry<GameInput.Button>("SubnauticaAutosaveDebugAutosave")
+                .CreateInput("Debug: Trigger Autosave", "Forces TryExecuteAutosave() for testing.")
+                .WithKeyboardBinding(DebugDefaultBinding)
+                .WithBinding(GameInput.Device.Controller, GameInput.BindingSet.Primary, string.Empty)
+                .AvoidConflicts(GameInput.Device.Keyboard)
+                .WithCategory(ModPlugin.modName);
+#endif
         }
     }
 }

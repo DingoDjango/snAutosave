@@ -58,9 +58,9 @@ namespace SubnauticaAutosave
             }
 
 #if DEBUG
-            if (Input.GetKeyDown(KeyCode.LeftBracket))
+            if (GameInput.GetButtonDown(Keybinds.DebugAutosaveTrigger))
             {
-                LogMessage("Pressed [ key, trying to execute autosave");
+                LogMessage("Pressed debug trigger key, executing autosave");
 
                 Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
             }
