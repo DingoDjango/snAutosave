@@ -7,6 +7,6 @@ namespace SubnauticaAutosave
         public const int MaxMinutesBetweenSaves = 600; // 10 hours should be enough
         public const int MaxSaveFiles = 99;
 
-        public static AutosaveOptions options;
+        public static ModOptions options;
     }
 }

@@ -16,9 +16,9 @@ namespace SubnauticaAutosave
         {
             LanguageHandler.RegisterLocalizationFolder();
 
-            options = OptionsPanelHandler.RegisterModOptions<AutosaveOptions>();
+            options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
 
-            AutosaveOptions.OnTimingChanged += RescheduleOnSettingChanged;
+            ModOptions.OnTimingChanged += RescheduleOnSettingChanged;
             
             Keybinds.Initialize();
             
@@ -27,7 +27,7 @@ namespace SubnauticaAutosave
 
         private void OnDestroy()
         {
-            AutosaveOptions.OnTimingChanged -= RescheduleOnSettingChanged;
+            ModOptions.OnTimingChanged -= RescheduleOnSettingChanged;
         }
 
         private void RescheduleOnSettingChanged()

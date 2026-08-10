@@ -138,8 +138,8 @@
     <Compile Include="..\Shared\AutosaveControllerBase.cs">
       <Link>AutosaveControllerBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\AutosaveOptions.cs">
-      <Link>AutosaveOptions.cs</Link>
+    <Compile Include="..\Shared\ModOptions.cs">
+      <Link>ModOptions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\HarmonyPatches.cs">
       <Link>HarmonyPatches.cs</Link>

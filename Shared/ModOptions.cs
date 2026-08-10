@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SubnauticaAutosave
 {
     [Menu(ModPlugin.modName)]
-    public class AutosaveOptions : ConfigFile
+    public class ModOptions : ConfigFile
     {
         // Fired when timing-related options change; ModPlugin subscribes to reschedule the next save.
         public static Action OnTimingChanged;
