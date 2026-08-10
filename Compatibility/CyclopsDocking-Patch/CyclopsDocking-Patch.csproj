@@ -75,7 +75,7 @@
   <PropertyGroup>
     <PostBuildEvent>cd /d "$(ProjectDir)"
 SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
-SET ZIPFILE=..\..\..\ZIP\Subnautica\$(ProjectName).zip
+SET ZIPFILE=..\..\ZIP\Subnautica\$(ProjectName).zip
 
 if exist "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking" rmdir /s /q "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking"
 
@@ -84,7 +84,7 @@ xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\*" "%
 if "$(Configuration)" == "Debug" (
     if exist "%25ZIPFILE%25" del /f /q "%25ZIPFILE%25"
 ) else (
-    if not exist "..\..\..\ZIP\Subnautica" mkdir "..\..\..\ZIP\Subnautica"
+    if not exist "..\..\ZIP\Subnautica" mkdir "..\..\ZIP\Subnautica"
     "C:\Program Files\7-Zip\7z.exe" a -mx9 -bso0 -bse2 -bsp0 "%25ZIPFILE%25" "BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking"
 )</PostBuildEvent>
   </PropertyGroup>
