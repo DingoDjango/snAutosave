@@ -11,9 +11,9 @@ Everything is configurable in **Menu → Options → Mods → Subnautica Autosav
 
 ### **Installation:**
 
-1. Install [BepInEx for Subnautica](https://www.nexusmods.com/subnautica/mods/1108)
-2. Install [Nautilus](https://www.nexusmods.com/subnautica/mods/1262)
-3. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
+1. Install [BepInEx for Subnautica](https://github.com/toebeann/BepInEx.Subnautica/releases)
+2. Install [Nautilus](https://github.com/SubnauticaModding/Nautilus/releases) (*latest pre-release*)
+3. Download the latest zip file from [Releases](https://github.com/DingoDjango/snAutosave/releases)
 4. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
 
 ### **(Optional) Translation:**
