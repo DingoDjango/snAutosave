@@ -2,7 +2,10 @@
 
 ### **Description:**
 
-An automated save system for Subnautica. Autosaves are separate from normal saves by default. Includes mod options.
+An automated save system with several optional save conditions. Autosave slots are separate from the normal save by default.
+Includes a rebindable Quicksave key which triggers a normal save.
+
+Everything is configurable in **Menu → Options → Mods → Subnautica Autosave**.
 
 **For Below Zero instructions please view the [Nexus mod page](https://www.nexusmods.com/subnauticabelowzero/mods/359).**
 
@@ -12,21 +15,6 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 2. Install [Nautilus](https://www.nexusmods.com/subnautica/mods/1262)
 3. Download the latest zip file from the [Files tab](https://www.nexusmods.com/subnautica/mods/237/?tab=files)
 4. Unzip the contents of the zip to the game's main directory (where Subnautica.exe can be found)
-
-### **(Optional) Configuration:**
-
-#### Recommended - Using Configuration Manager
-
-1. Install the [Configuration Manager](https://www.nexusmods.com/subnautica/mods/1112) mod (also works for BZ)
-2. Launch Subnautica and open the Configuration Manager (default key: F5)
-3. Configure desired settings in this mod's section
-
-#### Manual Configuration
-
-1. Launch the game at least once after installing the mod
-2. Open *...\Subnautica\BepInEx\config\Dingo.SN.SubnauticaAutosave.cfg* with a text editor
-3. Replace the default values with your preferences. Read setting descriptions before changing values.
-    > For hotkeys, use KeyCode names found on [this page](https://docs.unity3d.com/ScriptReference/KeyCode.html)
 
 ### **(Optional) Translation:**
 
@@ -39,13 +27,14 @@ An automated save system for Subnautica. Autosaves are separate from normal save
 ### **FAQ:**
 
 - **Q. Does this mod support the latest Subnautica update?**
-- A. Latest version tested on September 2025
+- A. Latest version tested on August 2026 for game version 83031
 - **Q. Is this mod safe to add or remove from an existing save?**
-- A. Should be safe. Please report any issues
+- A. Yes, should be completely safe. Autosave slots are separate from main save
 - **Q. Does this mod have any known conflicts?**
-- A. Do not use this mod with other autosave/quicksave mods. Other known incompatibilities: Cyclops Docking, Map, Deathrun
+- A. Do not use this mod with other autosave/quicksave mods
+- If you installed [Cyclops Docking](https://www.nexusmods.com/subnautica/mods/2799), install the optional compatibility patch from this mod's Files tab
 - **Q. Does this mod impact performance?**
-- A. Autosaves are created in a similar way to vanilla saves. I implemented one "dirty hack" for copying screenshots, but that setting can be toggled off if your PC is too slow
+- A. Autosaves are created in a similar way to vanilla saves. Time is frozen while autosaving, so should be safe to run even on weak PCs
 
 [Source code can be found here.](https://github.com/DingoDjango/snAutosave)
 
