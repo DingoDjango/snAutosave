@@ -652,15 +652,7 @@ namespace SubnauticaAutosave
 
         public void DelayAutosave(float addedSeconds = 5f)
         {
-#if DEBUG
-            ModPlugin.Instance.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
-#endif
-
             this.nextSaveTriggerTime += addedSeconds;
-
-#if DEBUG
-            ModPlugin.Instance.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
-#endif
         }
 
         public bool TryExecuteAutosave()

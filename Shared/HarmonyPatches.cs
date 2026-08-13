@@ -11,7 +11,7 @@ namespace SubnauticaAutosave
 	{
 		private static void Patch_ReportSaveError_Postfix(SaveLoadManager.SaveResult saveResult)
 		{
-			// Store result for the controller; decision + logging happen after the save completes.
+			// Send save result to controller (vanilla doesn't store)
 			AutosaveControllerBase.lastSaveResult = saveResult;
 		}
 
@@ -114,6 +114,7 @@ namespace SubnauticaAutosave
 			Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
 		}
 
+#if DEBUG
 		private static void Patch_CopyFilesToContainerAsyncImpl_Postfix(object owner, object state)
 		{
 			try
@@ -151,8 +152,9 @@ namespace SubnauticaAutosave
 
 			return null;
 		}
+#endif
 
-		internal static void InitializeHarmony()
+        internal static void InitializeHarmony()
 		{
 			try
 			{
@@ -192,10 +194,12 @@ namespace SubnauticaAutosave
 				harmony.Patch(original: AccessTools.Method(typeof(SubRoot), nameof(SubRoot.OnPlayerExited)),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_Subroot_PlayerExited_Postfix)));
 
+#if DEBUG
 				/* Log vanilla copy failures instead of silent catch */
-				// Patch: UserStoragePC.CopyFilesToContainerAsyncImpl (postfix, no IL manipulation)
+				// Patch: UserStoragePC.CopyFilesToContainerAsyncImpl
 				harmony.Patch(original: AccessTools.Method(typeof(UserStoragePC), "CopyFilesToContainerAsyncImpl"),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_CopyFilesToContainerAsyncImpl_Postfix)));
+#endif
 
 				/* Surface vanilla save failures to the autosave controller (backup keep + error flag) */
 				// Patch: IngameMenu.ReportSaveError
