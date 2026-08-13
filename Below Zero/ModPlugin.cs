@@ -28,8 +28,17 @@ namespace SubnauticaAutosave
 		private void Update()
 		{
 			if (!ModOptions.hasPendingQuicksaveKey && Input.GetKeyDown(options.QuicksaveKey))
-		    {
-		        IngameMenu.main?.SaveGame();
+            {
+                if (SaveLoadManager.main.isSaving)
+                {
+#if DEBUG
+                    LogMessage("Quicksave skipped: save operation in progress");
+#endif
+                }
+                else
+                {
+                    IngameMenu.main?.SaveGame();
+                }
 		    }
 
 #if DEBUG
