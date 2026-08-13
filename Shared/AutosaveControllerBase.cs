@@ -1,11 +1,10 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using HarmonyLib;
 using UnityEngine;
 using UWE;
 
@@ -27,25 +26,25 @@ namespace SubnauticaAutosave
 
         private static readonly string[] BackupSuffixes = { "-old", "-old(1)", "-old(2)", "-old(3)", "-old(4)", "-old(5)", "-old(6)", "-old(7)", "-old(8)", "-old(9)" };
 
-        public const string AutosaveSuffixFormat = "_auto{0:0000}";
+        private const string AutosaveSuffixFormat = "_auto{0:0000}";
 
         // Set by IngameMenu.ReportSaveError patch, cleared before invoke, read after yield.
         internal static SaveLoadManager.SaveResult lastSaveResult = null;
 
         // Blocks new autosave triggers while the error report popup is open.
-        internal static bool awaitingConfirmation = false;
+        private bool awaitingConfirmation = false;
 
-        protected int latestAutosaveSlot = -1;
+        private int latestAutosaveSlot = -1;
 
-        protected bool isSaving = false;
+        private bool isSaving = false;
 
-        protected bool warningTriggered = false;
+        private bool warningTriggered = false;
 
-        protected float nextSaveTriggerTime = Time.time + InitialSaveDelaySeconds;
+        private float nextSaveTriggerTime = Time.time + InitialSaveDelaySeconds;
 
-        public UserStorage GlobalUserStorage => PlatformUtils.main?.GetUserStorage();
+        private UserStorage GlobalUserStorage => PlatformUtils.main?.GetUserStorage();
 
-        public string SavedGamesDirPath
+        private string SavedGamesDirPath
         {
             get
             {
@@ -126,7 +125,7 @@ namespace SubnauticaAutosave
         private IEnumerator AutosaveCoroutine()
         {
 #if DEBUG
-            ModPlugin.Instance.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
+            ModPlugin.Instance.LogMessage($"AutosaveCoroutine beginning at {Time.time}.");
 #endif
 
             this.isSaving = true;
@@ -138,16 +137,13 @@ namespace SubnauticaAutosave
             string backupPath = null;
             bool abort = false;
 
+            // Not using Id.Save because vanilla already does
             FreezeTime.Begin(FreezeTime.Id.None);
 
             Exception failure = null;
 
             try
             {
-#if DEBUG
-                ModPlugin.Instance.LogMessage("AutosaveCoroutine() - Froze time.");
-#endif
-
                 lastSaveResult = null;
 
                 if (!ModPlugin.options.HardcoreMode)
@@ -183,10 +179,6 @@ namespace SubnauticaAutosave
                         try
                         {
                             this.ScheduleAutosave();
-
-#if DEBUG
-                            ModPlugin.Instance.LogMessage("AutosaveCoroutine() - End of routine.");
-#endif
                         }
                         catch (Exception e)
                         {
