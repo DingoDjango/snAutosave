@@ -80,6 +80,11 @@ namespace SubnauticaAutosave
         [OnGameObjectCreated(nameof(OnCustomDateTimeFormatOptionCreated))]
         public DateTimeFormat CustomDateTimeFormat = DateTimeFormat.DMMMYYYY_24Hour;
 
+#if BELOWZERO
+        [Keybind(null, LabelLanguageId = "QuicksaveKey", TooltipLanguageId = "Tooltip_QuicksaveKey")]
+        public KeyCode QuicksaveKey = KeyCode.F9;
+#endif
+
         private void OnHardcoreModeChanged(object sender, ToggleChangedEventArgs e)
         {
             ApplyVisibility();

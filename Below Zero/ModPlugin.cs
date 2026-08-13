@@ -13,8 +13,6 @@ namespace SubnauticaAutosave
 		public const string modName = "Autosave BZ";
 		public const string modVersion = "3.1.8.3031";
 
-		internal static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
-
 		private void Awake()
         {
             Instance = this;
@@ -24,14 +22,12 @@ namespace SubnauticaAutosave
 		    // Register ModOptions for Nautilus config system
 		    options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
 
-		    ConfigQuicksaveKey = Config.Bind("Keybinds", "QuicksaveKey", new KeyboardShortcut(KeyCode.F9), "QuicksaveKey".Translate());
-
 		    HarmonyPatches.InitializeHarmony();
 		}
 
 		private void Update()
 		{
-			if (Input.GetKeyDown(ConfigQuicksaveKey.Value.MainKey))
+			if (Input.GetKeyDown(options.QuicksaveKey))
 		    {
 		        IngameMenu.main?.SaveGame();
 		    }
