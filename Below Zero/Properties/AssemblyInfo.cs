@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SubnauticaAutosave_BZ.Properties")]
+[assembly: AssemblyProduct("SubnauticaAutosave_BZ")]
 [assembly: AssemblyCopyright("Copyright © Dingo 2019-Now")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.4.0.0")]
-[assembly: AssemblyFileVersion("2.4.0.0")]
+[assembly: AssemblyVersion("3.1.8.3031")]
+[assembly: AssemblyFileVersion("3.1.8.3031")]

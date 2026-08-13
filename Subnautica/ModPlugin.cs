@@ -9,30 +9,20 @@ namespace SubnauticaAutosave
     public class ModPlugin : ModPluginBase
     {
         public const string modGUID = "Dingo.SN.SubnauticaAutosave";
-        public const string modName = "Subnautica Autosave";
-        public const string modVersion = "3.0.8.3031";
+        public const string modName = "Autosave";
+        public const string modVersion = "3.1.8.3031";
 
         private void Awake()
         {
+            Instance= this;
+
             LanguageHandler.RegisterLocalizationFolder();
 
             options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
-
-            ModOptions.OnTimingChanged += RescheduleOnSettingChanged;
             
             Keybinds.Initialize();
             
             HarmonyPatches.InitializeHarmony();
-        }
-
-        private void OnDestroy()
-        {
-            ModOptions.OnTimingChanged -= RescheduleOnSettingChanged;
-        }
-
-        private void RescheduleOnSettingChanged()
-        {
-            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
         }
 
         private void Update()
@@ -67,9 +57,19 @@ namespace SubnauticaAutosave
 #endif
         }
 
-        public static void LogMessage(string message)
+        public override void LogMessage(string message)
         {
             Debug.Log($"{modName} :: {message}");
+        }
+
+        public override void LogWarning(string warning)
+        {
+            Debug.LogWarning($"{modName} :: {warning}");
+        }
+
+        public override void LogError(string error)
+        {
+            Debug.LogError($"{modName} :: {error}");
         }
     }
 }

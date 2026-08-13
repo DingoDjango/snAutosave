@@ -43,7 +43,7 @@ namespace SubnauticaAutosave
         {
             if (LoggedMissingKeys.Add(source))
             {
-                ModPlugin.LogMessage($"Could not find translated string for `{source}`");
+                ModPlugin.Instance.LogWarning($"Could not find translated string for `{source}`");
             }
         }
 
@@ -70,8 +70,7 @@ namespace SubnauticaAutosave
                 }
                 catch (Exception ex)
                 {
-                    ModPlugin.LogMessage(ex.ToString());
-                    ModPlugin.LogMessage($"Failed to format '{source}'");
+                    ModPlugin.Instance.LogError($"Failed to format '{source}': {ex}");
                 }
             }
 
@@ -96,8 +95,7 @@ namespace SubnauticaAutosave
             }
             catch (Exception ex)
             {
-                ModPlugin.LogMessage(ex.ToString());
-                ModPlugin.LogMessage($"Failed to format '{source}'");
+                ModPlugin.Instance.LogMessage($"Failed to format '{source}': {ex}");
                 return null;
             }
         }
@@ -107,7 +105,7 @@ namespace SubnauticaAutosave
             CultureInfo culture = (CultureInfo)typeof(Language).GetField("currentCultureInfo", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(Language.main);
 
 #if DEBUG
-            ModPlugin.LogMessage($"culture == {culture}.");
+            ModPlugin.Instance.LogMessage($"culture == {culture}.");
 #endif
 
             string customFormat = DateTimeFormatLibrary.DateTimes[ModPlugin.options.CustomDateTimeFormat];
@@ -115,7 +113,7 @@ namespace SubnauticaAutosave
             string formattedDate = string.Format(culture, customFormat, args);
 
 #if DEBUG
-            ModPlugin.LogMessage($"GetCustomDateFormat == {formattedDate}.");
+            ModPlugin.Instance.LogMessage($"GetCustomDateFormat == {formattedDate}.");
 #endif
 
             return formattedDate;

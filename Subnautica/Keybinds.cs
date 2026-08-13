@@ -1,4 +1,5 @@
 using Nautilus.Handlers;
+using static VFXParticlesPool;
 
 namespace SubnauticaAutosave
 {
@@ -27,7 +28,9 @@ namespace SubnauticaAutosave
                 .WithCategory(ModPlugin.modName);
 
 #if DEBUG
-            // Hardcoded label per debug-only requirement; avoid leaking to release.
+            GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CycleNext, GameInput.BindingSet.Secondary, string.Empty);
+            GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CyclePrev, GameInput.BindingSet.Secondary, string.Empty);
+
             DebugAutosaveTrigger = EnumHandler.AddEntry<GameInput.Button>("SubnauticaAutosaveDebugAutosave")
                 .CreateInput("Debug: Trigger Autosave", "Forces TryExecuteAutosave() for testing.")
                 .WithKeyboardBinding(DebugDefaultBinding)

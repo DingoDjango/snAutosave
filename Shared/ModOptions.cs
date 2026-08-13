@@ -9,9 +9,6 @@ namespace SubnauticaAutosave
     [Menu(ModPlugin.modName)]
     public class ModOptions : ConfigFile
     {
-        // Fired when timing-related options change; ModPlugin subscribes to reschedule the next save.
-        public static Action OnTimingChanged;
-
         // Option row GameObjects, refreshed each menu open.
         private static GameObject maxSaveFilesOptionObject;
         private static GameObject delaySaveOnManualOptionObject;
@@ -90,13 +87,13 @@ namespace SubnauticaAutosave
 
         private void OnAutosaveOnTimerChanged(object sender, ToggleChangedEventArgs e)
         {
-            OnTimingChanged?.Invoke();
+            OnTimingChanged();
             ApplyVisibility();
         }
 
         private void OnMinutesBetweenAutosavesChanged(object sender, SliderChangedEventArgs e)
         {
-            OnTimingChanged?.Invoke();
+            OnTimingChanged();
         }
 
         private void OnUseCustomDateFormatChanged(object sender, ToggleChangedEventArgs e)
@@ -162,6 +159,15 @@ namespace SubnauticaAutosave
             {
                 autosaveWarningTimeOptionObject.SetActive(ShowSaveMessages);
             }
+        }
+
+        private void OnTimingChanged()
+        {
+#if DEBUG
+            ModPlugin.Instance.LogMessage("Settings changed, trying to reschedule autosave.");
+#endif
+
+            Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
         }
     }
 }

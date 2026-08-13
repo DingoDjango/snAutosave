@@ -60,7 +60,7 @@ namespace SubnauticaAutosave
                 string savePath = saveDir.FullName;
 
 #if DEBUG
-                ModPlugin.LogMessage($"Save path is {savePath}");
+                ModPlugin.Instance.LogMessage($"Save path is {savePath}");
 #endif
 
                 return savePath;
@@ -126,7 +126,7 @@ namespace SubnauticaAutosave
         private IEnumerator AutosaveCoroutine()
         {
 #if DEBUG
-            ModPlugin.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
+            ModPlugin.Instance.LogMessage($"AutosaveCoroutine() - Beginning at {Time.time}.");
 #endif
 
             this.isSaving = true;
@@ -145,7 +145,7 @@ namespace SubnauticaAutosave
             try
             {
 #if DEBUG
-                ModPlugin.LogMessage("AutosaveCoroutine() - Froze time.");
+                ModPlugin.Instance.LogMessage("AutosaveCoroutine() - Froze time.");
 #endif
 
                 lastSaveResult = null;
@@ -177,7 +177,7 @@ namespace SubnauticaAutosave
                         yield return saveGameAsync;
 
 #if DEBUG
-                        ModPlugin.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
+                        ModPlugin.Instance.LogMessage("AutosaveCoroutine() - saveGameAsync executed.");
 #endif
 
                         try
@@ -185,7 +185,7 @@ namespace SubnauticaAutosave
                             this.ScheduleAutosave();
 
 #if DEBUG
-                            ModPlugin.LogMessage("AutosaveCoroutine() - End of routine.");
+                            ModPlugin.Instance.LogMessage("AutosaveCoroutine() - End of routine.");
 #endif
                         }
                         catch (Exception e)
@@ -221,7 +221,7 @@ namespace SubnauticaAutosave
                 string errorCode = lastSaveResult != null ? lastSaveResult.error.ToString() : "None";
                 string errorMessage = lastSaveResult != null ? lastSaveResult.errorMessage : null;
 
-                ModPlugin.LogMessage($"AutosaveCoroutine() - Autosave failure (exception: {failure}, error: {errorCode}, message: {errorMessage}). Backup kept: {backupPath}");
+                ModPlugin.Instance.LogError($"Autosave failure!\nException: {failure}\nError code: {errorCode}\nError message: {errorMessage})\nBackup kept: {backupPath}");
             }
         }
 
@@ -246,11 +246,11 @@ namespace SubnauticaAutosave
 
                 string newestBackup = this.FindNewestBackup(slotPath);
 
-                if (newestBackup != null && AutosaveControllerBase.GameInfoIdentical(Path.Combine(slotPath, "gameinfo.json"), Path.Combine(newestBackup, "gameinfo.json")))
+                if (newestBackup != null && GameInfoIdentical(Path.Combine(slotPath, "gameinfo.json"), Path.Combine(newestBackup, "gameinfo.json")))
                 {
-                    ModPlugin.LogMessage($"PrepareAutosaveSlot() - Slot {autosaveSlotName} matches newest backup {newestBackup}. Aborting autosave, backups kept.");
+                    ModPlugin.Instance.LogWarning($"{autosaveSlotName} matches newest backup {newestBackup}. Aborting autosave, backups kept.");
 
-                    this.ShowAutosaveWarning();
+                    this.ShowAutosaveWarningError();
 
                     abort = true;
 
@@ -261,9 +261,9 @@ namespace SubnauticaAutosave
 
                 if (backupPath == null)
                 {
-                    ModPlugin.LogMessage($"PrepareAutosaveSlot() - No free backup name for {autosaveSlotName} (10 max). Aborting autosave, backups kept.");
+                    ModPlugin.Instance.LogWarning($"No free backup name for {autosaveSlotName} (10 max). Aborting autosave, backups kept.");
 
-                    this.ShowAutosaveWarning();
+                    this.ShowAutosaveWarningError();
 
                     abort = true;
 
@@ -273,7 +273,7 @@ namespace SubnauticaAutosave
                 Directory.Move(slotPath, backupPath);
 
 #if DEBUG
-                ModPlugin.LogMessage($"PrepareAutosaveSlot() - Renamed {slotPath} to {backupPath}.");
+                ModPlugin.Instance.LogMessage($"Renamed {slotPath} to {backupPath}.");
 #endif
 
                 this.PreSeedTemporarySaveToSlot(tempPath, slotPath);
@@ -282,9 +282,9 @@ namespace SubnauticaAutosave
             }
             catch (Exception ex)
             {
-                ModPlugin.LogMessage($"PrepareAutosaveSlot() - Failed for {slotPath}: {ex}");
+                ModPlugin.Instance.LogError($"PrepareAutosaveSlot failed for {slotPath}: {ex}");
 
-                this.ShowAutosaveWarning();
+                this.ShowAutosaveWarningError();
 
                 abort = true;
 
@@ -326,8 +326,8 @@ namespace SubnauticaAutosave
             return null;
         }
 
-        // Byte-compares gameinfo.json of two dirs. Missing file on either side → not identical.
-        private static bool GameInfoIdentical(string firstGameInfoPath, string secondGameInfoPath)
+        // Byte-compares gameinfo.json of two dirs
+        private bool GameInfoIdentical(string firstGameInfoPath, string secondGameInfoPath)
         {
             if (!File.Exists(firstGameInfoPath) || !File.Exists(secondGameInfoPath))
             {
@@ -356,18 +356,18 @@ namespace SubnauticaAutosave
             }
             catch (Exception ex)
             {
-                ModPlugin.LogMessage($"GameInfoIdentical() - Failed to compare {firstGameInfoPath} and {secondGameInfoPath}: {ex}");
+                ModPlugin.Instance.LogError($"Failed to compare {firstGameInfoPath} and {secondGameInfoPath}: {ex}");
 
                 return false;
             }
         }
 
-        // Recursive copy of ALL temp files into the slot dir (rows, screenshots, cyclops, anything).
+        // Recursive copy of ALL temp files into the slot dir (rows, screenshots, Map, anything).
         private void PreSeedTemporarySaveToSlot(string tempPath, string slotPath)
         {
             if (!Directory.Exists(tempPath))
             {
-                ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Temporary save folder does not exist: {tempPath}");
+                ModPlugin.Instance.LogError($"Pre-seed - temporary save folder does not exist: {tempPath}");
 
                 return;
             }
@@ -391,12 +391,12 @@ namespace SubnauticaAutosave
                 }
                 catch (Exception ex)
                 {
-                    ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Failed to copy {tempFile}: {ex}");
+                    ModPlugin.Instance.LogError($"Failed to copy {tempFile}: {ex}");
                 }
             }
 
 #if DEBUG
-            ModPlugin.LogMessage($"PreSeedTemporarySaveToSlot() - Pre-seeded {copiedFiles} files from {tempPath} to {slotPath}.");
+            ModPlugin.Instance.LogMessage($"Pre-seeded {copiedFiles} files from {tempPath} to {slotPath}.");
 #endif
         }
 
@@ -412,23 +412,23 @@ namespace SubnauticaAutosave
                         Directory.Delete(backupPath, true);
 
 #if DEBUG
-                        ModPlugin.LogMessage($"DeleteBackupAsync() - Deleted backup {backupPath}.");
+                        ModPlugin.Instance.LogMessage($"Deleted backup {backupPath}.");
 #endif
                     }
                     catch (Exception ex)
                     {
-                        ModPlugin.LogMessage($"DeleteBackupAsync() - Failed to delete backup {backupPath}: {ex}");
+                        ModPlugin.Instance.LogError($"Failed to delete backup {backupPath}: {ex}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModPlugin.LogMessage($"DeleteBackupAsync() - Failed to queue deletion of {backupPath}: {ex}");
+                ModPlugin.Instance.LogError($"Failed to queue deletion of {backupPath}: {ex}");
             }
         }
 
-        // Vanilla-style modal (mirrors IngameMenu.ReportSaveError). Freeze id separate from mod's Id.None.
-        private void ShowAutosaveWarning()
+        // Vanilla-style modal (mirrors IngameMenu.ReportSaveError)
+        private void ShowAutosaveWarningError()
         {
             if (awaitingConfirmation)
             {
@@ -442,7 +442,7 @@ namespace SubnauticaAutosave
             uGUI.main.confirmation.Show("AutosaveErrorReport".Translate(), new uGUI_SceneConfirmation.ConfirmationFinishedDelegate(this.OnAutosaveWarningConfirmed), null);
 
 #if DEBUG
-            ModPlugin.LogMessage("ShowAutosaveWarning() - Autosave error report popup shown.");
+            ModPlugin.Instance.LogWarning("Autosave error report popup shown.");
 #endif
         }
 
@@ -452,18 +452,13 @@ namespace SubnauticaAutosave
 
             awaitingConfirmation = false;
 
-            ModPlugin.LogMessage($"OnAutosaveWarningConfirmed() - Autosave error report acknowledged (confirmed: {confirmed}).");
+            ModPlugin.Instance.LogWarning($"Autosave error report acknowledged (confirmed: {confirmed}).");
         }
 
-        public string SlotSuffixFormatted(int slotNumber)
+        private string SlotSuffixFormatted(int slotNumber)
         {
             // Example output: "_auto0003"
             return string.Format(AutosaveSuffixFormat, slotNumber);
-        }
-
-        public string GetCurrentMainSlot()
-        {
-            return this.GetMainSlotName(SaveLoadManager.main.GetCurrentSlot());
         }
 
         public string GetMainSlotName(string currentSlot)
@@ -481,7 +476,7 @@ namespace SubnauticaAutosave
             if (!int.TryParse(slotPart, out slotNumber))
             {
 #if DEBUG
-                ModPlugin.LogMessage($"GetAutosaveSlotNumberFromDir could not parse {directoryName}");
+                ModPlugin.Instance.LogMessage($"GetAutosaveSlotNumberFromDir could not parse {directoryName}");
 #endif
 
                 return -1;
@@ -495,7 +490,7 @@ namespace SubnauticaAutosave
             return slotNumber <= ModPlugin.options.MaxSaveFiles;
         }
 
-        public int GetLatestAutosaveForSlot(string mainSaveSlot)
+        private int GetLatestAutosaveForSlot(string mainSaveSlot)
         {
             if (mainSaveSlot.Contains("auto"))
             {
@@ -510,7 +505,7 @@ namespace SubnauticaAutosave
                 DirectoryInfo[] saveDirectories = new DirectoryInfo(savedGamesDir).GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
 
 #if DEBUG
-                ModPlugin.LogMessage($"GetLatestAutosaveForSlot found {saveDirectories.Length} autosaves for {mainSaveSlot}");
+                ModPlugin.Instance.LogMessage($"GetLatestAutosaveForSlot found {saveDirectories.Length} autosaves for {mainSaveSlot}");
 #endif
 
                 if (saveDirectories.Length > 0)
@@ -543,7 +538,7 @@ namespace SubnauticaAutosave
 #if DEBUG
             else
             {
-                ModPlugin.LogMessage($"savedGamesDir == {savedGamesDir}. Could not get save path.");
+                ModPlugin.Instance.LogMessage($"savedGamesDir == {savedGamesDir}. Could not get save path.");
             }
 #endif
 
@@ -564,34 +559,34 @@ namespace SubnauticaAutosave
             return this.latestAutosaveSlot;
         }
 
-        public bool IsSafePlayerHealth(float minHealthPercent)
+        private bool IsSafePlayerHealth(float minHealthPercent)
         {
 #if DEBUG
-            ModPlugin.LogMessage($"Setting minHealthPercent returned {minHealthPercent}");
+            ModPlugin.Instance.LogMessage($"Setting minHealthPercent returned {minHealthPercent}");
 #endif
 
             return Player.main.liveMixin.GetHealthFraction() >= minHealthPercent;
         }
 
-        public bool IsSafeToSave()
+        private bool IsSafeToSave()
         {
-            /* vanilla checks (cinematics, saving status) */
-
+            // Vanilla checks (cinematics, saving status)
             bool saveAllowed = (bool)GetAllowSavingMethod?.Invoke(IngameMenu.main, null);
 
-#if DEBUG
             if (GetAllowSavingMethod == null)
             {
-                ModPlugin.LogMessage("GetAllowSaving is null, returning false.");
+#if DEBUG
+                ModPlugin.Instance.LogWarning("GetAllowSaving is null, returning false.");
+#endif
 
                 return false;
             }
-#endif
+
 
             if (!saveAllowed)
             {
 #if DEBUG
-                ModPlugin.LogMessage($"Did not save. GetAllowSaving returned {saveAllowed}.");
+                ModPlugin.Instance.LogMessage($"Did not save. GetAllowSaving {saveAllowed}.");
 #endif
 
                 return false;
@@ -618,7 +613,7 @@ namespace SubnauticaAutosave
                     if (!this.TryExecuteAutosave())
                     {
 #if DEBUG
-                        ModPlugin.LogMessage("Could not autosave on time. Delaying autosave.");
+                        ModPlugin.Instance.LogMessage("Could not autosave on time. Delaying autosave.");
 #endif
 
                         this.DelayAutosave();
@@ -646,15 +641,15 @@ namespace SubnauticaAutosave
                 int addedMinutes = ModPlugin.options.MinutesBetweenAutosaves;
 
 #if DEBUG
-                ModPlugin.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
-                ModPlugin.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+                ModPlugin.Instance.LogMessage($"ScheduleAutosave() - settingsChanged == {settingsChanged}");
+                ModPlugin.Instance.LogMessage($"ScheduleAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
 #endif
 
                 // Time.time returns a float in terms of seconds
                 this.nextSaveTriggerTime = Time.time + (60 * addedMinutes);
 
 #if DEBUG
-                ModPlugin.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
+                ModPlugin.Instance.LogMessage($"ScheduleAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
                 if (ModPlugin.options.ShowSaveMessages && showMessage)
                 {
@@ -666,13 +661,13 @@ namespace SubnauticaAutosave
         public void DelayAutosave(float addedSeconds = 5f)
         {
 #if DEBUG
-            ModPlugin.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
+            ModPlugin.Instance.LogMessage($"DelayAutosave() - previous trigger time == {this.nextSaveTriggerTime}");
 #endif
 
             this.nextSaveTriggerTime += addedSeconds;
 
 #if DEBUG
-            ModPlugin.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
+            ModPlugin.Instance.LogMessage($"DelayAutosave() - new trigger time == {this.nextSaveTriggerTime}");
 #endif
         }
 
@@ -696,8 +691,8 @@ namespace SubnauticaAutosave
 
                     catch (Exception ex)
                     {
-                        ModPlugin.LogMessage("Failed to execute save coroutine. Something went wrong.");
-                        ModPlugin.LogMessage(ex.ToString());
+                        ModPlugin.Instance.LogMessage("Failed to execute save coroutine. Something went wrong.");
+                        ModPlugin.Instance.LogMessage(ex.ToString());
                     }
                 }
 
@@ -710,7 +705,7 @@ namespace SubnauticaAutosave
 #if DEBUG
             else
             {
-                ModPlugin.LogMessage("IsSafeToSave returned false.");
+                ModPlugin.Instance.LogMessage("IsSafeToSave returned false.");
 
             }
 #endif
@@ -722,7 +717,7 @@ namespace SubnauticaAutosave
         public void Awake()
         {
 #if DEBUG
-            ModPlugin.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
+            ModPlugin.Instance.LogMessage($"AutosaveController.Awake() - Initial save trigger set to {this.nextSaveTriggerTime}");
 #endif
 
             if (!ModPlugin.options.HardcoreMode)
@@ -731,7 +726,7 @@ namespace SubnauticaAutosave
             }
 
 #if DEBUG
-            ModPlugin.LogMessage($"AutosaveController.Awake() - Latest autosave for {SaveLoadManager.main.GetCurrentSlot()} set to {this.latestAutosaveSlot}");
+            ModPlugin.Instance.LogMessage($"AutosaveController.Awake() - Latest autosave for {SaveLoadManager.main.GetCurrentSlot()} set to {this.latestAutosaveSlot}");
 #endif
         }
 

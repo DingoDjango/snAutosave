@@ -10,64 +10,55 @@ namespace SubnauticaAutosave
 	public class ModPlugin : ModPluginBase
 	{
 		public const string modGUID = "Dingo.SNBZ.SubnauticaAutosave";
-		public const string modName = "Subnautica Autosave BZ";
-		public const string modVersion = "2.4.0";
+		public const string modName = "Autosave BZ";
+		public const string modVersion = "3.1.8.3031";
 
-		public override void RescheduleOnSettingChanged()
-		{
-#if DEBUG
-            LogMessage("RescheduleOnSettingChanged() - trying to reschedule next save.");
-#endif
+		internal static ConfigEntry<KeyboardShortcut> ConfigQuicksaveKey;
 
-			Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(settingsChanged: true, showMessage: false);
+		private void Awake()
+        {
+            Instance = this;
+
+            LanguageHandler.RegisterLocalizationFolder();
+
+		    // Register ModOptions for Nautilus config system
+		    options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
+
+		    ConfigQuicksaveKey = Config.Bind("Keybinds", "QuicksaveKey", new KeyboardShortcut(KeyCode.F9), "QuicksaveKey".Translate());
+
+		    HarmonyPatches.InitializeHarmony();
 		}
 
-		public override void InitializeConfig()
+		private void Update()
 		{
-			base.InitializeConfig();
-
-			ConfigAutosaveOnTimer.SettingChanged += delegate
-			{
-				this.RescheduleOnSettingChanged();
-			};
-
-			ConfigMinutesBetweenAutosaves.SettingChanged += delegate
-			{
-				this.RescheduleOnSettingChanged();
-			};
-		}
-
-		public static void LogMessage(string message)
-		{
-			Debug.Log($"{modName} :: {message}");
-		}
-
-		public override void Awake()
-		{
-			LanguageHandler.RegisterLocalizationFolder();
-
-			this.InitializeConfig();
-
-			this.ModSettings = new ModSettings();
-
-			HarmonyPatches.InitializeHarmony();
-		}
-
-		public override void Update()
-		{
-			if (Input.GetKeyDown(ConfigQuicksaveKey.Value))
-			{
-				IngameMenu.main?.SaveGame();
-			}
+			if (Input.GetKeyDown(ConfigQuicksaveKey.Value.MainKey))
+		    {
+		        IngameMenu.main?.SaveGame();
+		    }
 
 #if DEBUG
-            if (Input.GetKeyDown(KeyCode.LeftBracket))
-            {
-                LogMessage("Pressed [ key, trying to execute autosave");
+		    if (Input.GetKeyDown(KeyCode.LeftBracket))
+		    {
+		        LogMessage("Pressed [ key, trying to execute autosave");
 
-                Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
-            }
+		        Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
+		    }
 #endif
-		}
-	}
+        }
+
+        public override void LogMessage(string message)
+        {
+            Debug.Log($"{modName} :: {message}");
+        }
+
+        public override void LogWarning(string warning)
+        {
+            Debug.LogWarning($"{modName} :: {warning}");
+        }
+
+        public override void LogError(string error)
+        {
+            Debug.LogError($"{modName} :: {error}");
+        }
+    }
 }

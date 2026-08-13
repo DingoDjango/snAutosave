@@ -18,7 +18,7 @@
     <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_BZ\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;BELOWZERO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -29,52 +29,13 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_BZ\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>BELOWZERO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>5</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SNDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\SNDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>embedded</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <OutputPath>bin\Subnautica\</OutputPath>
-    <Optimize>true</Optimize>
-    <WarningLevel>5</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\BZDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>embedded</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU'">
-    <OutputPath>bin\BelowZero\</OutputPath>
-    <Optimize>true</Optimize>
-    <WarningLevel>5</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -108,15 +69,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>C:\Games\Below Zero\SubnauticaZero_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>C:\Games\Below Zero\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>C:\Games\Below Zero\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
@@ -128,7 +89,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>D:\SubnauticaBelowZero\SubnauticaZero_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>C:\Games\Below Zero\SubnauticaZero_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -136,17 +97,14 @@
     <Compile Include="..\Shared\AutosaveControllerBase.cs">
       <Link>AutosaveControllerBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ConfigurationManagerAttributes.cs">
-      <Link>ConfigurationManagerAttributes.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\HarmonyPatches.cs">
       <Link>HarmonyPatches.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ModPluginBase.cs">
       <Link>ModPluginBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ModSettings.cs">
-      <Link>ModSettings.cs</Link>
+    <Compile Include="..\Shared\ModOptions.cs">
+      <Link>ModOptions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Translation.cs">
       <Link>Translation.cs</Link>
@@ -156,7 +114,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Shared\Localization\*.json">
+    <None Include="..\Shared\Localization\*.*">
       <Link>Localization\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -166,18 +124,23 @@
 	Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
 	</Target> -->
+  <Target Name="CleanPluginOutput" BeforeTargets="BeforeBuild" Condition="Exists('$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ')">
+    <RemoveDir Directories="$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ" ContinueOnError="true" />
+  </Target>
   <PropertyGroup>
-    <PostBuildEvent>SET MODDIR=D:\SubnauticaBelowZero\BepInEx\
+    <PostBuildEvent>cd /d "$(ProjectDir)"
+SET MODDIR=C:\Games\Below Zero\BepInEx\
+SET ZIPFILE=..\ZIP\BelowZero\$(ProjectName).zip
 
-SET ZIPFILE=$(ProjectDir)$(ProjectName).zip
+if exist "%MODDIR%plugins\SubnauticaAutosave_BZ" rmdir /s /q "%MODDIR%plugins\SubnauticaAutosave_BZ"
 
+xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ\*" "%MODDIR%plugins\SubnauticaAutosave_BZ\" /i /e /r /y /q &gt;nul
 
-
-xcopy "$(ProjectDir)BepInEx\*" "%25MODDIR%25" /i /e /r /y
-
-
-
-7z a -mx9 "%25ZIPFILE%25" "$(ProjectDir)BepInEx"
-</PostBuildEvent>
+if "$(Configuration)" == "Debug" (
+	  if exist "%ZIPFILE%" del /f /q "%ZIPFILE%"
+) else (
+	  if not exist "..\ZIP\BelowZero" mkdir "..\ZIP\BelowZero"
+	  "C:\Program Files\7-Zip\7z.exe" a -mx9 -bso0 -bse2 -bsp0 "%ZIPFILE%" "BepInEx\plugins\SubnauticaAutosave_BZ"
+)</PostBuildEvent>
   </PropertyGroup>
 </Project>

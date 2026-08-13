@@ -29,50 +29,12 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SNDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\SNDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>embedded</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <OutputPath>bin\Subnautica\</OutputPath>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\BZDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>embedded</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU'">
-    <OutputPath>bin\BelowZero\</OutputPath>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -138,14 +100,14 @@
     <Compile Include="..\Shared\AutosaveControllerBase.cs">
       <Link>AutosaveControllerBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ModOptions.cs">
-      <Link>ModOptions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\HarmonyPatches.cs">
       <Link>HarmonyPatches.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ModPluginBase.cs">
       <Link>ModPluginBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\ModOptions.cs">
+      <Link>ModOptions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Translation.cs">
       <Link>Translation.cs</Link>
@@ -176,7 +138,7 @@ SET ZIPFILE=..\ZIP\Subnautica\$(ProjectName).zip
 
 if exist "%25MODDIR%25plugins\SubnauticaAutosave" rmdir /s /q "%25MODDIR%25plugins\SubnauticaAutosave"
 
-xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave\*" "%25MODDIR%25plugins\SubnauticaAutosave\" /i /e /r /y /q >nul
+xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave\*" "%25MODDIR%25plugins\SubnauticaAutosave\" /i /e /r /y /q &gt;nul
 
 if "$(Configuration)" == "Debug" (
     if exist "%25ZIPFILE%25" del /f /q "%25ZIPFILE%25"

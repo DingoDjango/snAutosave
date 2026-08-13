@@ -1,34 +1,19 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections;
 using System.Reflection;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using UWE;
 using UnityEngine;
-using HarmonyLib;
-using HarmonyLib.Tools;
+using UWE;
 
 namespace SubnauticaAutosave
 {
 	public static class HarmonyPatches
 	{
-		private static ManualLogSource logSource;
-
 		private static void Patch_ReportSaveError_Postfix(SaveLoadManager.SaveResult saveResult)
 		{
 			// Store result for the controller; decision + logging happen after the save completes.
 			AutosaveControllerBase.lastSaveResult = saveResult;
 		}
-
-#if DEBUG
-		// Vanilla CycleNext/CyclePrev secondary bindings use [/]. Release those so the
-		// debug autosave trigger (default [) does not also cycle quickslots.
-		private static void Patch_GameInputSystem_Initialize_Postfix(GameInputSystem __instance)
-		{
-			__instance.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CycleNext, GameInput.BindingSet.Secondary, string.Empty);
-			__instance.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CyclePrev, GameInput.BindingSet.Secondary, string.Empty);
-		}
-#endif
 
 		private static bool Patch_PrettifyDate_Prefix(ref string __result, long dateTicks)
 		{
@@ -87,7 +72,7 @@ namespace SubnauticaAutosave
 		private static void Patch_ReportStageDurations_Postfix()
 		{
 #if DEBUG
-			ModPlugin.LogMessage("Main scene loading, scheduling first autosave.");
+			ModPlugin.Instance.LogMessage("Main scene loading, scheduling first autosave.");
 #endif
 
 			Player.main?.GetComponent<AutosaveController>()?.ScheduleAutosave(showMessage: false);
@@ -114,7 +99,7 @@ namespace SubnauticaAutosave
 			} while (PlayerCinematicController.cinematicModeCount > 0 && waited < maxWaitSeconds);
 
 #if DEBUG
-			ModPlugin.LogMessage("Player woke up. Executing save on sleep.");
+			ModPlugin.Instance.LogMessage("Player woke up. Executing save on sleep.");
 #endif
 
 			Player.main?.GetComponent<AutosaveController>()?.TryExecuteAutosave();
@@ -123,7 +108,7 @@ namespace SubnauticaAutosave
 		private static void Patch_Subroot_PlayerExited_Postfix()
 		{
 #if DEBUG
-			ModPlugin.LogMessage("Player entered or exited sub. Delaying autosave.");
+			ModPlugin.Instance.LogMessage("Player entered or exited sub. Delaying autosave.");
 #endif
 
 			Player.main?.GetComponent<AutosaveController>()?.DelayAutosave();
@@ -138,17 +123,12 @@ namespace SubnauticaAutosave
 
 				if (operation != null && operation.result != UserStorageUtils.Result.Success)
 				{
-					if (logSource == null)
-					{
-						logSource = BepInEx.Logging.Logger.CreateLogSource(ModPlugin.modName);
-					}
-
-					logSource.LogError($"CopyFilesToContainerAsyncImpl failed: {operation.result} - {operation.errorMessage}");
+					ModPlugin.Instance.LogWarning($"CopyFilesToContainerAsyncImpl failed: {operation.result} - {operation.errorMessage}");
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
-				// Never break vanilla save flow
+				ModPlugin.Instance.LogError($"CopyFilesToContainerAsyncImpl patch error: {ex}");
 			}
 		}
 
@@ -221,17 +201,10 @@ namespace SubnauticaAutosave
 				// Patch: IngameMenu.ReportSaveError
 				harmony.Patch(original: AccessTools.Method(typeof(IngameMenu), "ReportSaveError"),
 							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_ReportSaveError_Postfix)));
-
-#if DEBUG
-				// Patch: GameInputSystem.Initialize (rebind vanilla [/] quickslot secondary, debug only)
-				harmony.Patch(original: AccessTools.Method(typeof(GameInputSystem), nameof(GameInputSystem.Initialize)),
-							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_GameInputSystem_Initialize_Postfix)));
-#endif
-
 			}
 			catch (Exception ex)
 			{
-				ModPlugin.LogMessage($"Harmony patch initialization FAILED: {ex}");
+				ModPlugin.Instance.LogError($"Harmony patch initialization FAILED: {ex}");
 			}
 		}
 	}
