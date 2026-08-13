@@ -1,4 +1,5 @@
 using System;
+using Nautilus.Extensions;
 using Nautilus.Json;
 using Nautilus.Options;
 using Nautilus.Options.Attributes;
@@ -15,6 +16,11 @@ namespace SubnauticaAutosave
         private static GameObject minutesBetweenAutosavesOptionObject;
         private static GameObject customDateTimeFormatOptionObject;
         private static GameObject autosaveWarningTimeOptionObject;
+#if BELOWZERO
+        private static GameObject quicksaveKeyObject;
+        private static KeyCode pendingQuicksaveKey;
+        internal static bool hasPendingQuicksaveKey;
+#endif
 
         /* General settings */
         [Toggle(null, LabelLanguageId = "HardcoreMode", TooltipLanguageId = "Tooltip_HardcoreMode")]
@@ -82,6 +88,8 @@ namespace SubnauticaAutosave
 
 #if BELOWZERO
         [Keybind(null, LabelLanguageId = "QuicksaveKey", TooltipLanguageId = "Tooltip_QuicksaveKey")]
+        [OnGameObjectCreated(nameof(OnQuicksaveKeyOptionCreated))]
+        [OnChange(nameof(OnQuicksaveKeyChanged))]
         public KeyCode QuicksaveKey = KeyCode.F9;
 #endif
 
@@ -135,6 +143,36 @@ namespace SubnauticaAutosave
             autosaveWarningTimeOptionObject = e.Value;
             ApplyVisibility();
         }
+
+#if BELOWZERO
+        /* Temporary fix to refresh keybinding while in menu (would not update until menu re-open)
+         * Submitted bug report to Nautilus */
+        private void OnQuicksaveKeyOptionCreated(GameObjectCreatedEventArgs e)
+        {
+            quicksaveKeyObject = e.Value;
+        }
+
+        private void OnQuicksaveKeyChanged(object sender, KeybindChangedEventArgs e)
+        {
+            pendingQuicksaveKey = e.Value;
+            hasPendingQuicksaveKey = true;
+            ModPlugin.Instance.StartCoroutine(UpdateQuicksaveKeyDisplay());
+        }
+
+        private System.Collections.IEnumerator UpdateQuicksaveKeyDisplay()
+        {
+            yield return null; // Wait one frame for binding to update
+            if (!hasPendingQuicksaveKey) yield break;
+            if (quicksaveKeyObject == null) yield break;
+            uGUI_Binding binding = quicksaveKeyObject.GetComponentInChildren<uGUI_Binding>();
+            if (binding == null) yield break;
+            string inputName = pendingQuicksaveKey.KeyCodeToString();
+            string buttonName = GameInput.GetInputName(inputName);
+            string displayText = uGUI.GetDisplayTextForBinding(buttonName);
+            binding.currentText.text = displayText;
+            hasPendingQuicksaveKey = false;
+        }
+#endif
 
         private void OnShowSaveMessagesChanged(object sender, ToggleChangedEventArgs e)
         {

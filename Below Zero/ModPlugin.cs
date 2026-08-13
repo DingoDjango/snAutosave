@@ -27,7 +27,7 @@ namespace SubnauticaAutosave
 
 		private void Update()
 		{
-			if (Input.GetKeyDown(options.QuicksaveKey))
+			if (!ModOptions.hasPendingQuicksaveKey && Input.GetKeyDown(options.QuicksaveKey))
 		    {
 		        IngameMenu.main?.SaveGame();
 		    }
