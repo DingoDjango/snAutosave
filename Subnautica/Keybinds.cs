@@ -1,11 +1,7 @@
 using Nautilus.Handlers;
-using static VFXParticlesPool;
 
 namespace SubnauticaAutosave
 {
-    // The legacy KeyCode + [Keybind] path is BZ-only in this Nautilus version
-    // and Subnautica's own keybinding system has regressions, so this uses
-    // the Input System path via EnumHandler/GameInputHandler instead.
     internal static class Keybinds
     {
         private const string DefaultBinding = "<Keyboard>/f9";
