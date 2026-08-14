@@ -20,8 +20,6 @@ namespace SubnauticaAutosave
 
             options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
             
-            Keybinds.Initialize();
-            
             HarmonyPatches.InitializeHarmony();
         }
 

@@ -4,16 +4,16 @@ namespace SubnauticaAutosave
 {
     internal static class Keybinds
     {
-        private const string DefaultBinding = "<Keyboard>/f9";
-        private const string DebugDefaultBinding = "<Keyboard>/leftBracket";
-
-        internal static GameInput.Button Quicksave { get; private set; }
-
-#if DEBUG
-        internal static GameInput.Button DebugAutosaveTrigger { get; private set; }
-#endif
-
-        internal static void Initialize()
+    	private const string DefaultBinding = "<Keyboard>/f9";
+    	private const string DebugDefaultBinding = "<Keyboard>/leftBracket";
+   
+    	internal static GameInput.Button Quicksave { get; private set; }
+   
+   #if DEBUG
+    	internal static GameInput.Button DebugAutosaveTrigger { get; private set; }
+   #endif
+   
+    	internal static void Initialize()
         {
             Quicksave = EnumHandler.AddEntry<GameInput.Button>("SubnauticaAutosaveQuicksave")
                 .CreateInput("QuicksaveKey".Translate(), "Tooltip_QuicksaveKey".Translate())

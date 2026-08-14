@@ -9,6 +9,24 @@ namespace SubnauticaAutosave
 {
 	public static class HarmonyPatches
 	{
+#if !BELOWZERO
+		private static void Patch_GameInputUpgradeSettings_Postfix(GameSettings.ISerializer serializer)
+		{
+			// Vanilla has loaded keybindings from disk and ensured all Button enum entries
+			// have default bindings. Safe to register Nautilus keybinds now.
+			if (!GameInput.IsInitialized)
+			{
+#if DEBUG
+				ModPlugin.Instance.LogError($"Gameinput not initialized on postfix.");
+#endif
+
+				return;
+			}
+
+			Keybinds.Initialize();
+		}
+#endif
+
 		private static void Patch_ReportSaveError_Postfix(SaveLoadManager.SaveResult saveResult)
 		{
 			// Send save result to controller (vanilla doesn't store)
@@ -159,6 +177,13 @@ namespace SubnauticaAutosave
 			try
 			{
 				Harmony harmony = new Harmony("Dingo.Harmony.SubnauticaAutosave");
+
+#if !BELOWZERO
+				/* Initialize keybinds after vanilla has loaded all keybindings from disk */
+				// Patch: GameInput.UpgradeSettings (called after SerializeSettings loads saved options)
+				harmony.Patch(original: AccessTools.Method(typeof(GameInput), nameof(GameInput.UpgradeSettings)),
+							  postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.Patch_GameInputUpgradeSettings_Postfix)));
+#endif
 
 				/* In the main menu, show user-defined save slot date format */
 				// Patch: Utils.PrettifyDate
