@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using Nautilus.Handlers;
+using System.Collections;
 using UnityEngine;
 
 namespace SubnauticaAutosave
@@ -12,6 +13,27 @@ namespace SubnauticaAutosave
         public const string modName = "Autosave";
         public const string modVersion = "3.1.8.3031";
 
+        private Keybinds keyBinds;
+
+        // Implemented as coroutine because buggy otherwise
+        private IEnumerator InitializeBindings()
+        {
+            while (!GameInput.IsInitialized)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
+#if DEBUG
+            // Unbind vanilla "[" + "]" from secondary bindings
+            GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CycleNext, GameInput.BindingSet.Secondary, string.Empty);
+            GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CyclePrev, GameInput.BindingSet.Secondary, string.Empty);
+#endif
+
+            keyBinds = new Keybinds();
+
+            yield break;
+        }
+
         private void Awake()
         {
             Instance= this;
@@ -21,17 +43,18 @@ namespace SubnauticaAutosave
             options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
             
             HarmonyPatches.InitializeHarmony();
+
+            StartCoroutine(InitializeBindings());
         }
 
         private void Update()
         {
-            // GameInput.input null before init and during scene transitions
             if (!GameInput.IsInitialized)
             {
                 return;
             }
 
-            if (GameInput.GetButtonDown(Keybinds.Quicksave))
+            if (GameInput.GetButtonDown(keyBinds.Quicksave))
             {
                 if (SaveLoadManager.main.isSaving)
                 {
@@ -46,7 +69,7 @@ namespace SubnauticaAutosave
             }
 
 #if DEBUG
-            if (GameInput.GetButtonDown(Keybinds.DebugAutosaveTrigger))
+            if (GameInput.GetButtonDown(keyBinds.DebugAutosaveTrigger))
             {
                 LogMessage("Pressed debug trigger key, executing autosave");
 
