@@ -11,32 +11,31 @@ namespace SubnauticaAutosave
     {
         public const string modGUID = "Dingo.SN.SubnauticaAutosave";
         public const string modName = "Autosave";
-        public const string modVersion = "3.1.8.3031";
+        public const string modVersion = "3.2.8.3031";
 
         private Keybinds keyBinds;
 
-        // Implemented as coroutine because buggy otherwise
-        private IEnumerator InitializeBindings()
+#if DEBUG
+        private IEnumerator UnbindBrackets()
         {
             while (!GameInput.IsInitialized)
             {
                 yield return new WaitForEndOfFrame();
             }
 
-#if DEBUG
             // Unbind vanilla "[" + "]" from secondary bindings
             GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CycleNext, GameInput.BindingSet.Secondary, string.Empty);
             GameInput.SetBinding(GameInput.Device.Keyboard, GameInput.Button.CyclePrev, GameInput.BindingSet.Secondary, string.Empty);
-#endif
-
-            keyBinds = new Keybinds();
 
             yield break;
         }
+#endif
 
         private void Awake()
         {
-            Instance= this;
+            Instance = this;
+
+            keyBinds = new Keybinds();
 
             LanguageHandler.RegisterLocalizationFolder();
 
@@ -44,7 +43,9 @@ namespace SubnauticaAutosave
             
             HarmonyPatches.InitializeHarmony();
 
-            StartCoroutine(InitializeBindings());
+#if DEBUG
+            StartCoroutine(UnbindBrackets());
+#endif
         }
 
         private void Update()
