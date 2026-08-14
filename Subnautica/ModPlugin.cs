@@ -35,9 +35,9 @@ namespace SubnauticaAutosave
         {
             Instance = this;
 
-            keyBinds = new Keybinds();
-
             LanguageHandler.RegisterLocalizationFolder();
+
+            keyBinds = new Keybinds();
 
             options = OptionsPanelHandler.RegisterModOptions<ModOptions>();
             
