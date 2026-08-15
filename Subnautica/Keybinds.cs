@@ -4,8 +4,8 @@ namespace SubnauticaAutosave
 {
     internal class Keybinds
     {
-    	private const string QuicksaveDefault = "<Keyboard>/f9";
-    	private const string DebugAutosaveDefault = "<Keyboard>/leftBracket";
+    	private static string QuicksaveDefault => GameInputHandler.Paths.Keyboard.F9;
+    	private static string DebugAutosaveDefault => GameInputHandler.Paths.Keyboard.LeftBracket;
 
         internal GameInput.Button Quicksave = EnumHandler.AddEntry<GameInput.Button>("SubnauticaAutosaveQuicksave")
                     .CreateInput("QuicksaveKey".Translate(), "Tooltip_QuicksaveKey".Translate())
