@@ -11,7 +11,7 @@ namespace SubnauticaAutosave
                     .CreateInput("QuicksaveKey".Translate(), "Tooltip_QuicksaveKey".Translate())
                     .WithKeyboardBinding(QuicksaveDefault)
                     .WithControllerBinding("None")
-                    .AvoidConflicts(GameInput.Device.Keyboard)
+                    .AvoidConflicts()
                     .WithCategory(ModPlugin.modName);
 
 #if DEBUG
@@ -19,7 +19,7 @@ namespace SubnauticaAutosave
                 .CreateInput("Debug: Trigger Autosave", "Forces TryExecuteAutosave() for testing.")
                 .WithKeyboardBinding(DebugAutosaveDefault)
                 .WithControllerBinding("None")
-                .AvoidConflicts(GameInput.Device.Keyboard)
+                .AvoidConflicts()
                 .WithCategory(ModPlugin.modName);
 #endif
     }
