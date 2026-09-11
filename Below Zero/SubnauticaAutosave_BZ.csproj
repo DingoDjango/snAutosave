@@ -1,41 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9F11D600-B09B-4ACD-8DFF-9DFAE00037C4}</ProjectGuid>
+    <TargetFramework>net472</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SubnauticaAutosave</RootNamespace>
-    <AssemblyName>SubnauticaAutosave_BZ</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_BZ\</OutputPath>
     <DefineConstants>DEBUG;TRACE;BELOWZERO</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_BZ\</OutputPath>
     <DefineConstants>BELOWZERO</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>5</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -62,12 +46,7 @@
       <HintPath>C:\Games\Below Zero\BepInEx\plugins\Nautilus\Nautilus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="Unity.TextMeshPro">
       <HintPath>C:\Games\Below Zero\SubnauticaZero_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
@@ -109,9 +88,6 @@
     <Compile Include="..\Shared\Translation.cs">
       <Link>Translation.cs</Link>
     </Compile>
-    <Compile Include="AutosaveController.cs" />
-    <Compile Include="ModPlugin.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shared\Localization\*.*">
@@ -119,28 +95,20 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Microsoft.Common.targets.
-	<Target Name="BeforeBuild">
-	</Target> -->
   <Target Name="CleanPluginOutput" BeforeTargets="BeforeBuild" Condition="Exists('$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ')">
     <RemoveDir Directories="$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ" ContinueOnError="true" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>cd /d "$(ProjectDir)"
-SET MODDIR=C:\Games\Below Zero\BepInEx\
-SET ZIPFILE=..\ZIP\BelowZero\$(ProjectName).zip
-
-if exist "%MODDIR%plugins\SubnauticaAutosave_BZ" rmdir /s /q "%MODDIR%plugins\SubnauticaAutosave_BZ"
-
-xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ\*" "%MODDIR%plugins\SubnauticaAutosave_BZ\" /i /e /r /y /q &gt;nul
-
-if "$(Configuration)" == "Debug" (
-	  if exist "%ZIPFILE%" del /f /q "%ZIPFILE%"
-) else (
-	  if not exist "..\ZIP\BelowZero" mkdir "..\ZIP\BelowZero"
-	  "C:\Program Files\7-Zip\7z.exe" a -mx9 -bso0 -bse2 -bsp0 "%ZIPFILE%" "BepInEx\plugins\SubnauticaAutosave_BZ"
-)</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="DeployToGameAndZip" AfterTargets="Build">
+    <PropertyGroup>
+      <GameDir>C:\Games\Below Zero\BepInEx\</GameDir>
+      <PluginDir>$(GameDir)plugins\SubnauticaAutosave_BZ\</PluginDir>
+      <ZipDir>..\ZIP\BelowZero\</ZipDir>
+      <ZipFile>$(ZipDir)$(ProjectName).zip</ZipFile>
+    </PropertyGroup>
+    <Exec Command="if exist &quot;$(PluginDir)&quot; rmdir /s /q &quot;$(PluginDir)&quot;" />
+    <Exec Command="xcopy &quot;$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_BZ\*&quot; &quot;$(PluginDir)&quot; /i /e /r /y /q >nul" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="if not exist &quot;$(ZipDir)&quot; mkdir &quot;$(ZipDir)&quot;" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="if exist &quot;$(ZipFile)&quot; del /f /q &quot;$(ZipFile)&quot;" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="&quot;C:\Program Files\7-Zip\7z.exe&quot; a -mx9 -bso0 -bse2 -bsp0 &quot;$(ZipFile)&quot; &quot;BepInEx\plugins\SubnauticaAutosave_BZ&quot;" WorkingDirectory="$(ProjectDir)" />
+  </Target>
 </Project>

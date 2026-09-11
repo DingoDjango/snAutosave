@@ -1,41 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <TargetFramework>net472</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputType>Library</OutputType>
     <RootNamespace>SubnauticaAutosave_Compatibility</RootNamespace>
     <AssemblyName>SubnauticaAutosave_Comp_CyclopsDocking</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DefineConstants></DefineConstants>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -51,7 +34,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="CyclopsDockingMod">
-      <HintPath>..\..\..\CyclopsDocking-Continued\CyclopsDockingMod.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\plugins\CyclopsDockingMod\CyclopsDockingMod.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
@@ -63,29 +46,20 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ModPlugin.cs" />
-    <Compile Include="SaveHooks.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="CleanPluginOutput" BeforeTargets="BeforeBuild" Condition="Exists('$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking')">
     <RemoveDir Directories="$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking" ContinueOnError="true" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>cd /d "$(ProjectDir)"
-SET MODDIR=C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\
-SET ZIPFILE=..\..\ZIP\Subnautica\$(ProjectName).zip
-
-if exist "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking" rmdir /s /q "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking"
-
-xcopy "$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\*" "%25MODDIR%25plugins\SubnauticaAutosave_Comp_CyclopsDocking\" /i /e /r /y /q &gt;nul
-
-if "$(Configuration)" == "Debug" (
-    if exist "%25ZIPFILE%25" del /f /q "%25ZIPFILE%25"
-) else (
-    if not exist "..\..\ZIP\Subnautica" mkdir "..\..\ZIP\Subnautica"
-    "C:\Program Files\7-Zip\7z.exe" a -mx9 -bso0 -bse2 -bsp0 "%25ZIPFILE%25" "BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking"
-)</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="DeployToGameAndZip" AfterTargets="Build">
+    <PropertyGroup>
+      <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Subnautica\BepInEx\</GameDir>
+      <PluginDir>$(GameDir)plugins\SubnauticaAutosave_Comp_CyclopsDocking\</PluginDir>
+      <ZipDir>..\..\ZIP\Subnautica\</ZipDir>
+      <ZipFile>$(ZipDir)$(ProjectName).zip</ZipFile>
+    </PropertyGroup>
+    <Exec Command="if exist &quot;$(PluginDir)&quot; rmdir /s /q &quot;$(PluginDir)&quot;" />
+    <Exec Command="xcopy &quot;$(ProjectDir)BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking\*&quot; &quot;$(PluginDir)&quot; /i /e /r /y /q >nul" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="if not exist &quot;$(ZipDir)&quot; mkdir &quot;$(ZipDir)&quot;" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="if exist &quot;$(ZipFile)&quot; del /f /q &quot;$(ZipFile)&quot;" />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="&quot;C:\Program Files\7-Zip\7z.exe&quot; a -mx9 -bso0 -bse2 -bsp0 &quot;$(ZipFile)&quot; &quot;BepInEx\plugins\SubnauticaAutosave_Comp_CyclopsDocking&quot;" WorkingDirectory="$(ProjectDir)" />
+  </Target>
 </Project>
