@@ -13,10 +13,12 @@
 - Subnautica game: `C:\Program Files (x86)\Steam\steamapps\common\Subnautica`
 - BZ Source: `SN_Source\SubnauticaBZ_Assembly\Assembly-CSharp`
 - BZ game: `C:\Games\Below Zero`
+- NEVER make edits to game source
 
 # Libraries
 - Nautilus source: `Nautilus\Nautilus`
 - Use Nautilus methods in priority if exist
+- NEVER make edits to library source
 
 # Localization
 - Nautilus has no lookup API, handled by mod
