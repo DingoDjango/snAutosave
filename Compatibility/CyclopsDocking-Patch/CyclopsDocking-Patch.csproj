@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SubnauticaAutosave_Compatibility</RootNamespace>
     <AssemblyName>SubnauticaAutosave_Comp_CyclopsDocking</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Version>1.0.8.3031</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>embedded</DebugType>
